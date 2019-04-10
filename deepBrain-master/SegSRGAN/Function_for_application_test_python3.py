@@ -50,6 +50,7 @@ class SegSRGAN_test(object):
         TempSeg = np.zeros_like(TestImage)
         WeightedImage = np.zeros_like(TestImage)
 
+        # if is_conditional is set to True we predict on the image AND the resolution
         if self.is_conditional is True:
             if not by_batch:
 
