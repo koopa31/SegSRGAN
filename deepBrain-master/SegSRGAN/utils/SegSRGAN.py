@@ -101,7 +101,8 @@ class SegSRGAN(object):
 
     def discriminator_block(self, name):
         """Creates a discriminator model that takes an image as input and outputs a single value, representing whether
-        the input is real or generated. Unlike normal GANs, the output is not sigmoid and does not represent a probability!
+        the input is real or generated. Unlike normal GANs, the output is not sigmoid and does not represent a
+        probability!
         Instead, the output should be as large and negative as possible for generated inputs and as large and positive
         as possible for real inputs.
         Note that the improved WGAN paper suggests that BatchNormalization should not be used in the discriminator."""
@@ -238,7 +239,8 @@ class SegSRGAN(object):
 
     def discriminator_block_conditionnal(self, name):
         """Creates a discriminator model that takes an image as input and outputs a single value, representing whether
-        the input is real or generated. Unlike normal GANs, the output is not sigmoid and does not represent a probability!
+        the input is real or generated. Unlike normal GANs, the output is not sigmoid and does not represent a
+        probability!
         Instead, the output should be as large and negative as possible for generated inputs and as large and positive
         as possible for real inputs.
         Note that the improved WGAN paper suggests that BatchNormalization should not be used in the discriminator."""
