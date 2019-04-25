@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="400b9564-ddfa-47d1-93ff-6306e542d826" name="Default Changelist" comment="" />
+    <list default="true" id="400b9564-ddfa-47d1-93ff-6306e542d826" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -10,11 +13,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/SegSRGAN/Function_for_application_test_python3.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="302">
-              <caret line="69" selection-start-line="69" selection-end-line="69" />
+            <state relative-caret-position="495">
+              <caret line="41" column="20" selection-start-line="41" selection-start-column="20" selection-end-line="41" selection-end-column="20" />
               <folding>
                 <element signature="e#0#9#0" expanded="true" />
               </folding>
@@ -25,17 +28,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$USER_HOME$/.local/lib/python2.7/site-packages/numpy/lib/shape_base.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="192">
+            <state relative-caret-position="7455">
               <caret line="513" column="4" selection-start-line="513" selection-start-column="4" selection-end-line="513" selection-end-column="4" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/lib/python3.6/site-packages/pip/exceptions.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="3585">
-              <caret line="243" column="4" selection-start-line="243" selection-start-column="4" selection-end-line="243" selection-end-column="4" />
             </state>
           </provider>
         </entry>
@@ -43,7 +37,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/SegSRGAN/job_model.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="347">
+            <state relative-caret-position="1965">
               <caret line="137" selection-start-line="137" selection-end-line="137" />
             </state>
           </provider>
@@ -52,17 +46,17 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$USER_HOME$/.local/lib/python2.7/site-packages/keras/engine/training_utils.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="178">
+            <state relative-caret-position="1365">
               <caret line="101" selection-start-line="101" selection-end-line="101" />
             </state>
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/SegSRGAN/utils/SegSRGAN.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="170">
-              <caret line="585" selection-start-line="585" selection-end-line="585" />
+            <state relative-caret-position="379">
+              <caret line="88" column="38" lean-forward="true" selection-start-line="88" selection-start-column="38" selection-end-line="88" selection-end-column="38" />
             </state>
           </provider>
         </entry>
@@ -70,7 +64,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$USER_HOME$/.local/lib/python2.7/site-packages/keras/layers/core.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="170">
+            <state relative-caret-position="5625">
               <caret line="397" selection-start-line="397" selection-end-line="397" />
             </state>
           </provider>
@@ -79,7 +73,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$USER_HOME$/.local/lib/python2.7/site-packages/keras/engine/base_layer.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="178">
+            <state relative-caret-position="7350">
               <caret line="506" selection-start-line="506" selection-end-line="506" />
             </state>
           </provider>
@@ -101,12 +95,15 @@
       <replace>is_conditional</replace>
     </replaceStrings>
   </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
         <option value="$PROJECT_DIR$/SegSRGAN/job_model.py" />
-        <option value="$PROJECT_DIR$/SegSRGAN/utils/SegSRGAN.py" />
         <option value="$PROJECT_DIR$/SegSRGAN/Function_for_application_test_python3.py" />
+        <option value="$PROJECT_DIR$/SegSRGAN/utils/SegSRGAN.py" />
       </list>
     </option>
   </component>
@@ -116,12 +113,12 @@
     <option name="width" value="1376" />
     <option name="height" value="1045" />
   </component>
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectView">
     <navigator proportions="" version="1">
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -144,10 +141,12 @@
           <select />
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/SegSRGAN/job_model.py" />
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
+    <property name="last_opened_file_path" value="$USER_HOME$/work/shadow" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="RunDashboard">
@@ -209,10 +208,10 @@
       <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49762782" weight="0.32941177" />
       <window_info anchor="bottom" id="Cvs" order="3" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="4" weight="0.4" />
-      <window_info active="true" anchor="bottom" id="Debug" order="5" sideWeight="0.49815497" visible="true" weight="0.39957264" />
-      <window_info anchor="bottom" id="Version Control" order="6" sideWeight="0.49868214" weight="0.32941177" />
-      <window_info anchor="bottom" id="Terminal" order="7" sideWeight="0.49710068" weight="0.3080214" />
-      <window_info anchor="bottom" id="Event Log" order="8" sideWeight="0.50237215" side_tool="true" weight="0.32941177" />
+      <window_info anchor="bottom" id="Debug" order="5" sideWeight="0.49815497" weight="0.3989305" />
+      <window_info anchor="bottom" id="Version Control" order="6" sideWeight="0.49762782" weight="0.32941177" />
+      <window_info active="true" anchor="bottom" id="Terminal" order="7" sideWeight="0.49657354" visible="true" weight="0.30695188" />
+      <window_info anchor="bottom" id="Event Log" order="8" sideWeight="0.5034265" side_tool="true" weight="0.30695188" />
       <window_info anchor="bottom" id="Python Console" order="9" sideWeight="0.49815497" weight="0.32905984" />
       <window_info anchor="bottom" id="TODO" order="10" sideWeight="0.49920928" weight="0.32905984" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
@@ -230,32 +229,22 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/SegSRGAN/Function_for_application_test_python3.py</url>
-          <line>250</line>
+          <line>251</line>
           <option name="timeStamp" value="6" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/SegSRGAN/utils/SegSRGAN.py</url>
-          <line>585</line>
+          <line>578</line>
           <option name="timeStamp" value="8" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/SegSRGAN/Function_for_application_test_python3.py</url>
-          <line>53</line>
-          <option name="timeStamp" value="9" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/SegSRGAN/utils/SegSRGAN.py</url>
-          <line>610</line>
+          <line>603</line>
           <option name="timeStamp" value="11" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/SegSRGAN/Function_for_application_test_python3.py</url>
-          <line>66</line>
-          <option name="timeStamp" value="13" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/SegSRGAN/Function_for_application_test_python3.py</url>
-          <line>130</line>
+          <line>131</line>
           <option name="timeStamp" value="14" />
         </line-breakpoint>
       </breakpoints>
@@ -314,60 +303,60 @@
     <entry file="file://$PROJECT_DIR$/SegSRGAN/SegSRGAN_test.py" />
     <entry file="file://$PROJECT_DIR$/lib/python3.6/site-packages/pip/exceptions.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3585">
+        <state relative-caret-position="855">
           <caret line="243" column="4" selection-start-line="243" selection-start-column="4" selection-end-line="243" selection-end-column="4" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$USER_HOME$/.local/lib/python2.7/site-packages/keras/layers/core.py">
+    <entry file="file://$PROJECT_DIR$/SegSRGAN/Function_for_application_test_python3.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="170">
-          <caret line="397" selection-start-line="397" selection-end-line="397" />
+        <state relative-caret-position="495">
+          <caret line="41" column="20" selection-start-line="41" selection-start-column="20" selection-end-line="41" selection-end-column="20" />
+          <folding>
+            <element signature="e#0#9#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$USER_HOME$/.local/lib/python2.7/site-packages/keras/engine/base_layer.py">
+    <entry file="file://$USER_HOME$/.local/lib/python2.7/site-packages/numpy/lib/shape_base.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="178">
-          <caret line="506" selection-start-line="506" selection-end-line="506" />
+        <state relative-caret-position="7455">
+          <caret line="513" column="4" selection-start-line="513" selection-start-column="4" selection-end-line="513" selection-end-column="4" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/SegSRGAN/job_model.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="347">
+        <state relative-caret-position="1965">
           <caret line="137" selection-start-line="137" selection-end-line="137" />
         </state>
       </provider>
     </entry>
     <entry file="file://$USER_HOME$/.local/lib/python2.7/site-packages/keras/engine/training_utils.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="178">
+        <state relative-caret-position="1365">
           <caret line="101" selection-start-line="101" selection-end-line="101" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$USER_HOME$/.local/lib/python2.7/site-packages/numpy/lib/shape_base.py">
+    <entry file="file://$USER_HOME$/.local/lib/python2.7/site-packages/keras/layers/core.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="192">
-          <caret line="513" column="4" selection-start-line="513" selection-start-column="4" selection-end-line="513" selection-end-column="4" />
+        <state relative-caret-position="5625">
+          <caret line="397" selection-start-line="397" selection-end-line="397" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/.local/lib/python2.7/site-packages/keras/engine/base_layer.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="7350">
+          <caret line="506" selection-start-line="506" selection-end-line="506" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/SegSRGAN/utils/SegSRGAN.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="170">
-          <caret line="585" selection-start-line="585" selection-end-line="585" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/SegSRGAN/Function_for_application_test_python3.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="302">
-          <caret line="69" selection-start-line="69" selection-end-line="69" />
-          <folding>
-            <element signature="e#0#9#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="379">
+          <caret line="88" column="38" lean-forward="true" selection-start-line="88" selection-start-column="38" selection-end-line="88" selection-end-column="38" />
         </state>
       </provider>
     </entry>
