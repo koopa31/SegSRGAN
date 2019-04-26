@@ -56,10 +56,10 @@ class activation_SegSRGAN(Layer):
         if self.is_residual :
             # residual
             residual_intensity = first_input - intensity # correction de l'image interpolee 
-            print "A residual model has been initialized"
+            print("A residual model has been initialized")
         else : 
             residual_intensity = intensity
-            print "A non residual model has been initialized"
+            print("A non residual model has been initialized")
         
         return  K.concatenate([residual_intensity,segmentation], axis=1)
     

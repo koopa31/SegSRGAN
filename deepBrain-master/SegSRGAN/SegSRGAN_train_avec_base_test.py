@@ -47,14 +47,14 @@ class SegSRGAN_train(object):
                  FirstDiscriminatorKernel = 32, FirstGeneratorKernel = 16,
                  lamb_rec = 1, lamb_adv = 0.001, lamb_gp = 10, 
                  lr_DisModel = 0.0001, lr_GenModel = 0.0001,u_net_gen=False,
-                 is_conditionnal=False,
+                 is_conditional=False,
                  is_residual=True):
         
         self.SegSRGAN = SegSRGAN(ImageRow=patch, ImageColumn=patch, ImageDepth=patch, 
                                  FirstDiscriminatorKernel = FirstDiscriminatorKernel, 
                                  FirstGeneratorKernel = FirstGeneratorKernel,
                                  lamb_rec = lamb_rec, lamb_adv = lamb_adv, lamb_gp = lamb_gp, 
-                                 lr_DisModel = lr_DisModel, lr_GenModel = lr_GenModel,u_net_gen=u_net_gen,multi_gpu=multi_gpu,is_conditionnal=is_conditionnal)
+                                 lr_DisModel = lr_DisModel, lr_GenModel = lr_GenModel,u_net_gen=u_net_gen,multi_gpu=multi_gpu,is_conditional=is_conditional)
         self.generator = self.SegSRGAN.generator()
         self.Trainingcsv = Trainingcsv
         self.DiscriminatorModel, self.DiscriminatorModel_multi_gpu = self.SegSRGAN.discriminator_model()
@@ -64,10 +64,10 @@ class SegSRGAN_train(object):
         self.percent_val_max = percent_val_max
         self.list_res_max = list_res_max
         self.multi_gpu=multi_gpu
-        self.is_conditionnal=is_conditionnal
+        self.is_conditional=is_conditional
         self.is_residual=is_residual
         
-        print "initalisation finised"
+        print("initalisation finised")
         
     def train(self,
               snapshot_folder,
@@ -78,7 +78,7 @@ class SegSRGAN_train(object):
               resuming = None):
         
         #snapshot_prefix='weights/SegSRGAN_epoch'
-        print "train begin"
+        print("train begin")
         snapshot_prefix = snapshot_folder+"/SegSRGAN_epoch"
         
         # boolean to print only one time 'the number of patch not in one epoche (mod batchsize)'
@@ -107,18 +107,18 @@ class SegSRGAN_train(object):
         if InitializeEpoch==1:
             iteration = 0
             if resuming is None:
-                print "Training from scratch"
+                print ("Training from scratch")
             else:
-                print "Training from the pretrained model (names of layers must be identical): ", resuming
+                print("Training from the pretrained model (names of layers must be identical): ", resuming)
                 self.GeneratorModel.load_weights(resuming, by_name=True)
         
         elif InitializeEpoch <1:
-            raise AssertionError, 'Resumming needs a positive epoch'
+            raise AssertionError('Resumming needs a positive epoch')
         else:
             if resuming is None:
-                raise AssertionError, 'We need pretrained weights'
+                raise AssertionError('We need pretrained weights')
             else:
-                print 'Continue training from : ', resuming
+                print('Continue training from : ', resuming)
                 self.GeneratorModel.load_weights(resuming, by_name=True)
 #                iteration = (InitializeEpoch-1)*iterationPerEpoch
         # patch test creation :
@@ -150,11 +150,11 @@ class SegSRGAN_train(object):
                                                                                                          PatchSize=64,
                                                                                                          batch_size = 1, #1 to keep all data
                                                                                                          path_save_npy=folder_training_data+"/test_mini_batch",
-                                                                                                         stride=20,is_conditionnal=self.is_conditionnal)
+                                                                                                         stride=20,is_conditional=self.is_conditional)
         
         t2=time.time()
         
-        print "time for making test npy :"+str(t2-t1)   
+        print("time for making test npy :"+str(t2-t1))   
 
         df_dice = pd.DataFrame(index=np.arange(InitializeEpoch,TrainingEpoch+1),columns=["Dice"])
         df_MSE = pd.DataFrame(index=np.arange(InitializeEpoch,TrainingEpoch+1),columns=["MSE"])
@@ -182,20 +182,20 @@ class SegSRGAN_train(object):
                                                                                                                batch_size = BatchSize,
                                                                                                                path_save_npy=folder_training_data+"/train_mini_batch",
                                                                                                                stride=20,
-                                                                                                               is_conditionnal=self.is_conditionnal)
+                                                                                                               is_conditional=self.is_conditional)
             iterationPerEpoch = len(train_Path_Datas_mini_batch)
             
             t2=time.time()
         
-            print "time for making train npy :"+str(t2-t1)  
+            print("time for making train npy :"+str(t2-t1))
 
             if never_print: 
                                                                                                  
-                print "At each epoch "+str(train_remaining_patch)+" patches will not be in the training data for this epoch"
+                print("At each epoch "+str(train_remaining_patch)+" patches will not be in the training data for this epoch")
                 never_print = False                                          
                                                       
             
-            print "Processing epoch : " + str(EpochIndex)
+            print("Processing epoch : " + str(EpochIndex))
             for iters in range(0,iterationPerEpoch):
                 
                 iteration += 1
@@ -212,7 +212,7 @@ class SegSRGAN_train(object):
                     
                     train_output = np.load(train_Labels_mini_batch[randomNumber])                    
                     
-                    if self.is_conditionnal :
+                    if self.is_conditional :
                         
                         train_res = np.load(train_Path_Datas_mini_batch[randomNumber])[:,1,:,:,:][:,np.newaxis,:,:,:]
                          
@@ -235,8 +235,8 @@ class SegSRGAN_train(object):
                          
                     t2=time.time()
         
-                    print "time for one uptade of discriminator :"+str(t2-t1) 
-                    print "Update "+ str(cidx) + ": [D loss : "+str(dis_loss)+"]"  
+                    print("time for one uptade of discriminator :"+str(t2-t1))
+                    print("Update "+ str(cidx) + ": [D loss : "+str(dis_loss)+"]") 
                     
                 # Training generator
                 # Loading data        
@@ -246,7 +246,7 @@ class SegSRGAN_train(object):
                 train_input_gen = np.load(train_Path_Datas_mini_batch[iters])[:,0,:,:,:][:,np.newaxis,:,:,:]
                 train_output_gen = np.load(train_Labels_mini_batch[iters])
                 
-                if self.is_conditionnal:
+                if self.is_conditional:
                     
                     train_res_gen = np.load(train_Path_Datas_mini_batch[iters])[:,1,:,:,:][:,np.newaxis,:,:,:]
                     # Training                                      
@@ -258,11 +258,11 @@ class SegSRGAN_train(object):
                                                                    [real,train_output_gen])
                     
                                                                        
-                print "Iter "+ str(iteration) + " [A loss : " + str(gen_loss) + "]"  
+                print("Iter "+ str(iteration) + " [A loss : " + str(gen_loss) + "]")
                 
                 t2=time.time()
                 
-                print "time for one uptade of generator :"+str(t2-t1)
+                print("time for one uptade of generator :"+str(t2-t1))
                 
             if (EpochIndex)%SnapshotEpoch==0:
                 # Save weights:
@@ -282,7 +282,7 @@ class SegSRGAN_train(object):
                 TestLabels = np.load(test_Labels_mini_batch[test_iter])
                 TestDatas = np.load(test_Path_Datas_mini_batch[test_iter])[:,0,:,:,:][:,np.newaxis,:,:,:]
                 
-                if self.is_conditionnal : 
+                if self.is_conditional : 
                     
                     TestRes = np.load(test_Path_Datas_mini_batch[test_iter])[:,1,:,:,:][:,np.newaxis,:,:,:]
                     
@@ -306,7 +306,7 @@ class SegSRGAN_train(object):
                 
             t2 = time.time()
             
-            print "Evaluation on test data time : " + str(t2-t1)
+            print("Evaluation on test data time : " + str(t2-t1))
                 
             gen_weights = np.array(self.GeneratorModel.get_weights())
             gen_weights_multi = np.array(self.GeneratorModel_multi_gpu.get_weights())
@@ -321,19 +321,19 @@ class SegSRGAN_train(object):
                 
             if weights_idem : 
                 
-                print "Model multi_gpu and base Model have the same weights"
+                print("Model multi_gpu and base Model have the same weights")
                 
             else :
-                print "Model multi_gpu and base Model haven't the same weights"
+                print("Model multi_gpu and base Model haven't the same weights")
                 
             
             Dice = (2 * np.sum(VP))/(np.sum(Pos_pred)+np.sum(Pos_label))
             
             MSE = np.sum(MSE_list)/(BatchSize**3*len(MSE_list)) 
             
-            print "Iter "+ str(EpochIndex) + " [Test Dice : " + str(Dice) + "]"  
+            print("Iter "+ str(EpochIndex) + " [Test Dice : " + str(Dice) + "]") 
             
-            print "Iter "+ str(EpochIndex) + " [Test MSE : " + str(MSE) + "]"  
+            print("Iter "+ str(EpochIndex) + " [Test MSE : " + str(MSE) + "]")  
             
             df_dice.loc[EpochIndex,"Dice"]=Dice
             df_MSE.loc[EpochIndex,"MSE"]=MSE
@@ -353,7 +353,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument('-begining_path', '--basepath', help='path to concatenate with relative path contains in csv file ', type=str, required = True) # path qui apres concatenation des path contenu dans le fichier csv amene au fichier.
-    parser.add_argument("-n", "--newlowres", type=float, action='append',help='upper and lower bounds between which the low resolution of each image at each epoch will be choosen randomly' ,nargs="+",required=True)
+    parser.add_argument('-n', '--newlowres', type=float, action='append',help='upper and lower bounds between which the low resolution of each image at each epoch will be choosen randomly' ,nargs="+",required=True)
     parser.add_argument('-contrast_max', '--contrast_max', help='Ex : 0.3 : NN trained on contrast between power 0.3 and 1.3 of initial image (default=0.5)', type=float,default=0.5)
     parser.add_argument('-percent_val_max', '--percent_val_max', help='NN trained on image on which we add gaussian noise with sigma equal this % of val_max', type=float,default=0.03)
     parser.add_argument('-csv', '--csv', help='.csv contining relative path for testing and training base', type=str, required = True) # tous les path se tranvant dans le fichier sont relatif a begining_path, collone HR_image : path HR Label_image : path Label	mask : path mask Base : "Train" ou "Test",
@@ -387,15 +387,15 @@ if __name__ == '__main__':
     
     is_residual = (args.is_residual=="True")
     
-    is_conditionnal = (args.is_conditional=="True")
+    is_conditional = (args.is_conditional=="True")
     
-    print "percent val max :"+str(args.percent_val_max)
+    print("percent val max :"+str(args.percent_val_max))
     
-    print "u_net = "+str(u_net)
+    print("u_net = "+str(u_net))
     
-    print "is_conditional = "+str(is_conditionnal)
+    print("is_conditional = "+str(is_conditional))
     
-    print "is_residual = "+str(is_residual)
+    print("is_residual = "+str(is_residual))
     
     
     list_res_max = args.newlowres
@@ -404,16 +404,16 @@ if __name__ == '__main__':
     for i in range(len(list_res_max)):
         
         if len(list_res_max[i])!=3:
-            raise AssertionError, 'Not support this resolution !'
+            raise AssertionError('Not support this resolution !')
             
-    print "Initial resolution given "+str(list_res_max)
+    print("Initial resolution given "+str(list_res_max))
                 
             
     if len(list_res_max)==1:
         
         list_res_max.extend(list_res_max)
         
-    print "the low resolution of images will be choosen randomly between "+str(list_res_max[0])+" and "+str(list_res_max[1])
+    print("the low resolution of images will be choosen randomly between "+str(list_res_max[0])+" and "+str(list_res_max[1]))
         
         
 
@@ -422,7 +422,7 @@ if __name__ == '__main__':
                                     percent_val_max=args.percent_val_max,
                                     FirstDiscriminatorKernel = args.kerneldis, FirstGeneratorKernel = args.kernelgen,
                                     lamb_rec = args.lambrec, lamb_adv = args.lambadv, lamb_gp = args.lambgp, 
-                                    lr_DisModel = args.lrdis, lr_GenModel = args.lrgen,BasePath=args.basepath,list_res_max=list_res_max,u_net_gen=u_net,multi_gpu=multi_gpu,is_conditionnal=is_conditionnal,is_residual=is_residual)
+                                    lr_DisModel = args.lrdis, lr_GenModel = args.lrgen,BasePath=args.basepath,list_res_max=list_res_max,u_net_gen=u_net,multi_gpu=multi_gpu,is_conditional=is_conditional,is_residual=is_residual)
                                     
     SegSRGAN_train.train(TrainingEpoch=args.epoch, BatchSize=args.batchsize, 
                          SnapshotEpoch=args.snapshot, InitializeEpoch = args.initepoch,

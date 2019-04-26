@@ -103,7 +103,7 @@ def create_patch_from_df_HR(df,
                             thresholdvalue=0,
                             PatchSize=64,
                             stride=20,
-                            is_conditionnal=False):
+                            is_conditional=False):
     
     Datas_list = []
     
@@ -165,7 +165,7 @@ def create_patch_from_df_HR(df,
         HDF5Datas = HDF5Datas[RandomOrder,:,:,:,:]
         HDF5Labels = HDF5Labels[RandomOrder,:,:,:,:]
         
-        if is_conditionnal : 
+        if is_conditional : 
             
             #list_res[i] = (res_x,res_y,res_z)
             HDF5Datas = np.concatenate((HDF5Datas,list_res[i][2]*np.ones_like(HDF5Datas)),axis=1) #1st axis = patch axis
