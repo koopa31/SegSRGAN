@@ -14,8 +14,8 @@ setuptools.setup(
     author_email="clement.cazorla@univ-reims.fr",
     description="Segmentation and super resolution GAN network",
     long_description=long_description,
-    long_description_content_type="text",
-    url="git@github.com:koopa31/SegSRGAN.git",
+    long_description_content_type="text/plain",
+    url="https://github.com/koopa31/SegSRGAN",
     packages=setuptools.find_packages(),
     install_requires=requirements,
 )

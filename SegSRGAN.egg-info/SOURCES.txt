@@ -1,0 +1,7 @@
+setup.py
+SegSRGAN.egg-info/PKG-INFO
+SegSRGAN.egg-info/SOURCES.txt
+SegSRGAN.egg-info/dependency_links.txt
+SegSRGAN.egg-info/requires.txt
+SegSRGAN.egg-info/top_level.txt
+deepBrain-master/__init__.py
