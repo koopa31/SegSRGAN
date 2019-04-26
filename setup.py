@@ -9,13 +9,13 @@ with open(abspath("deepBrain-master/requirements.txt")) as f:
 
 setuptools.setup(
     name="SegSRGAN",
-    version="1.0.0",
+    version="1.0",
     author="Clément Cazorla",
     author_email="clement.cazorla@univ-reims.fr",
     description="Segmentation and super resolution GAN network",
     long_description=long_description,
     long_description_content_type="text/plain",
-    url="https://github.com/koopa31/SegSRGAN",
+    url="https://github.com/koopa31/SegSRGAN/tree/develop",
     packages=setuptools.find_packages(),
     install_requires=requirements,
 )
