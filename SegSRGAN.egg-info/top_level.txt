@@ -1,1 +1,1 @@
-deepBrain-master
+SegSRGAN
