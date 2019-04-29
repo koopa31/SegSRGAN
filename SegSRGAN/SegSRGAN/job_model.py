@@ -4,6 +4,7 @@ import pandas as pd
 import glob
 import os
 import argparse
+import ast
 
 import numpy as np
 
@@ -17,14 +18,15 @@ parser.add_argument("-s", "--step", type=str, help="Step between patches. Must b
 parser.add_argument("-rf", "--result_folder_name", type=str, help='Name of the folder where the result is going to be '
                                                                   'stored')
 parser.add_argument("-wp", "--weights_relative_path", type=str, help='Weights relative paths')
-parser.add_argument("-bb", "--by_batch", type=bool, help="Prediction on list of patches instead of using a for loop. "
+parser.add_argument("-bb", "--by_batch", type=str, help="Prediction on list of patches instead of using a for loop. "
                                                          "Enables for instance to automatically computes in multi-gpu "
-                                                         "mode(default: %(default)s)", default=False)
-parser.add_argument("-ic", "--is_conditional", type=bool, help="Enable conditional prediction on z resolution")
+                                                         "mode(default: %(default)s)", default="False")
+parser.add_argument("-ic", "--is_conditional", type=str, help="Enable conditional prediction on z resolution",
+                    default="False")
 args = parser.parse_args()
 
-by_batch = args.by_batch
-is_conditional = args.is_conditional
+by_batch = ast.literal_eval(args.by_batch)
+is_conditional = ast.literal_eval(args.is_conditional)
 # Argument :
 # name of the result folder
 result_folder = args.result_folder_name
