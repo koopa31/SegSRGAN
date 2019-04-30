@@ -1,5 +1,6 @@
 setup.py
 SegSRGAN/__init__.py
+SegSRGAN/download.py
 SegSRGAN.egg-info/PKG-INFO
 SegSRGAN.egg-info/SOURCES.txt
 SegSRGAN.egg-info/dependency_links.txt
