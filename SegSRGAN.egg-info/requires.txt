@@ -1,0 +1,9 @@
+numpy==1.16.2
+SimpleITK==1.2.0
+scipy==1.2.0
+tensorflow==1.13.1
+keras==2.2.4
+pandas==0.23.0
+progressbar2==3.39.2
+requests==2.18.4
+wget==3.2
