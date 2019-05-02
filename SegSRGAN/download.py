@@ -12,8 +12,7 @@ def download_weights():
     weights_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'SegSRGAN/weights')
     # Creation of weights folder if it does not already exist
     if os.path.isdir(weights_path) is False:
-        os.mkdir(weights_path)
-        os.chmod(weights_path, stat.S_IRWXO)
+        os.mkdir(weights_path, mode=0o777)
     # Downloading of the files
     for content in contents:
         if os.path.isfile(os.path.join(weights_path, content['name'])) is False:
