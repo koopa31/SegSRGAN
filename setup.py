@@ -11,7 +11,7 @@ with open(abspath("SegSRGAN/requirements.txt")) as f:
 
 setuptools.setup(
     name="SegSRGAN",
-    version="1.1.0",
+    version="1.1.1",
     author="Clément Cazorla",
     author_email="clement.cazorla@univ-reims.fr",
     description="Segmentation and super resolution GAN network",
