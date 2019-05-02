@@ -1,6 +1,7 @@
 import os
 
 import wget
+import stat
 import requests
 
 
@@ -12,6 +13,7 @@ def download_weights():
     # Creation of weights folder if it does not already exist
     if os.path.isdir(weights_path) is False:
         os.mkdir(weights_path)
+        os.chmod(weights_path, stat.S_IRWXO)
     # Downloading of the files
     for content in contents:
         if os.path.isfile(os.path.join(weights_path, content['name'])) is False:
