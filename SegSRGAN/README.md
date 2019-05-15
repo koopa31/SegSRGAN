@@ -1,6 +1,6 @@
 # SegSRGAN
 
-This algorithm is based on the <cite>[method][1]</cite> proposed by Chi-Hieu Pham in 2019.
+This algorithm is based on the [method](https://hal.archives-ouvertes.fr/hal-01895163) proposed by Chi-Hieu Pham in 2019.
 
 ## Installation
 
@@ -51,4 +51,3 @@ Example of syntax for step and patch setting:
 
 In this example we run steps 32 and 64 for patch 64 and steps 64 and 128 for patch 128. Be careful to respect the exact same spaces.
 
-[1]: [https://hal.archives-ouvertes.fr/hal-01895163] 
