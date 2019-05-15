@@ -16,6 +16,8 @@ sys.path.insert(0, os.getcwd() + '/utils')
 from utils3d import shave3D
 from utils3d import pad3D
 from SegSRGAN import SegSRGAN
+from ImageReader import NIFTIReader
+from ImageReader import DICOMReader
 
 
 class SegSRGAN_test(object):
@@ -204,19 +206,24 @@ def segmentation(input_file_path, step, NewResolution, path_output_cortex, path_
             raise AssertionError('Not support this resolution !')
 
     # Read low-resolution image
-    TestNifti = sitk.ReadImage(input_file_path)
-    TestImage = np.swapaxes(sitk.GetArrayFromImage(TestNifti), 0, 2).astype('float32')
+    if input_file_path.endswith('.nii.gz'):
+        image_instance = NIFTIReader(input_file_path)
+    elif os.path.isdir(input_file_path):
+        image_instance = DICOMReader(input_file_path)
+
+    TestImage = image_instance.get_np_array()
     TestImageMinValue = float(np.min(TestImage))
     TestImageMaxValue = float(np.max(TestImage))
     TestImageNorm = TestImage / TestImageMaxValue
 
 
-    resolution = get_resolution(input_file_path)
+    resolution = image_instance.get_resolution()
+    ITK_image = image_instance.ITK_image
 
     # Check scale factor type
-    UpScale = tuple(itema / itemb for itema, itemb in zip(TestNifti.GetSpacing(), NewResolution))
+    UpScale = tuple(itema / itemb for itema, itemb in zip(ITK_image.GetSpacing(), NewResolution))
 
-    # spline interpolation 
+    # spline interpolation
     InterpolatedImage = scipy.ndimage.zoom(TestImageNorm,
                                            zoom=UpScale,
                                            order=spline_order)
@@ -251,7 +258,7 @@ def segmentation(input_file_path, step, NewResolution, path_output_cortex, path_
     # Loading weights
     SegSRGAN_test_instance = SegSRGAN_test(weights_path, patch1, patch2, patch3, is_conditional, resolution)
 
-    # GAN 
+    # GAN
     print("Testing : ")
     EstimatedHRImage, EstimatedCortex = SegSRGAN_test_instance.test_by_patch(PaddedInterpolatedImage, step=step,
                                                                              by_batch=by_batch)
@@ -262,36 +269,23 @@ def segmentation(input_file_path, step, NewResolution, path_output_cortex, path_
     PaddedEstimatedHRImage = shave3D(EstimatedHRImage, border_to_add)
     EstimatedCortex = shave3D(EstimatedCortex, border_to_add)
 
-    # SR image 
+    # SR image
     EstimatedHRImageInverseNorm = PaddedEstimatedHRImage * TestImageMaxValue
     EstimatedHRImageInverseNorm[
         EstimatedHRImageInverseNorm <= TestImageMinValue] = TestImageMinValue  # Clear negative value
     OutputImage = sitk.GetImageFromArray(np.swapaxes(EstimatedHRImageInverseNorm, 0, 2))
     OutputImage.SetSpacing(NewResolution)
-    OutputImage.SetOrigin(TestNifti.GetOrigin())
-    OutputImage.SetDirection(TestNifti.GetDirection())
+    OutputImage.SetOrigin(ITK_image.GetOrigin())
+    OutputImage.SetDirection(ITK_image.GetDirection())
 
     sitk.WriteImage(OutputImage, path_output_HR)
 
     # Cortex segmentation
     OutputCortex = sitk.GetImageFromArray(np.swapaxes(EstimatedCortex, 0, 2))
     OutputCortex.SetSpacing(NewResolution)
-    OutputCortex.SetOrigin(TestNifti.GetOrigin())
-    OutputCortex.SetDirection(TestNifti.GetDirection())
+    OutputCortex.SetOrigin(ITK_image.GetOrigin())
+    OutputCortex.SetDirection(ITK_image.GetDirection())
 
     sitk.WriteImage(OutputCortex, path_output_cortex)
 
     return "Segmentation Done"
-
-
-def get_resolution(filename):
-    reader = sitk.ImageFileReader()
-
-    reader.SetFileName(filename)
-    reader.LoadPrivateTagsOn();
-
-    reader.ReadImageInformation();
-
-    resolution = float(reader.GetMetaData('pixdim[3]'))
-
-    return resolution
