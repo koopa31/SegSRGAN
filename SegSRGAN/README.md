@@ -1,5 +1,7 @@
 # SegSRGAN
 
+This algorithm is based on the <cite>[method][1]</cite> proposed by Chi-Hieu Pham in 2019.
+
 ## Installation
 
 `pip install SegSRGAN`
@@ -36,8 +38,17 @@ The list of the paths of the images to be processed must be stored in a csv file
 Where:
 
 > * **path** Path of the csv file
-> * **patch** list of Patch sizes (example: 64 128)
-> * **step** list of steps (example: 32 64,64 128 in this example we run steps 32 and 64 for 
-    patch 64 and steps 64 and 128 for patch 128)
+> * **patch** list of patch sizes 
+> * **step** list of steps 
 > * **result_folder_name** Name of the folder containing the results
 > * **is_conditional** Boolean to perform a conditional neural network with a condition on z-resolution
+
+Example of syntax for step and patch setting:
+
+--patch 64 128
+
+--step 32 64,64 128
+
+In this example we run steps 32 and 64 for patch 64 and steps 64 and 128 for patch 128. Be careful to respect the exact same spaces.
+
+[1]: [https://hal.archives-ouvertes.fr/hal-01895163] 

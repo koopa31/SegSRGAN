@@ -2,7 +2,7 @@ import setuptools
 from os.path import abspath
 
 
-with open(abspath("SegSRGAN/README.md"), "r") as fh:
+with open(abspath("SegSRGAN/README.md"), encoding='utf-8') as fh:
     long_description = fh.read()
 
 with open(abspath("SegSRGAN/requirements.txt")) as f:
@@ -11,12 +11,12 @@ with open(abspath("SegSRGAN/requirements.txt")) as f:
 
 setuptools.setup(
     name="SegSRGAN",
-    version="1.1.2",
+    version="1.1.3",
     author="Clément Cazorla",
     author_email="clement.cazorla@univ-reims.fr",
     description="Segmentation and super resolution GAN network",
     long_description=long_description,
-    long_description_content_type="text/plain",
+    long_description_content_type="text/markdown",
     url="https://github.com/koopa31/SegSRGAN/tree/develop",
     packages=setuptools.find_packages(),
     install_requires=requirements,
