@@ -79,7 +79,7 @@ class DICOMReader(ImageReader):
 
         resolution = reader.GetMetaData('0018|0088')
 
-        return resolution
+        return float(resolution)
 
     def set_ITK_image(self):
         """Set ITK image object"""
