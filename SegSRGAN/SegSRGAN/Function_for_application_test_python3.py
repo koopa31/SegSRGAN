@@ -16,8 +16,8 @@ sys.path.insert(0, os.getcwd() + '/utils')
 from utils3d import shave3D
 from utils3d import pad3D
 from SegSRGAN import SegSRGAN
-from ImageReader import NIFTIReader
-from ImageReader import DICOMReader
+from SegSRGAN.SegSRGAN.ImageReader import NIFTIReader
+from SegSRGAN.SegSRGAN.ImageReader import DICOMReader
 
 
 class SegSRGAN_test(object):
@@ -246,7 +246,7 @@ def segmentation(input_file_path, step, NewResolution, path_output_cortex, path_
     else:
         border = (
         int(InterpolatedImage.shape[0] % 4), int(InterpolatedImage.shape[1] % 4), int(InterpolatedImage.shape[2] % 4))
-        border_to_add = (step - border[0], step - border[1], step - border[2])
+        border_to_add = (4 - border[0], 4 - border[1], 4 - border[2])
 
         PaddedInterpolatedImage = pad3D(InterpolatedImage, border_to_add)  # remove border of the image
 
