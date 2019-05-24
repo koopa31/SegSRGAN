@@ -16,8 +16,8 @@ sys.path.insert(0, os.getcwd() + '/utils')
 from utils3d import shave3D
 from utils3d import pad3D
 from SegSRGAN import SegSRGAN
-from ImageReader import NIFTIReader
-from ImageReader import DICOMReader
+from SegSRGAN.SegSRGAN.ImageReader import NIFTIReader
+from SegSRGAN.SegSRGAN.ImageReader import DICOMReader
 
 
 class SegSRGAN_test(object):
