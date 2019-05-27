@@ -11,13 +11,13 @@ with open(abspath("SegSRGAN/requirements.txt")) as f:
 
 setuptools.setup(
     name="SegSRGAN",
-    version="1.1.3",
+    version="1.1.5",
     author="Clément Cazorla",
     author_email="clement.cazorla@univ-reims.fr",
     description="Segmentation and super resolution GAN network",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/koopa31/SegSRGAN/tree/develop",
+    url="https://github.com/koopa31/SegSRGAN",
     packages=setuptools.find_packages(),
     install_requires=requirements,
 )

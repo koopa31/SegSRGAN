@@ -7,9 +7,7 @@ SegSRGAN.egg-info/dependency_links.txt
 SegSRGAN.egg-info/requires.txt
 SegSRGAN.egg-info/top_level.txt
 SegSRGAN/SegSRGAN/Function_for_application_test_python3.py
-SegSRGAN/SegSRGAN/SegSRGAN_for_girder.py
-SegSRGAN/SegSRGAN/SegSRGAN_generate_training_data.py
-SegSRGAN/SegSRGAN/SegSRGAN_train.py
+SegSRGAN/SegSRGAN/ImageReader.py
 SegSRGAN/SegSRGAN/SegSRGAN_train_avec_base_test.py
 SegSRGAN/SegSRGAN/__init__.py
 SegSRGAN/SegSRGAN/job_model.py

@@ -35,11 +35,10 @@ weights_relative_path = args.weights_relative_path
 
 debut_relatif_path = args.debut_path  # Path to Base_pour_romeo
 
-data = pd.read_csv(debut_relatif_path + args.path, header=None).iloc[:, 0]
+data = pd.read_csv(os.path.join(debut_relatif_path, args.path), header=None).iloc[:, 0].sort_values()
 
-path_pour_application = debut_relatif_path + data
 
-path_pour_application = path_pour_application.sort_values()
+path_pour_application = [os.path.join(debut_relatif_path, i) for i in data]
 
 
 def list_of_lists(arg):
