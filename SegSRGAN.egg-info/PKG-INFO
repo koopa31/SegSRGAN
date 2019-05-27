@@ -1,12 +1,14 @@
 Metadata-Version: 2.1
 Name: SegSRGAN
-Version: 1.1.1
+Version: 1.1.5
 Summary: Segmentation and super resolution GAN network
-Home-page: https://github.com/koopa31/SegSRGAN/tree/develop
+Home-page: https://github.com/koopa31/SegSRGAN
 Author: Clément Cazorla
 Author-email: clement.cazorla@univ-reims.fr
 License: UNKNOWN
 Description: # SegSRGAN
+        
+        This algorithm is based on the [method](https://hal.archives-ouvertes.fr/hal-01895163) proposed by Chi-Hieu Pham in 2019.
         
         ## Installation
         
@@ -31,5 +33,32 @@ Description: # SegSRGAN
         > * **by_batch** is to enable the by-batch processing
         > * **is_conditional** to perform a conditional GAN on the LR image resolution
         
+        
+        ## Segmentation of a set of images with several step and patch values
+        
+        In order to facilitate the segmentation of several images, you can run SegSRGAN/SegSRGAN/job_model.py:
+        
+        `python job_model.py --path
+        --patch --step --result_folder_name --weights_relative_path --is_conditional`
+        
+        The list of the paths of the images to be processed must be stored in a csv file.
+        
+        Where:
+        
+        > * **path** Path of the csv file
+        > * **patch** list of patch sizes 
+        > * **step** list of steps 
+        > * **result_folder_name** Name of the folder containing the results
+        > * **is_conditional** Boolean to perform a conditional neural network with a condition on z-resolution
+        
+        Example of syntax for step and patch setting:
+        
+        --patch 64 128
+        
+        --step 32 64,64 128
+        
+        In this example we run steps 32 and 64 for patch 64 and steps 64 and 128 for patch 128. Be careful to respect the exact same spaces.
+        
+        
 Platform: UNKNOWN
-Description-Content-Type: text/plain
+Description-Content-Type: text/markdown
