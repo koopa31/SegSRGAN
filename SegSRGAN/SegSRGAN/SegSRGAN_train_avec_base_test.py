@@ -440,10 +440,9 @@ if __name__ == '__main__':
                                     
     SegSRGAN_train.train(TrainingEpoch=args.epoch, BatchSize=args.batchsize, 
                          SnapshotEpoch=args.snapshot, InitializeEpoch = args.initepoch,
-                         NumCritic = args.numcritic,
-                         resuming = args.weights,
+                         NumCritic=args.numcritic,
+                         resuming=args.weights,
                          dice_file=args.dice_file,
                          mse_file=args.mse_file,
                          snapshot_folder=args.snapshot_folder,
-                         folder_training_data = args.folder_training_data
-                         )
+                         folder_training_data=args.folder_training_data)
