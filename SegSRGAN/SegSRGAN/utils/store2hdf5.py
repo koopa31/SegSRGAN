@@ -136,7 +136,7 @@ class ProcessingTrainingSet(object):
                     raise AssertionError('Key name ' + label_name + ' does not exist !')
             self.iteration_per_epoch = self.iteration_per_epoch + datas.shape[0] / self.batch_size
 
-            # Tranfer to array
+        # Tranfer to array
         self.datas = np.concatenate(np.asarray(self.datas, dtype=np.float32))
         self.datas = self.datas.reshape(-1,
                                         self.datas.shape[-4],
