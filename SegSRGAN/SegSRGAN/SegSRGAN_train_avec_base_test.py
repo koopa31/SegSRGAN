@@ -36,38 +36,29 @@ import time
      
 
 class SegSRGAN_train(object):
-    def __init__(self,
-                 BasePath,
-                 contrast_max,
-                 percent_val_max,
-                 list_res_max,
-                 Trainingcsv, 
-                 multi_gpu,
-                 patch=64, 
-                 FirstDiscriminatorKernel = 32, FirstGeneratorKernel = 16,
-                 lamb_rec = 1, lamb_adv = 0.001, lamb_gp = 10, 
-                 lr_DisModel = 0.0001, lr_GenModel = 0.0001,u_net_gen=False,
-                 is_conditional=False,
-                 is_residual=True):
+    def __init__(self, base_path, contrast_max, percent_val_max, list_res_max, training_csv,  multi_gpu, patch=64,
+                 first_discriminator_kernel = 32, first_generator_kernel = 16, lamb_rec=1, lamb_adv=0.001, lamb_gp=10,
+                 lr_dis_model=0.0001, lr_gen_model=0.0001,u_net_gen=False, is_conditional=False, is_residual=True):
         
         self.SegSRGAN = SegSRGAN(ImageRow=patch, ImageColumn=patch, ImageDepth=patch, 
-                                 FirstDiscriminatorKernel = FirstDiscriminatorKernel, 
-                                 FirstGeneratorKernel = FirstGeneratorKernel,
-                                 lamb_rec = lamb_rec, lamb_adv = lamb_adv, lamb_gp = lamb_gp, 
-                                 lr_DisModel = lr_DisModel, lr_GenModel = lr_GenModel,u_net_gen=u_net_gen,multi_gpu=multi_gpu,is_conditional=is_conditional)
+                                 first_discriminator_kernel=first_discriminator_kernel,
+                                 first_generator_kernel=first_generator_kernel,
+                                 lamb_rec=lamb_rec, lamb_adv=lamb_adv, lamb_gp=lamb_gp,
+                                 lr_dis_model=lr_dis_model, lr_gen_model=lr_gen_model, u_net_gen=u_net_gen,
+                                 multi_gpu=multi_gpu, is_conditional=is_conditional)
         self.generator = self.SegSRGAN.generator()
-        self.Trainingcsv = Trainingcsv
+        self.training_csv = training_csv
         self.DiscriminatorModel, self.DiscriminatorModel_multi_gpu = self.SegSRGAN.discriminator_model()
         self.GeneratorModel, self.GeneratorModel_multi_gpu = self.SegSRGAN.generator_model()
-        self.BasePath = BasePath
+        self.base_path = base_path
         self.contrast_max = contrast_max
         self.percent_val_max = percent_val_max
         self.list_res_max = list_res_max
-        self.multi_gpu=multi_gpu
-        self.is_conditional=is_conditional
-        self.is_residual=is_residual
+        self.multi_gpu = multi_gpu
+        self.is_conditional = is_conditional
+        self.is_residual = is_residual
         
-        print("initalisation finised")
+        print("initialization completed")
         
     def train(self,
               snapshot_folder,
@@ -75,7 +66,7 @@ class SegSRGAN_train(object):
               mse_file, 
               folder_training_data,
               TrainingEpoch=200, BatchSize=16, SnapshotEpoch=1, InitializeEpoch=1, NumCritic=5, 
-              resuming = None):
+              resuming=None):
         
         #snapshot_prefix='weights/SegSRGAN_epoch'
         print("train begin")
@@ -94,10 +85,10 @@ class SegSRGAN_train(object):
         # Data processing
         #TrainingSet = ProcessingTrainingSet(self.TrainingText,BatchSize, InputName='data', LabelName = 'label')
         
-        data=pd.read_csv(self.Trainingcsv)
+        data=pd.read_csv(self.training_csv)
         
-        data["HR_image"] = self.BasePath+data["HR_image"]
-        data["Label_image"] = self.BasePath+data["Label_image"]
+        data["HR_image"] = self.base_path+data["HR_image"]
+        data["Label_image"] = self.base_path+data["Label_image"]
 
         
         data_train =data[data['Base']=="Train"]
@@ -140,17 +131,13 @@ class SegSRGAN_train(object):
                      lin_res_y[i],
                      lin_res_z[i]) for i in range(data_test.shape[0])]
                 
-        test_path_save_npy,test_Path_Datas_mini_batch , test_Labels_mini_batch, test_remaining_patch = create_patch_from_df_HR(df = data_test,
-                                                                                                         per_cent_val_max = self.percent_val_max,
-                                                                                                         contrast_list = test_contrast_list,
-                                                                                                         list_res = res_test,
-                                                                                                         order=3,
-                                                                                                         normalisation=False,
-                                                                                                         thresholdvalue=0,
-                                                                                                         PatchSize=64,
-                                                                                                         batch_size = 1, #1 to keep all data
-                                                                                                         path_save_npy=folder_training_data+"/test_mini_batch",
-                                                                                                         stride=20,is_conditional=self.is_conditional)
+        test_path_save_npy,test_Path_Datas_mini_batch , test_Labels_mini_batch, test_remaining_patch =\
+            create_patch_from_df_HR(df = data_test, per_cent_val_max = self.percent_val_max,
+                                    contrast_list = test_contrast_list, list_res = res_test, order=3,
+                                    normalisation=False, thresholdvalue=0, PatchSize=64, batch_size = 1,
+                                    #1 to keep all data
+                                    path_save_npy=folder_training_data+"/test_mini_batch", stride=20,
+                                    is_conditional=self.is_conditional)
         
         t2=time.time()
         
@@ -167,22 +154,17 @@ class SegSRGAN_train(object):
             
             res_train = [(np.random.uniform(self.list_res_max[0][0],self.list_res_max[1][0]),
                           np.random.uniform(self.list_res_max[0][1],self.list_res_max[1][1]),
-                          np.random.uniform(self.list_res_max[0][2],self.list_res_max[1][2])) for i in range(data_train.shape[0])]
+                          np.random.uniform(self.list_res_max[0][2],self.list_res_max[1][2])) for i in
+                         range(data_train.shape[0])]
             
             t1=time.time()
         
-            train_path_save_npy,train_Path_Datas_mini_batch ,train_Labels_mini_batch, train_remaining_patch = create_patch_from_df_HR  (df = data_train,
-                                                                                                               per_cent_val_max = self.percent_val_max,
-                                                                                                               contrast_list = train_contrast_list,
-                                                                                                               list_res = res_train,
-                                                                                                               order=3,
-                                                                                                               normalisation=False,
-                                                                                                               thresholdvalue=0,
-                                                                                                               PatchSize=64,
-                                                                                                               batch_size = BatchSize,
-                                                                                                               path_save_npy=folder_training_data+"/train_mini_batch",
-                                                                                                               stride=20,
-                                                                                                               is_conditional=self.is_conditional)
+            train_path_save_npy,train_Path_Datas_mini_batch ,train_Labels_mini_batch, train_remaining_patch =\
+                create_patch_from_df_HR  (df = data_train, per_cent_val_max = self.percent_val_max,
+                                          contrast_list = train_contrast_list, list_res = res_train, order=3,
+                                          normalisation=False, thresholdvalue=0, PatchSize=64, batch_size = BatchSize,
+                                          path_save_npy=folder_training_data+"/train_mini_batch", stride=20,
+                                          is_conditional=self.is_conditional)
             iterationPerEpoch = len(train_Path_Datas_mini_batch)
             
             t2=time.time()
@@ -191,7 +173,8 @@ class SegSRGAN_train(object):
 
             if never_print: 
                                                                                                  
-                print("At each epoch "+str(train_remaining_patch)+" patches will not be in the training data for this epoch")
+                print("At each epoch "+str(train_remaining_patch)+" patches will not be in the training data for "
+                                                                  "this epoch")
                 never_print = False                                          
                                                       
             
@@ -208,7 +191,8 @@ class SegSRGAN_train(object):
                     # Loading data randomly
                     randomNumber = int(np.random.randint(0,iterationPerEpoch,1))
                     
-                    train_input = np.load(train_Path_Datas_mini_batch[randomNumber])[:,0,:,:,:][:,np.newaxis,:,:,:]# select 0 coordoniate and add one axis at the same place
+                    train_input = np.load(train_Path_Datas_mini_batch[randomNumber])[:,0,:,:,:][:,np.newaxis,:,:,:]
+                    # select 0 coordoniate and add one axis at the same place
                     
                     train_output = np.load(train_Labels_mini_batch[randomNumber])                    
                     
@@ -221,8 +205,9 @@ class SegSRGAN_train(object):
                         epsilon = np.random.uniform(0, 1, size=(BatchSize,2,1,1,1))
                         interpolation = epsilon*train_output + (1-epsilon)*fake_images
                         # Training
-                        dis_loss = self.DiscriminatorModel_multi_gpu.train_on_batch([train_output,fake_images,interpolation,train_res],
-                                                                           [real,fake,dummy])
+                        dis_loss = self.DiscriminatorModel_multi_gpu.train_on_batch([train_output,fake_images,
+                                                                                     interpolation,train_res],
+                                                                                    [real,fake,dummy])
                     else :
                         
                         # Generating fake and interpolation images
@@ -230,8 +215,9 @@ class SegSRGAN_train(object):
                         epsilon = np.random.uniform(0, 1, size=(BatchSize,2,1,1,1))
                         interpolation = epsilon*train_output + (1-epsilon)*fake_images
                         # Training
-                        dis_loss = self.DiscriminatorModel_multi_gpu.train_on_batch([train_output,fake_images,interpolation],
-                                                                           [real,fake,dummy])
+                        dis_loss = self.DiscriminatorModel_multi_gpu.train_on_batch([train_output,fake_images,
+                                                                                     interpolation],
+                                                                                    [real,fake,dummy])
                          
                     t2=time.time()
         
@@ -344,50 +330,76 @@ class SegSRGAN_train(object):
             shutil.rmtree(folder_training_data+"/train_mini_batch")
         
         shutil.rmtree(folder_training_data+"/test_mini_batch")
-    
-            
-            
-                        
+
 
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('-begining_path', '--basepath', help='path to concatenate with relative path contains in csv file ', type=str, required = True) # path qui apres concatenation des path contenu dans le fichier csv amene au fichier.
-    parser.add_argument('-n', '--newlowres', type=float, action='append',help='upper and lower bounds between which the low resolution of each image at each epoch will be choosen randomly' ,nargs="+",required=True)
-    parser.add_argument('-contrast_max', '--contrast_max', help='Ex : 0.3 : NN trained on contrast between power 0.3 and 1.3 of initial image (default=0.5)', type=float,default=0.5)
-    parser.add_argument('-percent_val_max', '--percent_val_max', help='NN trained on image on which we add gaussian noise with sigma equal this % of val_max', type=float,default=0.03)
-    parser.add_argument('-csv', '--csv', help='.csv contining relative path for testing and training base', type=str, required = True) # tous les path se tranvant dans le fichier sont relatif a begining_path, collone HR_image : path HR Label_image : path Label	mask : path mask Base : "Train" ou "Test",
-    parser.add_argument('-sf', '--snapshot_folder', help='Folder name for saving spanshot weights', type=str, required = True)
+    # path qui apres concatenation des path contenu dans le fichier csv amène au ficFhier.
+    parser.add_argument('-begining_path', '--base_path', help='path to concatenate with relative path contains in csv '
+                                                             'file ', type=str, default='')
+    parser.add_argument('-n', '--newlowres', type=float, action='append', help='upper and lower bounds between which '
+                                                                               'the low resolution of each image at '
+                                                                               'each epoch will be choosen randomly',
+                                                                               nargs="+", required=True)
+    parser.add_argument('-contrast_max', '--contrast_max', help='Ex : 0.3 : NN trained on contrast between power 0.3'
+                                                                ' and 1.3 of initial image (default=0.5)', type=float,
+                                                                default=0.5)
+    parser.add_argument('-percent_val_max', '--percent_val_max', help='NN trained on image on which we add gaussian '
+                                                                      'noise with sigma equal this % of val_max',
+                                                                      type=float, default=0.03)
+    # tous les path se tranvant dans le fichier sont relatif a begining_path, collone HR_image : path HR Label_image :
+    # path Label	mask : path mask Base : "Train" ou "Test",
+    parser.add_argument('-csv', '--csv', help='.csv continuing relative path for testing and training base', type=str,
+                        required=True)
+    parser.add_argument('-sf', '--snapshot_folder', help='Folder name for saving snapshot weights', type=str,
+                        required=True)
     parser.add_argument('-e', '--epoch', help='Number of training epochs (default=200)', type=int, default=200)
     parser.add_argument('-b', '--batchsize', help='Number of batch (default=16)', type=int, default=16)
     parser.add_argument('-s', '--snapshot', help='Snapshot Epoch (default=1)', type=int, default=1)
     parser.add_argument('-i', '--initepoch', help='Init Epoch (default=1)', type=int, default=1)
-    parser.add_argument('-w', '--weights', help='Name of the pretrained HDF5 weight file (default: None)', type=str, default=None)
-    parser.add_argument('--kernelgen', help='Number of filters of the first layer of generator (default=16)', type=int, default=16)
-    parser.add_argument('--kerneldis', help='Number of filters of the first layer of discriminator (default=32)', type=int, default=32)
+    parser.add_argument('-w', '--weights', help='Name of the pre-trained HDF5 weight file (default: None)', type=str,
+                        default=None)
+    parser.add_argument('--kernelgen', help='Number of filters of the first layer of generator (default=16)', type=int,
+                        default=16)
+    parser.add_argument('--kerneldis', help='Number of filters of the first layer of discriminator (default=32)',
+                        type=int, default=32)
     parser.add_argument('--lrgen', help='Learning rate of generator (default=0.0001)', type=int, default=0.0001)
     parser.add_argument('--lrdis', help='Learning rate of discriminator (default=0.0001)', type=int, default=0.0001)
     parser.add_argument('--lambrec', help='Lambda of reconstruction loss (default=1)', type=int, default=1)
     parser.add_argument('--lambadv', help='Lambda of adversarial loss (default=0.001)', type=int, default=0.001)
-    parser.add_argument('--lambgp', help='Lambda of gradien penalty loss (default=10)', type=int, default=10)
-    parser.add_argument('--numcritic', help='Number of training time for discriminator (default=5) ', type=int, default=5)
-    parser.add_argument('-dice','--dice_file', help='Dice path for save dice a the end of each epoche', type=str,required = True)
-    parser.add_argument('-mse','--mse_file', help='MSE path for save dice a the end of each epoche', type=str,required = True)
-    parser.add_argument('-u_net','--u_net_generator', help='Either the generator take u-net architecture (like u-net) or not. Value in {True,False} default : False', type=str,default="False")
-    parser.add_argument('-folder_training_data','--folder_training_data', help="folder in which data organized by batch will be save during training (this folder will be created)", type=str,required =True)
-    parser.add_argument('-multi_gpu','--multi_gpu', help="Train using all gpu available if some exist ? Value in {True,False} default : True", type=str,default="True")
-    parser.add_argument('-is_conditional','--is_conditional', help="Should a conditionnal GAN be train ? Value in {True,False} default : False", type=str,default="False")
-    parser.add_argument('-is_residual','--is_residual', help="Should a residual GAN be train (sum of pred and image for SR estimation) ? Value in {True,False} default : True", type=str,default="True")
+    parser.add_argument('--lambgp', help='Lambda of gradient penalty loss (default=10)', type=int, default=10)
+    parser.add_argument('--numcritic', help='Number of training time for discriminator (default=5) ', type=int,
+                        default=5)
+    parser.add_argument('-dice', '--dice_file', help='Dice path for save dice a the end of each epoch', type=str,
+                        required=True)
+    parser.add_argument('-mse', '--mse_file', help='MSE path for save dice a the end of each epoch', type=str,
+                        required=True)
+    parser.add_argument('-u_net', '--u_net_generator', help='Either the generator take u-net architecture (like u-net) '
+                                                            'or not. Value in {True,False} default : False', type=str,
+                                                            default="False")
+    parser.add_argument('-folder_training_data', '--folder_training_data', help="folder in which data organized by "
+                                                                                "batch will be save during training "
+                                                                                "(this folder will be created)",
+                                                                                type=str, required=True)
+    parser.add_argument('-multi_gpu','--multi_gpu', help="Train using all gpu available if some exist ? Value in"
+                                                         " {True,False} default : True", type=str, default="True")
+    parser.add_argument('-is_conditional', '--is_conditional', help="Should a conditional GAN be train ? Value in "
+                                                                    "{True,False} default : False", type=str,
+                                                                    default="False")
+    parser.add_argument('-is_residual', '--is_residual', help="Should a residual GAN be train (sum of pred and image "
+                                                              "for SR estimation) ? Value in {True,False} default : "
+                                                              "True", type=str, default="True")
     args = parser.parse_args()
+
+    # Transform str to boolean
+    u_net = (args.u_net_generator == "True")
     
+    multi_gpu = (args.multi_gpu == "True")
     
-    u_net = (args.u_net_generator=="True") #Transform str to boolean
+    is_residual = (args.is_residual == "True")
     
-    multi_gpu = (args.multi_gpu=="True")
-    
-    is_residual = (args.is_residual=="True")
-    
-    is_conditional = (args.is_conditional=="True")
+    is_conditional = (args.is_conditional == "True")
     
     print("percent val max :"+str(args.percent_val_max))
     
@@ -413,16 +425,18 @@ if __name__ == '__main__':
         
         list_res_max.extend(list_res_max)
         
-    print("the low resolution of images will be choosen randomly between "+str(list_res_max[0])+" and "+str(list_res_max[1]))
+    print("the low resolution of images will be choosen randomly between "+str(list_res_max[0])+" and "+
+          str(list_res_max[1]))
         
         
 
-    SegSRGAN_train = SegSRGAN_train(Trainingcsv = args.csv,  
-                                    contrast_max=args.contrast_max,
-                                    percent_val_max=args.percent_val_max,
-                                    FirstDiscriminatorKernel = args.kerneldis, FirstGeneratorKernel = args.kernelgen,
-                                    lamb_rec = args.lambrec, lamb_adv = args.lambadv, lamb_gp = args.lambgp, 
-                                    lr_DisModel = args.lrdis, lr_GenModel = args.lrgen,BasePath=args.basepath,list_res_max=list_res_max,u_net_gen=u_net,multi_gpu=multi_gpu,is_conditional=is_conditional,is_residual=is_residual)
+    SegSRGAN_train = SegSRGAN_train(training_csv = args.csv, contrast_max=args.contrast_max,
+                                    percent_val_max=args.percent_val_max,first_discriminator_kernel = args.kerneldis,
+                                    first_generator_kernel = args.kernelgen, lamb_rec = args.lambrec,
+                                    lamb_adv = args.lambadv, lamb_gp = args.lambgp,
+                                    lr_dis_model = args.lrdis, lr_gen_model = args.lrgen,base_path=args.base_path,
+                                    list_res_max=list_res_max, u_net_gen=u_net, multi_gpu=multi_gpu,
+                                    is_conditional=is_conditional, is_residual=is_residual)
                                     
     SegSRGAN_train.train(TrainingEpoch=args.epoch, BatchSize=args.batchsize, 
                          SnapshotEpoch=args.snapshot, InitializeEpoch = args.initepoch,
@@ -433,5 +447,3 @@ if __name__ == '__main__':
                          snapshot_folder=args.snapshot_folder,
                          folder_training_data = args.folder_training_data
                          )
-                         
-                         
