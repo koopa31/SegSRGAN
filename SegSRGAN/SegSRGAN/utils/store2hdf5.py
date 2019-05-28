@@ -28,7 +28,8 @@ import h5py
 import numpy as np
 from operator import add
 
-def store2hdf53D(filename, datas, labels, create=True, startloc=None, chunksz=256) :
+
+def store2hdf53D(filename, datas, labels, create=True, startloc=None, chunksz=256):
     '''
     Store patches in format HDF5
     Adapted from 2D stor2hdf5 of Matcaffe (Caffe for matlab)
@@ -56,93 +57,96 @@ def store2hdf53D(filename, datas, labels, create=True, startloc=None, chunksz=25
     dat_dims = datas.shape
     lab_dims = labels.shape
     num_samples = dat_dims[0]
-    if (num_samples != lab_dims[0]):
-        raise AssertionError, 'Number of samples should be matched between data and labels'    
-            
+    if num_samples != lab_dims[0]:
+        raise AssertionError('Number of samples should be matched between data and labels')
+
     # Check Create mode and Startloc    
-    if create == True:
+    if create is True:
         if os.path.isfile(filename):
-            print 'Warning: replacing existing file', filename, '\n'
+            print('Warning: replacing existing file', filename, '\n')
             os.remove(filename)
-           
+
         file = h5py.File(filename, "w")
-        dset = file.create_dataset("data", shape=dat_dims , dtype='float32', maxshape=(None,)+tuple(dat_dims[1:]), chunks=(np.long(chunksz),)+tuple(dat_dims[1:]))
-        lset = file.create_dataset("label", shape=lab_dims , dtype='float32', maxshape=(None,)+tuple(lab_dims[1:]), chunks=(np.long(chunksz),)+tuple(lab_dims[1:]))
+        dset = file.create_dataset("data", shape=dat_dims, dtype='float32', maxshape=(None,) + tuple(dat_dims[1:]),
+                                   chunks=(np.long(chunksz),) + tuple(dat_dims[1:]))
+        lset = file.create_dataset("label", shape=lab_dims, dtype='float32', maxshape=(None,) + tuple(lab_dims[1:]),
+                                   chunks=(np.long(chunksz),) + tuple(lab_dims[1:]))
         dset[...] = datas
         lset[...] = labels
-        if  startloc == None:
-            startloc = {'dat':0 , 'lab':0}
-            startloc['dat']= (0,) + tuple(np.zeros(len(dat_dims)-1,dtype='int'))
-            startloc['lab']= (0,) + tuple(np.zeros(len(lab_dims)-1,dtype='int'))           
-    
-    else:   # append mode
-        if  startloc == None:
+        if startloc is None:
+            startloc = {'dat': 0, 'lab': 0}
+            startloc['dat'] = (0,) + tuple(np.zeros(len(dat_dims) - 1, dtype='int'))
+            startloc['lab'] = (0,) + tuple(np.zeros(len(lab_dims) - 1, dtype='int'))
+
+    else:  # append mode
+        if startloc is None:
             file = h5py.File(filename, "r")
             prev_dat_sz = file[file.keys()[0]].shape
             prev_lab_sz = file[file.keys()[1]].shape
-            if ( prev_dat_sz[1:] != dat_dims[1:] ):
-                raise AssertionError, 'Data dimensions must match existing dimensions in dataset'
-            if ( prev_lab_sz[1:] != lab_dims[1:] ):
-                raise AssertionError, 'Label dimensions must match existing dimensions in dataset'    
-            startloc = {'dat':0 , 'lab':0}
-            startloc['dat']= (prev_dat_sz[0],) + tuple(np.zeros(len(dat_dims)-1,dtype='int'))
-            startloc['lab']= (prev_lab_sz[0],) + tuple(np.zeros(len(lab_dims)-1,dtype='int'))
-            
+            if (prev_dat_sz[1:] != dat_dims[1:]):
+                raise AssertionError('Data dimensions must match existing dimensions in dataset')
+            if (prev_lab_sz[1:] != lab_dims[1:]):
+                raise AssertionError('Label dimensions must match existing dimensions in dataset')
+            startloc = {'dat': 0, 'lab': 0}
+            startloc['dat'] = (prev_dat_sz[0],) + tuple(np.zeros(len(dat_dims) - 1, dtype='int'))
+            startloc['lab'] = (prev_lab_sz[0],) + tuple(np.zeros(len(lab_dims) - 1, dtype='int'))
+
     # Writing data
-    if (datas.size) or (labels.size):
+    if datas.size or labels.size:
         file = h5py.File(filename, "r+")
         dset = file['/data']
         lset = file['/label']
-        dset.resize(map(add, dat_dims,startloc['dat']))
-        lset.resize(map(add, lab_dims,startloc['lab'])) 
-        dset[startloc['dat'][0]:startloc['dat'][0]+dat_dims[0],...] = datas
-        lset[startloc['lab'][0]:startloc['lab'][0]+lab_dims[0],...] = labels      
-    else:    
+        dset.resize(map(add, dat_dims, startloc['dat']))
+        lset.resize(map(add, lab_dims, startloc['lab']))
+        dset[startloc['dat'][0]:startloc['dat'][0] + dat_dims[0], ...] = datas
+        lset[startloc['lab'][0]:startloc['lab'][0] + lab_dims[0], ...] = labels
+    else:
         assert 'store2hdf5 need datas'
-    curr_dat_sz=file[file.keys()[0]].shape
-    curr_lab_sz=file[file.keys()[1]].shape
-    file.close()   
-    return [curr_dat_sz,curr_lab_sz]
+    curr_dat_sz = file[file.keys()[0]].shape
+    curr_lab_sz = file[file.keys()[1]].shape
+    file.close()
+    return [curr_dat_sz, curr_lab_sz]
 
-class ProcessingTrainingSet(object):  
-    def __init__(self, TrainingFilesText, batchSize, InputName = 'data', LabelName = 'label'):  
-        self.Datas = []
-        self.Labels = []
-        self.iterationPerEpoch = 0
-        self.batchSize = batchSize
-        
+
+class ProcessingTrainingSet(object):
+    def __init__(self, training_files_text, batch_size, input_name='data', label_name='label'):
+        self.datas = []
+        self.labels = []
+        self.iteration_per_epoch = 0
+        self.batch_size = batch_size
+
         # Get set of files
-        with open(TrainingFilesText , "r") as TrainingFiles:
-            string = TrainingFiles.read()
-        self.FileSet = string.split()
-        
+        with open(training_files_text, "r") as training_files:
+            string = training_files.read()
+        self.file_set = string.split()
+
         # Get location of each file in set and number of iteration each epoch
-        for FileIndex in range(len(self.FileSet)):
-            with h5py.File(self.FileSet[FileIndex],'r') as hf:
-            # Reading all data
-                if InputName in hf.keys():
-                    datas = np.array(hf.get(InputName))
-                    self.Datas.append(datas)
+        for file_index in range(len(self.file_set)):
+            with h5py.File(self.file_set[file_index], 'r') as hf:
+                # Reading all data
+                if input_name in hf.keys():
+                    datas = np.array(hf.get(input_name))
+                    self.datas.append(datas)
                 else:
-                    raise AssertionError, 'Key name ' + InputName + 'does not exist !' 
-                
-                if LabelName in hf.keys():
-                    self.Labels.append(np.array(hf.get(LabelName)))
+                    raise AssertionError('Key name ' + input_name + 'does not exist !')
+
+                if label_name in hf.keys():
+                    self.labels.append(np.array(hf.get(label_name)))
                 else:
-                    raise AssertionError, 'Key name ' + LabelName + ' does not exist !'
-            self.iterationPerEpoch = self.iterationPerEpoch + datas.shape[0] / self.batchSize 
-             
-        # Tranfer to array
-        self.Datas = np.concatenate(np.asarray(self.Datas,dtype=np.float32))
-        self.Datas = self.Datas.reshape(-1,
-                                        self.Datas.shape[-4],
-                                        self.Datas.shape[-3],
-                                        self.Datas.shape[-2],
-                                        self.Datas.shape[-1])
-        
-        self.Labels = np.concatenate(np.asarray(self.Labels,dtype=np.float32))
-        self.Labels = self.Labels.reshape(-1,
-                                          self.Labels.shape[-4],
-                                          self.Labels.shape[-3],
-                                          self.Labels.shape[-2],
-                                          self.Labels.shape[-1])
+                    raise AssertionError('Key name ' + label_name + ' does not exist !')
+            self.iteration_per_epoch = self.iteration_per_epoch + datas.shape[0] / self.batch_size
+
+            # Tranfer to array
+        self.datas = np.concatenate(np.asarray(self.datas, dtype=np.float32))
+        self.datas = self.datas.reshape(-1,
+                                        self.datas.shape[-4],
+                                        self.datas.shape[-3],
+                                        self.datas.shape[-2],
+                                        self.datas.shape[-1])
+
+        self.labels = np.concatenate(np.asarray(self.labels, dtype=np.float32))
+        self.labels = self.labels.reshape(-1,
+                                          self.labels.shape[-4],
+                                          self.labels.shape[-3],
+                                          self.labels.shape[-2],
+                                          self.labels.shape[-1])
