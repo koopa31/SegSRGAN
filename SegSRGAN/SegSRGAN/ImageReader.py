@@ -4,9 +4,10 @@ from abc import ABC, abstractmethod
 
 
 class ImageReader(ABC):
+    """Class to read MRI images"""
     def __init__(self, image_path):
         self.image_path = image_path
-        self.ITK_image = self.set_ITK_image()
+        self.itk_image = self.set_itk_image()
 
     @abstractmethod
     def get_np_array(self):
@@ -17,16 +18,16 @@ class ImageReader(ABC):
         pass
 
     @abstractmethod
-    def set_ITK_image(self):
+    def set_itk_image(self):
         pass
 
 
 class NIFTIReader(ImageReader):
-
+    """Class to read NIFTI MRI images"""
     def get_np_array(self):
         """Return the NIFTI image as a Numpy array"""
 
-        test_image = np.swapaxes(sitk.GetArrayFromImage(self.ITK_image), 0, 2).astype('float32')
+        test_image = np.swapaxes(sitk.GetArrayFromImage(self.itk_image), 0, 2).astype('float32')
         return test_image
 
     def get_resolution(self):
@@ -43,14 +44,14 @@ class NIFTIReader(ImageReader):
 
         return resolution
 
-    def set_ITK_image(self):
+    def set_itk_image(self):
         """Set ITK image object"""
-        ITK_image = sitk.ReadImage(self.image_path)
-        return ITK_image
+        itk_image = sitk.ReadImage(self.image_path)
+        return itk_image
 
 
 class DICOMReader(ImageReader):
-
+    """Class to read DICOM MRI images"""
     def get_np_array(self):
         """Return the DICOM image as a Numpy array"""
 
@@ -81,11 +82,11 @@ class DICOMReader(ImageReader):
 
         return float(resolution)
 
-    def set_ITK_image(self):
+    def set_itk_image(self):
         """Set ITK image object"""
         reader = sitk.ImageSeriesReader()
 
         dicom_names = reader.GetGDCMSeriesFileNames(self.image_path)
         filename = dicom_names[0]
-        ITK_image = sitk.ReadImage(filename)
-        return ITK_image
+        itk_image = sitk.ReadImage(filename)
+        return itk_image
