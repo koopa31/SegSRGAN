@@ -24,7 +24,8 @@
 """
 import numpy as np
 
-def shave3D(image,border):
+
+def shave3D(image, border):
     '''
     Remove border of an image
     Note: Array of Python in interval [i:j] will affect from i to j-1
@@ -36,36 +37,37 @@ def shave3D(image,border):
     '''
     if np.isscalar(border):
         print('attention border scalaire')
-        image = image[border:image.shape[0]-border,border:image.shape[1]-border, border:image.shape[2]-border]
+        image = image[border:image.shape[0]-border, border:image.shape[1]-border, border:image.shape[2]-border]
     else:
-        axis_0=[]
-        if border[0]%2==0:
-            axis_0=[border[0]/2,border[0]/2]
-        else :
-            axis_0=[(border[0]-1)/2,(border[0]+1)/2]
+        axis_0 = []
+        if border[0] % 2 == 0:
+            axis_0 = [border[0]/2, border[0]/2]
+        else:
+            axis_0 = [(border[0]-1)/2, (border[0]+1)/2]
         
-        axis_1=[]
-        if border[1]%2==0:
-            axis_1=[border[1]/2,border[1]/2]
-        else :
-            axis_1=[(border[1]-1)/2,(border[1]+1)/2]
+        axis_1 = []
+        if border[1] % 2 == 0:
+            axis_1 = [border[1]/2, border[1]/2]
+        else:
+            axis_1 = [(border[1]-1)/2, (border[1]+1)/2]
         
-        axis_2=[]
-        if border[2]%2==0:
-            axis_2=[border[2]/2,border[2]/2]
-        else :
-            axis_2=[(border[2]-1)/2,(border[2]+1)/2]
+        axis_2 = []
+        if border[2] % 2 == 0:
+            axis_2 = [border[2]/2, border[2]/2]
+        else:
+            axis_2 = [(border[2]-1)/2, (border[2]+1)/2]
             
-        axis_0=np.array(axis_0,dtype=int)
-        axis_1=np.array(axis_1,dtype=int)
-        axis_2=np.array(axis_2,dtype=int) 
+        axis_0 = np.array(axis_0,dtype=int)
+        axis_1 = np.array(axis_1,dtype=int)
+        axis_2 = np.array(axis_2,dtype=int)
         
-        
-        image = image[axis_0[0]:image.shape[0]-axis_0[1],axis_1[0]:image.shape[1]-axis_1[1], axis_2[0]:image.shape[2]-axis_2[1]]
+        image = image[axis_0[0]:image.shape[0]-axis_0[1], axis_1[0]:image.shape[1]-axis_1[1],
+                      axis_2[0]:image.shape[2]-axis_2[1]]
         
     return image
 
-def pad3D(image,border):
+
+def pad3D(image, border):
     '''
     Remove border of an image
     Note: Array of Python in interval [i:j] will affect from i to j-1
@@ -79,48 +81,50 @@ def pad3D(image,border):
         image = image[border:image.shape[0]-border,border:image.shape[1]-border, border:image.shape[2]-border]
         print('attention border scalaire')
     else:
-        axis_0=[]
-        if border[0]%2==0:
-            axis_0=[border[0]/2,border[0]/2]
+        axis_0 = []
+        if border[0] % 2 == 0:
+            axis_0 = [border[0]/2, border[0]/2]
         else :
-            axis_0=[(border[0]-1)/2,(border[0]+1)/2]
+            axis_0 = [(border[0]-1)/2, (border[0]+1)/2]
         
-        axis_1=[]
-        if border[1]%2==0:
-            axis_1=[border[1]/2,border[1]/2]
+        axis_1 = []
+        if border[1] % 2 == 0:
+            axis_1 = [border[1]/2, border[1]/2]
         else :
-            axis_1=[(border[1]-1)/2,(border[1]+1)/2]
+            axis_1 = [(border[1]-1)/2, (border[1]+1)/2]
         
-        axis_2=[]
-        if border[2]%2==0:
-            axis_2=[border[2]/2,border[2]/2]
-        else :
-            axis_2=[(border[2]-1)/2,(border[2]+1)/2]
+        axis_2 = []
+        if border[2] % 2 == 0:
+            axis_2 = [border[2]/2, border[2]/2]
+        else:
+            axis_2 = [(border[2]-1)/2, (border[2]+1)/2]
         
-        axis_0=np.array(axis_0,dtype=int)
-        axis_1=np.array(axis_1,dtype=int)
-        axis_2=np.array(axis_2,dtype=int)
+        axis_0 = np.array(axis_0, dtype=int)
+        axis_1 = np.array(axis_1, dtype=int)
+        axis_2 = np.array(axis_2, dtype=int)
         
-        
-        image =np.pad(image,pad_width=((axis_0[0],axis_0[1]),(axis_1[0],axis_1[1]),(axis_2[0],axis_2[1])),mode='constant')
+        image = np.pad(image, pad_width=((axis_0[0], axis_0[1]),(axis_1[0],axis_1[1]),(axis_2[0],axis_2[1])), 
+                       mode='constant')
         
     return image
 
-def imadjust3D(image, newRange = None):
+
+def imadjust3D(image, new_range=None):
     """
         More detail about formula : https://en.wikipedia.org/wiki/Normalization_(image_processing)
         ----
         image : 3d array
-        newRange : new range of value
-        Example : newRange = [0,1]
+        new_range : new range of value
+        Example : new_range = [0,1]
     """
     Min = np.min(image)
     Max = np.max(image)
-    newMin = newRange[0]
-    newMax = newRange[1]
+    newMin = new_range[0]
+    newMax = new_range[1]
     temp = (newMax - newMin) / float(Max - Min)
     image = ((image - Min) * temp + newMin)
     return image 
+
 
 def modcrop3D(img, modulo):
     import math
