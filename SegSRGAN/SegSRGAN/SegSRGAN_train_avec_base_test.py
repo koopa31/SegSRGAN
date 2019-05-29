@@ -28,7 +28,7 @@ import os
 import sys
 sys.path.insert(0, './utils')
 from SegSRGAN import SegSRGAN
-from patches import create_patch_from_df_HR
+from patches import create_patch_from_df_hr
 import pandas as pd
 from ast import literal_eval as make_tuple
 import shutil
@@ -132,7 +132,7 @@ class SegSRGAN_train(object):
                      lin_res_z[i]) for i in range(data_test.shape[0])]
                 
         test_path_save_npy,test_Path_Datas_mini_batch , test_Labels_mini_batch, test_remaining_patch =\
-            create_patch_from_df_HR(df = data_test, per_cent_val_max = self.percent_val_max,
+            create_patch_from_df_hr(df = data_test, per_cent_val_max = self.percent_val_max,
                                     contrast_list = test_contrast_list, list_res = res_test, order=3,
                                     normalisation=False, thresholdvalue=0, PatchSize=64, batch_size = 1,
                                     #1 to keep all data
@@ -160,7 +160,7 @@ class SegSRGAN_train(object):
             t1=time.time()
         
             train_path_save_npy,train_Path_Datas_mini_batch ,train_Labels_mini_batch, train_remaining_patch =\
-                create_patch_from_df_HR  (df = data_train, per_cent_val_max = self.percent_val_max,
+                create_patch_from_df_hr(df = data_train, per_cent_val_max = self.percent_val_max,
                                           contrast_list = train_contrast_list, list_res = res_train, order=3,
                                           normalisation=False, thresholdvalue=0, PatchSize=64, batch_size = BatchSize,
                                           path_save_npy=folder_training_data+"/train_mini_batch", stride=20,

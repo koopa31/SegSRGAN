@@ -16,8 +16,8 @@ sys.path.insert(0, os.getcwd() + '/utils')
 from utils3d import shave3D
 from utils3d import pad3D
 from SegSRGAN import SegSRGAN
-from SegSRGAN.SegSRGAN.ImageReader import NIFTIReader
-from SegSRGAN.SegSRGAN.ImageReader import DICOMReader
+from ImageReader import NIFTIReader
+from ImageReader import DICOMReader
 
 
 class SegSRGAN_test(object):
@@ -28,9 +28,9 @@ class SegSRGAN_test(object):
         self.patch2 = patch2
         self.patch3 = patch3
         self.prediction = None
-        self.SegSRGAN = SegSRGAN(ImageRow=patch1,
-                                 ImageColumn=patch2,
-                                 Imagedepth=patch3, is_conditional=is_conditional)
+        self.SegSRGAN = SegSRGAN(image_row=patch1,
+                                 image_column=patch2,
+                                 image_depth=patch3, is_conditional=is_conditional)
         self.generator_model = self.SegSRGAN.generator_model_for_pred()
         self.generator_model.load_weights(weights, by_name=True)
         self.generator = self.SegSRGAN.generator()

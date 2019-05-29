@@ -101,7 +101,7 @@ for i in path_pour_application:
                                                                    new_resolution=(0.5, 0.5, 0.5),
                                                                    patch=patch,
                                                                    path_output_cortex=path_output_cortex,
-                                                                   path_output_HR=path_output_SR,
+                                                                   path_output_hr=path_output_SR,
                                                                    weights_path=weights_path,
                                                                    by_batch=by_batch,
                                                                    is_conditional=is_conditional
@@ -133,7 +133,7 @@ for i in path_pour_application:
                                                                        new_resolution=(0.5, 0.5, 0.5),
                                                                        patch=patch,
                                                                        path_output_cortex=path_output_cortex,
-                                                                       path_output_HR=path_output_SR,
+                                                                       path_output_hr=path_output_SR,
                                                                        weights_path=weights_path,
                                                                        by_batch=by_batch,
                                                                        is_conditional=is_conditional
