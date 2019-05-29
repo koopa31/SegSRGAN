@@ -27,6 +27,7 @@ from keras.legacy import interfaces
 import keras.backend as K
 from keras.optimizers import Optimizer
 
+
 class LR_Adam(Optimizer):
     """
     https://ksaluja15.github.io/Learning-Rate-Multipliers-in-Keras/
@@ -46,8 +47,7 @@ class LR_Adam(Optimizer):
         - [Adam - A Method for Stochastic Optimization](http://arxiv.org/abs/1412.6980v8)
     """
 
-    def __init__(self, lr=0.001, beta_1=0.9, beta_2=0.999,
-                 epsilon=1e-8, decay=0., multipliers=None, **kwargs):
+    def __init__(self, lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=1e-8, decay=0., multipliers=None, **kwargs):
         super(LR_Adam, self).__init__(**kwargs)
         with K.name_scope(self.__class__.__name__):
             self.iterations = K.variable(0, name='iterations')

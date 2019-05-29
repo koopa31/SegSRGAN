@@ -79,6 +79,13 @@ def array_to_patches(arr, patch_shape=(3, 3, 3), extraction_step=1, normalizatio
 
 
 def patches_to_array(patches, array_shape, patch_shape=(3, 3, 3)):
+    """
+    Swicth from the patches to the image
+    :param patches: patches array
+    :param array_shape: shape of the array
+    :param patch_shape: shape of the patches
+    :return: array
+    """
     # Adapted from 2D reconstruction from sklearn
     # https://github.com/scikit-learn/scikit-learn/blob/51a765a/sklearn/feature_extraction/image.py
     # SyntaxError: non-default argument follows default argument : exchange "array_shape" and "patch_shape"
@@ -98,14 +105,13 @@ def patches_to_array(patches, array_shape, patch_shape=(3, 3, 3)):
     return array
 
 
-def create_patch_from_df_HR(df,
+def create_patch_from_df_hr(df,
                             per_cent_val_max,
                             path_save_npy,
                             batch_size,
                             contrast_list,
                             list_res,
                             order=3,
-                            normalisation=False,
                             thresholdvalue=0,
                             PatchSize=64,
                             stride=20,
@@ -143,7 +149,7 @@ def create_patch_from_df_HR(df,
         
         t1 = time.time()
         
-        low_resolution_image, reference_image, label_image, up_scale = create_LR_HR_Label(reference_name, label_name,
+        low_resolution_image, reference_image, label_image, up_scale = create_lr_hr_label(reference_name, label_name,
                                                                                           list_res[i])
         
         border_to_keep = border_im_keep(reference_image, thresholdvalue)
@@ -157,8 +163,7 @@ def create_patch_from_df_HR(df,
         label_image , reference_image , interpolated_image = remove_border(label_image, reference_image,
                                                                            interpolated_image, border_to_keep)
 
-        hdf5_labels, had5_dataa = create_patches(label_image, reference_image, interpolated_image, PatchSize, stride,
-                                                 normalisation=False)
+        hdf5_labels, had5_dataa = create_patches(label_image, reference_image, interpolated_image, PatchSize, stride)
         
         np.random.seed(0)       # makes the random numbers predictable
         random_order = np.random.permutation(had5_dataa.shape[0])
@@ -306,7 +311,7 @@ def add_noise(lr, per_cent_val_max):
     return lr
 
 
-def create_LR_HR_Label(reference_name, label_name, new_resolution):
+def create_lr_hr_label(reference_name, label_name, new_resolution):
     # Read NIFTI
     reference_nifti = sitk.ReadImage(reference_name)
 
