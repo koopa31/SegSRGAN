@@ -355,8 +355,7 @@ if __name__ == '__main__':
     parser.add_argument('-percent_val_max', '--percent_val_max', help='NN trained on image on which we add gaussian '
                                                                       'noise with sigma equal to this % of val_max',
                         type=float, default=0.03)
-    # tous les path se tranvant dans le fichier sont relatif a begining_path, collone HR_image : path HR Label_image :
-    # path Label	mask : path mask Base : "Train" ou "Test",
+    # The csv must contain a column for HR_image, Label_image and Base (which can be either Train or Test)
     parser.add_argument('-csv', '--csv', help='.csv containg relative path for testing and training base. Need 3'
                                               ' colunms named : "Label_image" : path to segmentation map, "HR_image" :'
                                               ' path to HR image, and "Base" : either the image belong to the training '

@@ -6,6 +6,31 @@ This algorithm is based on the [method](https://hal.archives-ouvertes.fr/hal-018
 
 `pip install SegSRGAN`
 
+## Perform a training
+
+`python SegSRGAN_train_avec_base_test.py --newlowres --csv  --snapshot_folder --dice_file --mse_file --folder_training_data`
+
+> * **csv** file which contains the paths to the files for the training. They are divided into two categories: train and test. As a consequence, it must contain 3 columns respectively called: HR\_image, Label\_image and Base (which can be equal to either Train or Test).  
+> * **dice_file** CSV file where to store the DICE at each epoch (_string_)
+> * **mse\_file** MSE file where to store the DICE at each epoch (*string*)
+> * **folder\_training\_data** folder which contains the training images database (*string*)
+> * **epoch** number of training epochs (*integer*)
+> * **batchsize** number of patches per mini batch (*integer*)
+> * **snapshot\_folder** how often the weights are saved on the disk (for instance if equal to 2, the weights are saved on the disk one epoch in two)(*integer*)}
+> * **numcritic** how many times we train the discriminator before training the generator (*integer*)
+
+
+But it is also possible to continue a training from its saved weight, adding the following parameters: 
+
+> * **initepoch** number of the epoch from which the training will continue (*integer*)
+> * **weights** path to the saved weights from which the training will continue (*string*)
+
+
+Two very important parameters to set the structure of the network are:
+
+> * **kernelgen**  Number of output channel of the first convolutional layer of the generator (see \hyperref[architecture]{ section \ref*{architecture}})
+> * **kerneldis** Number of output channel of the first convolutional layer of the discriminator
+
 ## Perform a segmentation
 
 `from SegSRGAN.SegSRGAN.Function_for_application_test_python3 import segmentation`
