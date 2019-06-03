@@ -37,10 +37,10 @@ import time
 
 class SegSRGAN_train(object):
     def __init__(self, base_path, contrast_max, percent_val_max, list_res_max, training_csv,  multi_gpu, patch=64,
-                 first_discriminator_kernel = 32, first_generator_kernel = 16, lamb_rec=1, lamb_adv=0.001, lamb_gp=10,
-                 lr_dis_model=0.0001, lr_gen_model=0.0001,u_net_gen=False, is_conditional=False, is_residual=True):
+                 first_discriminator_kernel=32, first_generator_kernel=16, lamb_rec=1, lamb_adv=0.001, lamb_gp=10,
+                 lr_dis_model=0.0001, lr_gen_model=0.0001, u_net_gen=False, is_conditional=False, is_residual=True):
         
-        self.SegSRGAN = SegSRGAN(ImageRow=patch, ImageColumn=patch, ImageDepth=patch, 
+        self.SegSRGAN = SegSRGAN(image_row=patch, image_column=patch, image_depth=patch,
                                  first_discriminator_kernel=first_discriminator_kernel,
                                  first_generator_kernel=first_generator_kernel,
                                  lamb_rec=lamb_rec, lamb_adv=lamb_adv, lamb_gp=lamb_gp,
@@ -68,11 +68,11 @@ class SegSRGAN_train(object):
               TrainingEpoch=200, BatchSize=16, SnapshotEpoch=1, InitializeEpoch=1, NumCritic=5, 
               resuming=None):
         
-        #snapshot_prefix='weights/SegSRGAN_epoch'
+        # snapshot_prefix='weights/SegSRGAN_epoch'
         print("train begin")
         snapshot_prefix = snapshot_folder+"/SegSRGAN_epoch"
         
-        # boolean to print only one time 'the number of patch not in one epoche (mod batchsize)'
+        # boolean to print only one time 'the number of patch not in one epoch (mode batchsize)'
         never_print = True
         if os.path.exists(snapshot_folder) is False:
             os.makedirs(snapshot_folder)
@@ -83,27 +83,26 @@ class SegSRGAN_train(object):
         dummy = np.zeros([BatchSize, 1], dtype=np.float32)   
         
         # Data processing
-        #TrainingSet = ProcessingTrainingSet(self.TrainingText,BatchSize, InputName='data', LabelName = 'label')
+        # TrainingSet = ProcessingTrainingSet(self.TrainingText,BatchSize, InputName='data', LabelName = 'label')
         
-        data=pd.read_csv(self.training_csv)
+        data = pd.read_csv(self.training_csv)
         
         data["HR_image"] = self.base_path+data["HR_image"]
         data["Label_image"] = self.base_path+data["Label_image"]
-
         
-        data_train =data[data['Base']=="Train"]
-        data_test = data[data['Base']=="Test"]
+        data_train = data[data['Base'] == "Train"]
+        data_test = data[data['Base'] == "Test"]
         
         # Resuming
-        if InitializeEpoch==1:
+        if InitializeEpoch == 1:
             iteration = 0
             if resuming is None:
-                print ("Training from scratch")
+                print("Training from scratch")
             else:
                 print("Training from the pretrained model (names of layers must be identical): ", resuming)
                 self.GeneratorModel.load_weights(resuming, by_name=True)
         
-        elif InitializeEpoch <1:
+        elif InitializeEpoch < 1:
             raise AssertionError('Resumming needs a positive epoch')
         else:
             if resuming is None:
@@ -114,55 +113,52 @@ class SegSRGAN_train(object):
 #                iteration = (InitializeEpoch-1)*iterationPerEpoch
         # patch test creation :
                 
-        t1=time.time()
+        t1 = time.time()
         
-        test_contrast_list=np.linspace(1-self.contrast_max,1+self.contrast_max,data_test.shape[0])
-        
+        test_contrast_list = np.linspace(1-self.contrast_max, 1+self.contrast_max, data_test.shape[0])
         
         # list_res[0] = lower bound and list_res[1] = borne supp
         # list_res[0][0] = lower bound for the first coordinate
         
-        lin_res_x = np.linspace(self.list_res_max[0][0],self.list_res_max[1][0],data_test.shape[0])
-        lin_res_y = np.linspace(self.list_res_max[0][1],self.list_res_max[1][1],data_test.shape[0])
-        lin_res_z = np.linspace(self.list_res_max[0][2],self.list_res_max[1][2],data_test.shape[0])
-        
-          
+        lin_res_x = np.linspace(self.list_res_max[0][0], self.list_res_max[1][0], data_test.shape[0])
+        lin_res_y = np.linspace(self.list_res_max[0][1], self.list_res_max[1][1], data_test.shape[0])
+        lin_res_z = np.linspace(self.list_res_max[0][2], self.list_res_max[1][2], data_test.shape[0])
+
         res_test = [(lin_res_x[i],
                      lin_res_y[i],
                      lin_res_z[i]) for i in range(data_test.shape[0])]
                 
-        test_path_save_npy,test_Path_Datas_mini_batch , test_Labels_mini_batch, test_remaining_patch =\
-            create_patch_from_df_hr(df = data_test, per_cent_val_max = self.percent_val_max,
-                                    contrast_list = test_contrast_list, list_res = res_test, order=3,
-                                    normalisation=False, thresholdvalue=0, PatchSize=64, batch_size = 1,
-                                    #1 to keep all data
+        test_path_save_npy, test_Path_Datas_mini_batch, test_Labels_mini_batch, test_remaining_patch =\
+            create_patch_from_df_hr(df=data_test, per_cent_val_max=self.percent_val_max,
+                                    contrast_list=test_contrast_list, list_res=res_test, order=3,
+                                    thresholdvalue=0, PatchSize=64, batch_size=1,
+                                    # 1 to keep all data
                                     path_save_npy=folder_training_data+"/test_mini_batch", stride=20,
                                     is_conditional=self.is_conditional)
         
-        t2=time.time()
+        t2 = time.time()
         
         print("time for making test npy :"+str(t2-t1))   
 
-        df_dice = pd.DataFrame(index=np.arange(InitializeEpoch,TrainingEpoch+1),columns=["Dice"])
-        df_MSE = pd.DataFrame(index=np.arange(InitializeEpoch,TrainingEpoch+1),columns=["MSE"])
+        df_dice = pd.DataFrame(index=np.arange(InitializeEpoch, TrainingEpoch+1), columns=["Dice"])
+        df_MSE = pd.DataFrame(index=np.arange(InitializeEpoch, TrainingEpoch+1), columns=["MSE"])
         
         # Training phase
         for EpochIndex in range(InitializeEpoch,TrainingEpoch+1):  
     
-            train_contrast_list=np.random.uniform(1-self.contrast_max,1+self.contrast_max,data_train.shape[0])
-            
-            
-            res_train = [(np.random.uniform(self.list_res_max[0][0],self.list_res_max[1][0]),
-                          np.random.uniform(self.list_res_max[0][1],self.list_res_max[1][1]),
-                          np.random.uniform(self.list_res_max[0][2],self.list_res_max[1][2])) for i in
+            train_contrast_list = np.random.uniform(1-self.contrast_max, 1 + self.contrast_max, data_train.shape[0])
+
+            res_train = [(np.random.uniform(self.list_res_max[0][0], self.list_res_max[1][0]),
+                          np.random.uniform(self.list_res_max[0][1], self.list_res_max[1][1]),
+                          np.random.uniform(self.list_res_max[0][2], self.list_res_max[1][2])) for i in
                          range(data_train.shape[0])]
             
             t1=time.time()
         
-            train_path_save_npy,train_Path_Datas_mini_batch ,train_Labels_mini_batch, train_remaining_patch =\
-                create_patch_from_df_hr(df = data_train, per_cent_val_max = self.percent_val_max,
-                                          contrast_list = train_contrast_list, list_res = res_train, order=3,
-                                          normalisation=False, thresholdvalue=0, PatchSize=64, batch_size = BatchSize,
+            train_path_save_npy, train_Path_Datas_mini_batch, train_Labels_mini_batch, train_remaining_patch =\
+                create_patch_from_df_hr(df=data_train, per_cent_val_max=self.percent_val_max,
+                                          contrast_list =train_contrast_list, list_res=res_train, order=3,
+                                          thresholdvalue=0, PatchSize=64, batch_size=BatchSize,
                                           path_save_npy=folder_training_data+"/train_mini_batch", stride=20,
                                           is_conditional=self.is_conditional)
             iterationPerEpoch = len(train_Path_Datas_mini_batch)
@@ -176,8 +172,7 @@ class SegSRGAN_train(object):
                 print("At each epoch "+str(train_remaining_patch)+" patches will not be in the training data for "
                                                                   "this epoch")
                 never_print = False                                          
-                                                      
-            
+
             print("Processing epoch : " + str(EpochIndex))
             for iters in range(0,iterationPerEpoch):
                 
@@ -186,109 +181,107 @@ class SegSRGAN_train(object):
                 # Training discriminator
                 for cidx in range(NumCritic):
                     
-                    t1=time.time()
+                    t1 = time.time()
 
                     # Loading data randomly
                     randomNumber = int(np.random.randint(0,iterationPerEpoch,1))
                     
-                    train_input = np.load(train_Path_Datas_mini_batch[randomNumber])[:,0,:,:,:][:,np.newaxis,:,:,:]
+                    train_input = np.load(train_Path_Datas_mini_batch[randomNumber])[:, 0, :, :, :][:,np.newaxis, :, :,
+                                  :]
                     # select 0 coordoniate and add one axis at the same place
                     
                     train_output = np.load(train_Labels_mini_batch[randomNumber])                    
                     
-                    if self.is_conditional :
+                    if self.is_conditional:
                         
-                        train_res = np.load(train_Path_Datas_mini_batch[randomNumber])[:,1,:,:,:][:,np.newaxis,:,:,:]
+                        train_res = np.load(train_Path_Datas_mini_batch[randomNumber])[:, 1, :, :, :][:, np.newaxis, :,
+                                            :, :]
                          
                         # Generating fake and interpolation images
-                        fake_images = self.GeneratorModel_multi_gpu.predict([train_input,train_res])[1]
-                        epsilon = np.random.uniform(0, 1, size=(BatchSize,2,1,1,1))
+                        fake_images = self.GeneratorModel_multi_gpu.predict([train_input, train_res])[1]
+                        epsilon = np.random.uniform(0, 1, size=(BatchSize, 2, 1, 1, 1))
                         interpolation = epsilon*train_output + (1-epsilon)*fake_images
                         # Training
-                        dis_loss = self.DiscriminatorModel_multi_gpu.train_on_batch([train_output,fake_images,
-                                                                                     interpolation,train_res],
-                                                                                    [real,fake,dummy])
-                    else :
+                        dis_loss = self.DiscriminatorModel_multi_gpu.train_on_batch([train_output, fake_images,
+                                                                                     interpolation, train_res],
+                                                                                    [real, fake, dummy])
+                    else:
                         
                         # Generating fake and interpolation images
                         fake_images = self.GeneratorModel_multi_gpu.predict(train_input)[1]
-                        epsilon = np.random.uniform(0, 1, size=(BatchSize,2,1,1,1))
+                        epsilon = np.random.uniform(0, 1, size=(BatchSize, 2, 1, 1, 1))
                         interpolation = epsilon*train_output + (1-epsilon)*fake_images
                         # Training
-                        dis_loss = self.DiscriminatorModel_multi_gpu.train_on_batch([train_output,fake_images,
+                        dis_loss = self.DiscriminatorModel_multi_gpu.train_on_batch([train_output, fake_images,
                                                                                      interpolation],
-                                                                                    [real,fake,dummy])
+                                                                                    [real, fake, dummy])
                          
-                    t2=time.time()
+                    t2 = time.time()
         
                     print("time for one uptade of discriminator :"+str(t2-t1))
-                    print("Update "+ str(cidx) + ": [D loss : "+str(dis_loss)+"]") 
+                    print("Update " + str(cidx) + ": [D loss : "+str(dis_loss)+"]")
                     
                 # Training generator
                 # Loading data        
                 
-                t1=time.time()
+                t1 = time.time()
                 
-                train_input_gen = np.load(train_Path_Datas_mini_batch[iters])[:,0,:,:,:][:,np.newaxis,:,:,:]
+                train_input_gen = np.load(train_Path_Datas_mini_batch[iters])[:, 0, :, :, :][:, np.newaxis, :, :, :]
                 train_output_gen = np.load(train_Labels_mini_batch[iters])
                 
                 if self.is_conditional:
                     
-                    train_res_gen = np.load(train_Path_Datas_mini_batch[iters])[:,1,:,:,:][:,np.newaxis,:,:,:]
+                    train_res_gen = np.load(train_Path_Datas_mini_batch[iters])[:, 1, :, :, :][:, np.newaxis, :, :, :]
                     # Training                                      
-                    gen_loss = self.GeneratorModel_multi_gpu.train_on_batch([train_input_gen,train_res_gen], 
-                                                                   [real,train_output_gen])
-                else : 
+                    gen_loss = self.GeneratorModel_multi_gpu.train_on_batch([train_input_gen, train_res_gen],
+                                                                   [real, train_output_gen])
+                else:
                     # Training                                      
                     gen_loss = self.GeneratorModel_multi_gpu.train_on_batch([train_input_gen], 
-                                                                   [real,train_output_gen])
-                    
+                                                                   [real, train_output_gen])
                                                                        
-                print("Iter "+ str(iteration) + " [A loss : " + str(gen_loss) + "]")
+                print("Iter " + str(iteration) + " [A loss : " + str(gen_loss) + "]")
                 
                 t2=time.time()
                 
                 print("time for one uptade of generator :"+str(t2-t1))
                 
-            if (EpochIndex)%SnapshotEpoch==0:
+            if EpochIndex % SnapshotEpoch == 0:
                 # Save weights:
                 self.GeneratorModel.save_weights(snapshot_prefix + '_' + str(EpochIndex))
-                print ("Snapshot :" + snapshot_prefix + '_' + str(EpochIndex))
+                print("Snapshot :" + snapshot_prefix + '_' + str(EpochIndex))
                 
-            MSE_list= []
+            MSE_list = []
             VP = []
             Pos_pred = []
             Pos_label = []
             
             t1 = time.time()
-            
-            
+
             for test_iter in range(len(test_Labels_mini_batch)):
 
                 TestLabels = np.load(test_Labels_mini_batch[test_iter])
-                TestDatas = np.load(test_Path_Datas_mini_batch[test_iter])[:,0,:,:,:][:,np.newaxis,:,:,:]
+                TestDatas = np.load(test_Path_Datas_mini_batch[test_iter])[:, 0, :, :, :][:, np.newaxis, :, :, :]
                 
-                if self.is_conditional : 
+                if self.is_conditional:
                     
-                    TestRes = np.load(test_Path_Datas_mini_batch[test_iter])[:,1,:,:,:][:,np.newaxis,:,:,:]
+                    TestRes = np.load(test_Path_Datas_mini_batch[test_iter])[:, 1, :, :, :][:, np.newaxis, :, :, :]
                     
-                    pred = self.generator.predict([TestDatas,TestRes])
+                    pred = self.generator.predict([TestDatas, TestRes])
                     
-                else : 
+                else:
                     
                     pred = self.generator.predict([TestDatas])
-                    
-                
 
-                pred[:,0,:,:,:][pred[:,0,:,:,:]<0]=0            
+                pred[:, 0, :, :, :][pred[:, 0, :, :, :] < 0] = 0
             
-                MSE_list.append(np.sum((pred[:,0,:,:,:]-TestLabels[:,0,:,:,:])**2))
+                MSE_list.append(np.sum((pred[:, 0, :, :, :]-TestLabels[:, 0, :, :, :])**2))
                 
-                VP.append(np.sum((pred[:,1,:,:,:]>0.5)&(TestLabels[:,1,:,:,:]==1)))
+                VP.append(np.sum((pred[:, 1, :, :, :] > 0.5)&(TestLabels[:, 1, :, :, :] == 1)))
                 
-                Pos_pred.append(np.sum(pred[:,1,:,:,:]>0.5))
+                Pos_pred.append(np.sum(pred[:, 1, :, :, :] > 0.5))
                 
-                Pos_label.append(np.sum(TestLabels[:,1,:,:,:]))
+                Pos_label.append(np.sum(TestLabels[:, 1, :, :, :]))
                 
             t2 = time.time()
             
@@ -297,22 +290,21 @@ class SegSRGAN_train(object):
             gen_weights = np.array(self.GeneratorModel.get_weights())
             gen_weights_multi = np.array(self.GeneratorModel_multi_gpu.get_weights())
             
-            weights_idem =True
+            weights_idem = True
             
-            for i in range(len(gen_weights)) :
+            for i in range(len(gen_weights)):
                 
-                idem =  np.array_equal(gen_weights[i],gen_weights_multi[i])
+                idem = np.array_equal(gen_weights[i], gen_weights_multi[i])
                 
                 weights_idem = weights_idem & idem 
                 
-            if weights_idem : 
+            if weights_idem:
                 
                 print("Model multi_gpu and base Model have the same weights")
                 
-            else :
+            else:
                 print("Model multi_gpu and base Model haven't the same weights")
-                
-            
+
             Dice = (2 * np.sum(VP))/(np.sum(Pos_pred)+np.sum(Pos_label))
             
             MSE = np.sum(MSE_list)/(BatchSize**3*len(MSE_list)) 
@@ -321,8 +313,8 @@ class SegSRGAN_train(object):
             
             print("Iter "+ str(EpochIndex) + " [Test MSE : " + str(MSE) + "]")  
             
-            df_dice.loc[EpochIndex,"Dice"]=Dice
-            df_MSE.loc[EpochIndex,"MSE"]=MSE
+            df_dice.loc[EpochIndex, "Dice"]=Dice
+            df_MSE.loc[EpochIndex, "MSE"]=MSE
             
             df_dice.to_csv(dice_file)
             df_MSE.to_csv(mse_file)
@@ -408,38 +400,33 @@ if __name__ == '__main__':
     print("is_conditional = "+str(is_conditional))
     
     print("is_residual = "+str(is_residual))
-    
-    
+
     list_res_max = args.newlowres
-    
-    
+
     for i in range(len(list_res_max)):
         
-        if len(list_res_max[i])!=3:
+        if len(list_res_max[i]) != 3:
             raise AssertionError('Not support this resolution !')
             
     print("Initial resolution given "+str(list_res_max))
-                
-            
-    if len(list_res_max)==1:
+
+    if len(list_res_max) == 1:
         
         list_res_max.extend(list_res_max)
         
-    print("the low resolution of images will be choosen randomly between "+str(list_res_max[0])+" and "+
+    print("the low resolution of images will be choosen randomly between "+str(list_res_max[0])+" and " +
           str(list_res_max[1]))
-        
-        
 
-    SegSRGAN_train = SegSRGAN_train(training_csv = args.csv, contrast_max=args.contrast_max,
-                                    percent_val_max=args.percent_val_max,first_discriminator_kernel = args.kerneldis,
-                                    first_generator_kernel = args.kernelgen, lamb_rec = args.lambrec,
-                                    lamb_adv = args.lambadv, lamb_gp = args.lambgp,
-                                    lr_dis_model = args.lrdis, lr_gen_model = args.lrgen,base_path=args.base_path,
+    SegSRGAN_train = SegSRGAN_train(training_csv=args.csv, contrast_max=args.contrast_max,
+                                    percent_val_max=args.percent_val_max, first_discriminator_kernel=args.kerneldis,
+                                    first_generator_kernel=args.kernelgen, lamb_rec=args.lambrec,
+                                    lamb_adv=args.lambadv, lamb_gp=args.lambgp,
+                                    lr_dis_model=args.lrdis, lr_gen_model=args.lrgen, base_path=args.base_path,
                                     list_res_max=list_res_max, u_net_gen=u_net, multi_gpu=multi_gpu,
                                     is_conditional=is_conditional, is_residual=is_residual)
                                     
     SegSRGAN_train.train(TrainingEpoch=args.epoch, BatchSize=args.batchsize, 
-                         SnapshotEpoch=args.snapshot, InitializeEpoch = args.initepoch,
+                         SnapshotEpoch=args.snapshot, InitializeEpoch=args.initepoch,
                          NumCritic=args.numcritic,
                          resuming=args.weights,
                          dice_file=args.dice_file,
