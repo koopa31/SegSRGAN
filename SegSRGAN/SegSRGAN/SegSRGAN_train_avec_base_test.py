@@ -65,38 +65,39 @@ class SegSrganTrain(object):
               snapshot_folder,
               dice_file,
               mse_file,
-              folder_training_data,
-              TrainingEpoch=200, BatchSize=16, SnapshotEpoch=1, InitializeEpoch=1, NumCritic=5,
+              folder_training_data, patch_size,
+              training_epoch=200, batch_size=16, snapshot_epoch=1, initialize_epoch=1, num_critic=5,
               resuming=None):
         """
 
+        :param patch_size:
         :param snapshot_folder:
         :param dice_file:
         :param mse_file:
         :param folder_training_data:
-        :param TrainingEpoch:
-        :param BatchSize:
-        :param SnapshotEpoch:
-        :param InitializeEpoch:
-        :param NumCritic:
+        :param training_epoch:
+        :param batch_size:
+        :param snapshot_epoch:
+        :param initialize_epoch:
+        :param num_critic:
         :param resuming:
         """
         # snapshot_prefix='weights/SegSRGAN_epoch'
         print("train begin")
         snapshot_prefix = snapshot_folder + "/SegSRGAN_epoch"
 
-        # boolean to print only one time 'the number of patch not in one epoch (mode batchsize)'
+        # boolean to print only one time 'the number of patch not in one epoch (mode batch_size)'
         never_print = True
         if os.path.exists(snapshot_folder) is False:
             os.makedirs(snapshot_folder)
 
         # Initialization Parameters
-        real = -np.ones([BatchSize, 1], dtype=np.float32)
+        real = -np.ones([batch_size, 1], dtype=np.float32)
         fake = -real
-        dummy = np.zeros([BatchSize, 1], dtype=np.float32)
+        dummy = np.zeros([batch_size, 1], dtype=np.float32)
 
         # Data processing
-        # TrainingSet = ProcessingTrainingSet(self.TrainingText,BatchSize, InputName='data', LabelName = 'label')
+        # TrainingSet = ProcessingTrainingSet(self.TrainingText,batch_size, InputName='data', LabelName = 'label')
 
         data = pd.read_csv(self.training_csv)
 
@@ -107,7 +108,7 @@ class SegSrganTrain(object):
         data_test = data[data['Base'] == "Test"]
 
         # Resuming
-        if InitializeEpoch == 1:
+        if initialize_epoch == 1:
             iteration = 0
             if resuming is None:
                 print("Training from scratch")
@@ -115,7 +116,7 @@ class SegSrganTrain(object):
                 print("Training from the pretrained model (names of layers must be identical): ", resuming)
                 self.GeneratorModel.load_weights(resuming, by_name=True)
 
-        elif InitializeEpoch < 1:
+        elif initialize_epoch < 1:
             raise AssertionError('Resumming needs a positive epoch')
         else:
             if resuming is None:
@@ -123,7 +124,7 @@ class SegSrganTrain(object):
             else:
                 print('Continue training from : ', resuming)
                 self.GeneratorModel.load_weights(resuming, by_name=True)
-        #                iteration = (InitializeEpoch-1)*iterationPerEpoch
+        #                iteration = (initialize_epoch-1)*iterationPerEpoch
         # patch test creation :
 
         t1 = time.time()
@@ -144,7 +145,7 @@ class SegSrganTrain(object):
         test_path_save_npy, test_Path_Datas_mini_batch, test_Labels_mini_batch, test_remaining_patch = \
             create_patch_from_df_hr(df=data_test, per_cent_val_max=self.percent_val_max,
                                     contrast_list=test_contrast_list, list_res=res_test, order=3,
-                                    thresholdvalue=0, PatchSize=64, batch_size=1,
+                                    thresholdvalue=0, patch_size=patch_size, batch_size=1,
                                     # 1 to keep all data
                                     path_save_npy=folder_training_data + "/test_mini_batch", stride=20,
                                     is_conditional=self.is_conditional)
@@ -153,11 +154,11 @@ class SegSrganTrain(object):
 
         print("time for making test npy :" + str(t2 - t1))
 
-        df_dice = pd.DataFrame(index=np.arange(InitializeEpoch, TrainingEpoch + 1), columns=["Dice"])
-        df_MSE = pd.DataFrame(index=np.arange(InitializeEpoch, TrainingEpoch + 1), columns=["MSE"])
+        df_dice = pd.DataFrame(index=np.arange(initialize_epoch, training_epoch + 1), columns=["Dice"])
+        df_MSE = pd.DataFrame(index=np.arange(initialize_epoch, training_epoch + 1), columns=["MSE"])
 
         # Training phase
-        for EpochIndex in range(InitializeEpoch, TrainingEpoch + 1):
+        for EpochIndex in range(initialize_epoch, training_epoch + 1):
 
             train_contrast_list = np.random.uniform(1 - self.contrast_max, 1 + self.contrast_max, data_train.shape[0])
 
@@ -171,7 +172,7 @@ class SegSrganTrain(object):
             train_path_save_npy, train_Path_Datas_mini_batch, train_Labels_mini_batch, train_remaining_patch = \
                 create_patch_from_df_hr(df=data_train, per_cent_val_max=self.percent_val_max,
                                         contrast_list=train_contrast_list, list_res=res_train, order=3,
-                                        thresholdvalue=0, PatchSize=64, batch_size=BatchSize,
+                                        thresholdvalue=0, patch_size=patch_size, batch_size=batch_size,
                                         path_save_npy=folder_training_data + "/train_mini_batch", stride=20,
                                         is_conditional=self.is_conditional)
             iterationPerEpoch = len(train_Path_Datas_mini_batch)
@@ -191,7 +192,7 @@ class SegSrganTrain(object):
                 iteration += 1
 
                 # Training discriminator
-                for cidx in range(NumCritic):
+                for cidx in range(num_critic):
 
                     t1 = time.time()
 
@@ -211,7 +212,7 @@ class SegSrganTrain(object):
 
                         # Generating fake and interpolation images
                         fake_images = self.GeneratorModel_multi_gpu.predict([train_input, train_res])[1]
-                        epsilon = np.random.uniform(0, 1, size=(BatchSize, 2, 1, 1, 1))
+                        epsilon = np.random.uniform(0, 1, size=(batch_size, 2, 1, 1, 1))
                         interpolation = epsilon * train_output + (1 - epsilon) * fake_images
                         # Training
                         dis_loss = self.DiscriminatorModel_multi_gpu.train_on_batch([train_output, fake_images,
@@ -221,7 +222,7 @@ class SegSrganTrain(object):
 
                         # Generating fake and interpolation images
                         fake_images = self.GeneratorModel_multi_gpu.predict(train_input)[1]
-                        epsilon = np.random.uniform(0, 1, size=(BatchSize, 2, 1, 1, 1))
+                        epsilon = np.random.uniform(0, 1, size=(batch_size, 2, 1, 1, 1))
                         interpolation = epsilon * train_output + (1 - epsilon) * fake_images
                         # Training
                         dis_loss = self.DiscriminatorModel_multi_gpu.train_on_batch([train_output, fake_images,
@@ -257,7 +258,7 @@ class SegSrganTrain(object):
 
                 print("time for one uptade of generator :" + str(t2 - t1))
 
-            if EpochIndex % SnapshotEpoch == 0:
+            if EpochIndex % snapshot_epoch == 0:
                 # Save weights:
                 self.GeneratorModel.save_weights(snapshot_prefix + '_' + str(EpochIndex))
                 print("Snapshot :" + snapshot_prefix + '_' + str(EpochIndex))
@@ -317,7 +318,7 @@ class SegSrganTrain(object):
 
             Dice = (2 * np.sum(VP)) / (np.sum(Pos_pred) + np.sum(Pos_label))
 
-            MSE = np.sum(MSE_list) / (BatchSize ** 3 * len(MSE_list))
+            MSE = np.sum(MSE_list) / (batch_size ** 3 * len(MSE_list))
 
             print("Iter " + str(EpochIndex) + " [Test Dice : " + str(Dice) + "]")
 
@@ -364,7 +365,7 @@ if __name__ == '__main__':
     parser.add_argument('-sf', '--snapshot_folder', help='Folder name for saving snapshot weights', type=str,
                         required=True)
     parser.add_argument('-e', '--epoch', help='Number of training epochs (default=200)', type=int, default=200)
-    parser.add_argument('-b', '--batchsize', help='Number of batch (default=16)', type=int, default=16)
+    parser.add_argument('-b', '--batch_size', help='Number of batch (default=16)', type=int, default=16)
     parser.add_argument('-s', '--snapshot', help='Snapshot Epoch (default=1)', type=int, default=1)
     parser.add_argument('-i', '--initepoch', help='Init Epoch (default=1)', type=int, default=1)
     parser.add_argument('-w', '--weights', help='Name of the pre-trained HDF5 weight file (default: None)', type=str,
@@ -378,7 +379,7 @@ if __name__ == '__main__':
     parser.add_argument('--lambrec', help='Lambda of reconstruction loss (default=1)', type=int, default=1)
     parser.add_argument('--lambadv', help='Lambda of adversarial loss (default=0.001)', type=int, default=0.001)
     parser.add_argument('--lambgp', help='Lambda of gradient penalty loss (default=10)', type=int, default=10)
-    parser.add_argument('--numcritic', help='Number of training time for discriminator (default=5) ', type=int,
+    parser.add_argument('--num_critic', help='Number of training time for discriminator (default=5) ', type=int,
                         default=5)
     parser.add_argument('-dice', '--dice_file', help='Dice path for save dice a the end of each epoch. Ex : '
                                                      '"/home/dice.csv"', type=str,
@@ -401,6 +402,7 @@ if __name__ == '__main__':
     parser.add_argument('-is_residual', '--is_residual', help="Should a residual GAN be train (sum of pred and image "
                                                               "for SR estimation) ? Value in {True,False} default : "
                                                               "True", type=str, default="True")
+    parser.add_argument('-ps', '--patch_size', type=int, help="Size of the patches (default: %(default)s)", default=64)
     args = parser.parse_args()
 
     # Transform str to boolean
@@ -443,9 +445,9 @@ if __name__ == '__main__':
                                     list_res_max=list_res_max, u_net_gen=u_net, multi_gpu=multi_gpu,
                                     is_conditional=is_conditional, is_residual=is_residual)
 
-    SegSRGAN_train.train(TrainingEpoch=args.epoch, BatchSize=args.batchsize,
-                         SnapshotEpoch=args.snapshot, InitializeEpoch=args.initepoch,
-                         NumCritic=args.numcritic,
+    SegSRGAN_train.train(training_epoch=args.epoch, batch_size=args.batch_size,
+                         snapshot_epoch=args.snapshot, initialize_epoch=args.initepoch,
+                         num_critic=args.num_critic, patch_size=args.patch_size,
                          resuming=args.weights,
                          dice_file=args.dice_file,
                          mse_file=args.mse_file,
