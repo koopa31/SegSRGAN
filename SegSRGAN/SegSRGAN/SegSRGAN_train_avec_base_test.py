@@ -328,12 +328,17 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     # path qui apres concatenation des path contenu dans le fichier csv amène au ficFhier.
-    parser.add_argument('-begining_path', '--base_path', help='path to concatenate with relative path contains in the csv. Not needed if the path in the csv file are not relative path'
+    parser.add_argument('-begining_path', '--base_path', help='path to concatenate with relative path contains in the '
+                                                              'csv. Not needed if the path in the csv file are not '
+                                                              'relative path'
                                                              , type=str, default='')
     parser.add_argument('-n', '--newlowres', type=float, action='append', help='upper and lower bounds between which '
                                                                                'the low resolution of each image at '
-                                                                               'each epoch will be choosen randomly. Ex : "-n 0.5 0.5 2 -n 0.5 0.5 3" implies (0.5,0.5,2) is the lower bounds and (0.5,0.5,3) is the upper bounds
-                                                                               nargs="+", required=True)
+                                                                               'each epoch will be choosen randomly. '
+                                                                               'Ex : "-n 0.5 0.5 2 -n 0.5 0.5 3" '
+                                                                               'implies (0.5,0.5,2) is the lower bounds'
+                                                                               ' and (0.5,0.5,3) is the upper bounds',
+                                                                               nargs='+', required=True)
     parser.add_argument('-contrast_max', '--contrast_max', help='Ex : 0.3 : NN trained on contrast between power 0.3'
                                                                 ' and 1.3 of initial image (default=0.5)', type=float,
                                                                 default=0.5)
@@ -342,7 +347,10 @@ if __name__ == '__main__':
                                                                       type=float, default=0.03)
     # tous les path se tranvant dans le fichier sont relatif a begining_path, collone HR_image : path HR Label_image :
     # path Label	mask : path mask Base : "Train" ou "Test",
-    parser.add_argument('-csv', '--csv', help='.csv containg relative path for testing and training base. Need 3 colunms named : "Label_image" : path to segmentation map, "HR_image" : path to HR image, and "Base" : either the image belong to the training ore testing base (Value in {"Test","Train"})', type=str,
+    parser.add_argument('-csv', '--csv', help='.csv containg relative path for testing and training base. Need 3'
+                                              ' colunms named : "Label_image" : path to segmentation map, "HR_image" :'
+                                              ' path to HR image, and "Base" : either the image belong to the training '
+                                              'ore testing base (Value in {"Test","Train"})', type=str,
                         required=True)
     parser.add_argument('-sf', '--snapshot_folder', help='Folder name for saving snapshot weights', type=str,
                         required=True)
@@ -363,9 +371,11 @@ if __name__ == '__main__':
     parser.add_argument('--lambgp', help='Lambda of gradient penalty loss (default=10)', type=int, default=10)
     parser.add_argument('--numcritic', help='Number of training time for discriminator (default=5) ', type=int,
                         default=5)
-    parser.add_argument('-dice', '--dice_file', help='Dice path for save dice a the end of each epoch. Ex : "/home/dice.csv"', type=str,
+    parser.add_argument('-dice', '--dice_file', help='Dice path for save dice a the end of each epoch. Ex : '
+                                                     '"/home/dice.csv"', type=str,
                         required=True)
-    parser.add_argument('-mse', '--mse_file', help='MSE path for save dice a the end of each epoch,"/home/MSE.csv"', type=str,
+    parser.add_argument('-mse', '--mse_file', help='MSE path for save dice a the end of each epoch,"/home/MSE.csv"',
+                        type=str,
                         required=True)
     parser.add_argument('-u_net', '--u_net_generator', help='Either the generator take u-net architecture (like u-net) '
                                                             'or not. Value in {True,False} default : False', type=str,
@@ -414,7 +424,7 @@ if __name__ == '__main__':
         
         list_res_max.extend(list_res_max)
         
-    print("the low resolution of images will be choosen randomly between "+str(list_res_max[0])+" and " +
+    print("the low resolution of images will be choosen randomly between " + str(list_res_max[0])+" and " +
           str(list_res_max[1]))
 
     SegSRGAN_train = SegSRGAN_train(training_csv=args.csv, contrast_max=args.contrast_max,
