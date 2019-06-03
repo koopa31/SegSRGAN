@@ -36,7 +36,7 @@ import shutil
 import time
 
 
-class SegSRGAN_train(object):
+class SegSrganTrain(object):
     def __init__(self, base_path, contrast_max, percent_val_max, list_res_max, training_csv, multi_gpu, patch=64,
                  first_discriminator_kernel=32, first_generator_kernel=16, lamb_rec=1, lamb_adv=0.001, lamb_gp=10,
                  lr_dis_model=0.0001, lr_gen_model=0.0001, u_net_gen=False, is_conditional=False, is_residual=True):
@@ -68,7 +68,19 @@ class SegSRGAN_train(object):
               folder_training_data,
               TrainingEpoch=200, BatchSize=16, SnapshotEpoch=1, InitializeEpoch=1, NumCritic=5,
               resuming=None):
+        """
 
+        :param snapshot_folder:
+        :param dice_file:
+        :param mse_file:
+        :param folder_training_data:
+        :param TrainingEpoch:
+        :param BatchSize:
+        :param SnapshotEpoch:
+        :param InitializeEpoch:
+        :param NumCritic:
+        :param resuming:
+        """
         # snapshot_prefix='weights/SegSRGAN_epoch'
         print("train begin")
         snapshot_prefix = snapshot_folder + "/SegSRGAN_epoch"
@@ -423,7 +435,7 @@ if __name__ == '__main__':
     print("the low resolution of images will be choosen randomly between " + str(list_res_max[0]) + " and " +
           str(list_res_max[1]))
 
-    SegSRGAN_train = SegSRGAN_train(training_csv=args.csv, contrast_max=args.contrast_max,
+    SegSRGAN_train = SegSrganTrain(training_csv=args.csv, contrast_max=args.contrast_max,
                                     percent_val_max=args.percent_val_max, first_discriminator_kernel=args.kerneldis,
                                     first_generator_kernel=args.kernelgen, lamb_rec=args.lambrec,
                                     lamb_adv=args.lambadv, lamb_gp=args.lambgp,
