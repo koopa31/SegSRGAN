@@ -23,18 +23,24 @@
   knowledge of the CeCILL-B license and that you accept its terms.
 """
 
-import numpy as np
-from itertools import product
-from sklearn.feature_extraction.image import extract_patches
-import SimpleITK as sitk
-import scipy.ndimage
-import sys
-sys.path.insert(0, './utils')
-from utils3d import modcrop3D
 import os
 import shutil
 import time
 import logging
+import sys
+import scipy.ndimage
+
+import numpy as np
+
+from itertools import product
+from sklearn.feature_extraction.image import extract_patches
+from ImageReader import NIFTIReader
+from ImageReader import DICOMReader
+sys.path.insert(0, './utils')
+from utils3d import modcrop3D
+
+
+import SimpleITK as sitk
 
 
 def array_to_patches(arr, patch_shape=(3, 3, 3), extraction_step=1, normalization=False):
@@ -111,9 +117,9 @@ def create_patch_from_df_hr(df,
                             batch_size,
                             contrast_list,
                             list_res,
+                            patch_size,
                             order=3,
                             thresholdvalue=0,
-                            PatchSize=64,
                             stride=20,
                             is_conditional=False):
     
@@ -154,16 +160,16 @@ def create_patch_from_df_hr(df,
         
         border_to_keep = border_im_keep(reference_image, thresholdvalue)
         
-        reference_image , low_resolution_image = change_contrast(reference_image, low_resolution_image, contrast_list[i])
+        reference_image, low_resolution_image = change_contrast(reference_image, low_resolution_image, contrast_list[i])
         
         low_resolution_image = add_noise(low_resolution_image, per_cent_val_max)
     
-        interpolated_image , reference_image = norm_and_interp(reference_image, low_resolution_image, order, up_scale)
+        interpolated_image, reference_image = norm_and_interp(reference_image, low_resolution_image, order, up_scale)
         
-        label_image , reference_image , interpolated_image = remove_border(label_image, reference_image,
+        label_image, reference_image, interpolated_image = remove_border(label_image, reference_image,
                                                                            interpolated_image, border_to_keep)
 
-        hdf5_labels, had5_dataa = create_patches(label_image, reference_image, interpolated_image, PatchSize, stride)
+        hdf5_labels, had5_dataa = create_patches(label_image, reference_image, interpolated_image, patch_size, stride)
         
         np.random.seed(0)       # makes the random numbers predictable
         random_order = np.random.permutation(had5_dataa.shape[0])
@@ -312,24 +318,29 @@ def add_noise(lr, per_cent_val_max):
 
 
 def create_lr_hr_label(reference_name, label_name, new_resolution):
-    # Read NIFTI
-    reference_nifti = sitk.ReadImage(reference_name)
 
-    # Get data from NIFTI
-    reference_image = np.swapaxes(sitk.GetArrayFromImage(reference_nifti), 0, 2).astype('float32')
+    # Read the reference SR image
+    if reference_name.endswith('.nii.gz'):
+        reference_instance = NIFTIReader(reference_name)
+    elif os.path.isdir(reference_name):
+        reference_instance = DICOMReader(reference_name)
 
-    # Read NIFTI
-    label_nifti = sitk.ReadImage(label_name)
+    reference_image = reference_instance.get_np_array()
 
-    # Get data from NIFTI
-    label_image = np.swapaxes(sitk.GetArrayFromImage(label_nifti), 0, 2).astype('float32')
+    # Read the labels image
+    if label_name.endswith('.nii.gz'):
+        label_instance = NIFTIReader(label_name)
+    elif os.path.isdir(label_name):
+        label_instance = DICOMReader(label_name)
+
+    label_image = label_instance.get_np_array()
 
     constant = 2*np.sqrt(2*np.log(2))
     # As Greenspan et al. (Full_width_at_half_maximum : slice thickness)
     sigma_blur = new_resolution/constant
 
     # Get resolution to scaling factor
-    up_scale = tuple(itemb/itema for itema, itemb in zip(reference_nifti.GetSpacing(), new_resolution))
+    up_scale = tuple(itemb/itema for itema, itemb in zip(reference_instance.itk_image.GetSpacing(), new_resolution))
 
     # Modcrop to scale factor
     reference_image = modcrop3D(reference_image, up_scale)
