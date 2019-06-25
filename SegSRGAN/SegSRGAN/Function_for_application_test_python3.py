@@ -22,13 +22,13 @@ from ImageReader import DICOMReader
 
 class SegSRGAN_test(object):
 
-    def __init__(self, weights, patch1, patch2, patch3, is_conditional, resolution=0):
+    def __init__(self, weights, patch1, patch2, patch3, is_conditional, u_net_gen, resolution=0):
 
         self.patch1 = patch1
         self.patch2 = patch2
         self.patch3 = patch3
         self.prediction = None
-        self.SegSRGAN = SegSRGAN(image_row=patch1,
+        self.SegSRGAN = SegSRGAN(u_net_gen=u_net_gen, image_row=patch1,
                                  image_column=patch2,
                                  image_depth=patch3, is_conditional=is_conditional)
         self.generator_model = self.SegSRGAN.generator_model_for_pred()
@@ -206,7 +206,7 @@ class SegSRGAN_test(object):
 
 
 def segmentation(input_file_path, step, new_resolution, path_output_cortex, path_output_hr, weights_path, patch=None,
-                 spline_order=3, by_batch=False, is_conditional=False):
+                 spline_order=3, by_batch=False, is_conditional=False, u_net_gen=False):
     """
 
     :param input_file_path: path of the image to be super resolved and segmented
@@ -283,7 +283,7 @@ def segmentation(input_file_path, step, new_resolution, path_output_cortex, path
         patch3 = depth
 
     # Loading weights
-    segsrgan_test_instance = SegSRGAN_test(weights_path, patch1, patch2, patch3, is_conditional, resolution)
+    segsrgan_test_instance = SegSRGAN_test(weights_path, patch1, patch2, patch3, is_conditional, u_net_gen, resolution)
 
     # GAN
     print("Testing : ")
