@@ -73,10 +73,10 @@ def resnet_blocks(input_res, kernel, name):
 
 class SegSRGAN(object):
     """Description of the GAN network structure"""
-    def __init__(self, image_row=64, image_column=64, image_depth=64,
+    def __init__(self, u_net_gen, image_row=64, image_column=64, image_depth=64,
                  first_discriminator_kernel=32, first_generator_kernel=16,
                  lamb_rec=1, lamb_adv=0.001, lamb_gp=10,
-                 lr_dis_model=0.0001, lr_gen_model=0.0001, u_net_gen=False, multi_gpu=True,
+                 lr_dis_model=0.0001, lr_gen_model=0.0001, multi_gpu=True,
                  is_conditional=False,
                  is_residual=True):
         self.image_row = image_row
@@ -482,7 +482,7 @@ class SegSRGAN(object):
         if self.G:
             return self.G
         if self.u_net_gen:
-            self.G = self.generator_block_u_net('G')
+            self.G = self.generator_block_u_net('G_unet')
         elif self.is_conditional:
             self.G = self.generator_block_conditionnal('G_cond')
         else:
