@@ -28,8 +28,9 @@ from keras.engine.topology import Layer
 import keras.backend as K
 import numpy as np
 
+
 class activation_SegSRGAN(Layer):
-    def __init__(self, int_channel=0 , seg_channel=1, activation='sigmoid',is_residual=True, **kwargs):
+    def __init__(self, int_channel=0, seg_channel=1, activation='sigmoid', is_residual=True, **kwargs):
         self.seg_channel = seg_channel
         self.int_channel = int_channel
         self.activation = activation
@@ -40,28 +41,29 @@ class activation_SegSRGAN(Layer):
         super(activation_SegSRGAN, self).build(input_shapes)
 
     def call(self, inputs):
-        recent_input = inputs[0] #pred
-        first_input = inputs[1] #im
+        recent_input = inputs[0] # pred
+        first_input = inputs[1] # im
         
         if self.activation == 'sigmoid':
             segmentation = K.sigmoid(recent_input[:, self.seg_channel, :, :, :])
         else:
-            assert('Do not support')
+            assert'Do not support'
         intensity = recent_input[:, self.int_channel, :, :, :]
         
         # Adding channel
-        segmentation = K.expand_dims(segmentation,axis=1)
-        intensity = K.expand_dims(intensity,axis=1)
+        segmentation = K.expand_dims(segmentation, axis=1)
+        intensity = K.expand_dims(intensity, axis=1)
         
         if self.is_residual :
             # residual
-            residual_intensity = first_input - intensity # correction de l'image interpolee
+            residual_intensity = first_input - intensity
+            # correction de l'image interpolee
             print("A residual model has been initialized")
-        else :
+        else:
             residual_intensity = intensity
             print("A non residual model has been initialized")
 
-        return  K.concatenate([residual_intensity,segmentation], axis=1)
+        return K.concatenate([residual_intensity,segmentation], axis=1)
     
     def compute_output_shape(self, input_shapes):
         return input_shapes[0]
@@ -185,5 +187,3 @@ class ReflectPadding3D(Layer):
         config = {'padding': self.padding}
         base_config = super(ReflectPadding3D, self).get_config()
         return dict(list(base_config.items()) + list(config.items()))
-    
-    
