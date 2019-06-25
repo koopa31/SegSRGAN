@@ -8,6 +8,8 @@ import ast
 
 import numpy as np
 
+weights_list = os.listdir(os.path.join(os.getcwd(), 'weights'))
+
 parser = argparse.ArgumentParser()
 parser.add_argument("-p", "--path", type=str, help="Path of the csv file")
 parser.add_argument("-dp", "--debut_path", type=str, help="Path beginning of the csv (default: %(default)s voxels)",
@@ -17,7 +19,8 @@ parser.add_argument("-s", "--step", type=str, help="Step between patches. Must b
                                                    "%(default)s)", default=64)
 parser.add_argument("-rf", "--result_folder_name", type=str, help='Name of the folder where the result is going to be '
                                                                   'stored')
-parser.add_argument("-wp", "--weights_path", type=str, help='Weights relative paths')
+parser.add_argument("-wp", "--weights_path", type=str, help='Weights relative path. List of the available weights:'
+                                                            ' %(default)s', default=weights_list)
 parser.add_argument("-bb", "--by_batch", type=str, help="Prediction on list of patches instead of using a for loop. "
                                                          "Enables for instance to automatically computes in multi-gpu "
                                                          "mode(default: %(default)s)", default="False")
