@@ -17,21 +17,26 @@ parser.add_argument("-s", "--step", type=str, help="Step between patches. Must b
                                                    "%(default)s)", default=64)
 parser.add_argument("-rf", "--result_folder_name", type=str, help='Name of the folder where the result is going to be '
                                                                   'stored')
-parser.add_argument("-wp", "--weights_relative_path", type=str, help='Weights relative paths')
+parser.add_argument("-wp", "--weights_path", type=str, help='Weights relative paths')
 parser.add_argument("-bb", "--by_batch", type=str, help="Prediction on list of patches instead of using a for loop. "
                                                          "Enables for instance to automatically computes in multi-gpu "
                                                          "mode(default: %(default)s)", default="False")
 parser.add_argument("-ic", "--is_conditional", type=str, help="Enable conditional prediction on z resolution",
                     default="False")
+parser.add_argument("-ung", "--u_net_gen", type=str, help="Enable U-net neural network",
+                    default="False")
+
+
 args = parser.parse_args()
 
 by_batch = ast.literal_eval(args.by_batch)
 is_conditional = ast.literal_eval(args.is_conditional)
+u_net_gen = ast.literal_eval(args.u_net_gen)
 # Argument :
 # name of the result folder
 result_folder = args.result_folder_name
 
-weights_relative_path = args.weights_relative_path
+weights_path = args.weights_path
 
 debut_relatif_path = args.debut_path  # Path to Base_pour_romeo
 
@@ -56,6 +61,15 @@ def list_of(arg):
 ensemble_pas = list_of_lists(args.step)
 patchs = list_of(args.patch)
 
+
+def absolute_path(path):
+
+    if os.path.isabs(path) is False:
+        weights_path = os.path.join(os.getcwd(), path)
+    else:
+        weights_path = path
+    return weights_path
+
 # Function :
 
 
@@ -73,7 +87,7 @@ ensemble_pas = pd.DataFrame(ensemble_pas, index=patchs)
 
 np_pas_per_patch = ensemble_pas.shape[1]
 
-weights_path = os.getcwd() + weights_relative_path
+weights_path = absolute_path(weights_path)
 
 for i in path_pour_application:
 
@@ -104,7 +118,8 @@ for i in path_pour_application:
                                                                    path_output_hr=path_output_SR,
                                                                    weights_path=weights_path,
                                                                    by_batch=by_batch,
-                                                                   is_conditional=is_conditional
+                                                                   is_conditional=is_conditional,
+                                                                   u_net_gen=u_net_gen
                                                                    )
             else:
 
@@ -136,7 +151,8 @@ for i in path_pour_application:
                                                                        path_output_hr=path_output_SR,
                                                                        weights_path=weights_path,
                                                                        by_batch=by_batch,
-                                                                       is_conditional=is_conditional
+                                                                       is_conditional=is_conditional,
+                                                                       u_net_gen=u_net_gen
                                                                        )
                 else:
 

@@ -56,7 +56,7 @@ Where:
 In order to facilitate the segmentation of several images, you can run SegSRGAN/SegSRGAN/job_model.py:
 
 `python job_model.py --path
---patch --step --result_folder_name --weights_relative_path --is_conditional`
+--patch --step --result_folder_name --weights_path --is_conditional`
 
 The list of the paths of the images to be processed must be stored in a csv file.
 
