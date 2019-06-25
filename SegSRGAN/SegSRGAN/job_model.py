@@ -65,18 +65,25 @@ ensemble_pas = list_of_lists(args.step)
 patchs = list_of(args.patch)
 
 
-def absolute_path(path):
-
+def absolute_weights_path(path):
+    """
+    Turn the weights path to its absolute path if relative.
+    :param path: Path to the weights directory
+    :return: Absolute path to the weights directory
+    """
     if os.path.isabs(path) is False:
         weights_path = os.path.join(os.getcwd(), path)
     else:
         weights_path = path
     return weights_path
 
-# Function :
-
 
 def create_folder(directory):
+    """
+    Creates a folder if it does not already exist
+    :param directory: path of the directory
+    :return:
+    """
     try:
         if not os.path.exists(directory):
             os.makedirs(directory)
@@ -90,7 +97,7 @@ ensemble_pas = pd.DataFrame(ensemble_pas, index=patchs)
 
 np_pas_per_patch = ensemble_pas.shape[1]
 
-weights_path = absolute_path(weights_path)
+weights_path = absolute_weights_path(weights_path)
 
 for i in path_pour_application:
 
