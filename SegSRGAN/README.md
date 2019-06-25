@@ -70,7 +70,7 @@ Where:
 
 Example of syntax for step and patch setting:
 
---patch 64 128
+--patch 64,128
 
 --step 32 64,64 128
 
