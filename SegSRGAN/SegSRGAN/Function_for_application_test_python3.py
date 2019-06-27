@@ -211,7 +211,7 @@ class SegSRGAN_test(object):
 
 
 def segmentation(input_file_path, step, new_resolution, path_output_cortex, path_output_hr, weights_path, patch=None,
-                 spline_order=3, by_batch=False, is_conditional=False, u_net_gen=False):
+                 spline_order=3, by_batch=False):
     """
 
     :param input_file_path: path of the image to be super resolved and segmented
@@ -223,7 +223,6 @@ def segmentation(input_file_path, step, new_resolution, path_output_cortex, path
     :param patch: the size of the patches
     :param spline_order: for the interpolation
     :param by_batch: to enable the by-batch processing
-    :param is_conditional: to perform a conditional GAN on the LR image resolution
     :return:
     """
     # TestFile = path de l'image en entree
@@ -247,6 +246,16 @@ def segmentation(input_file_path, step, new_resolution, path_output_cortex, path
         if 'conv_dis_1/kernel' in i:
             weight_values = D[i]
     first_discriminator_kernel = weight_values.shape[4]
+
+    if 'G_cond' in list(weights.keys())[1]:
+        is_conditional = True
+        u_net_gen = False
+    elif 'G_unet' in list(weights.keys())[1]:
+        is_conditional = False
+        u_net_gen = True
+    else:
+        is_conditional = False
+        u_net_gen = False
 
     # Check resolution
     if np.isscalar(new_resolution):
