@@ -2,6 +2,7 @@ import os
 
 import progressbar
 import sys
+import h5py
 
 import numpy as np
 import SimpleITK as sitk
@@ -18,17 +19,21 @@ from utils3d import pad3D
 from utils.SegSRGAN import SegSRGAN
 from ImageReader import NIFTIReader
 from ImageReader import DICOMReader
+from keras.engine import saving
 
 
 class SegSRGAN_test(object):
 
-    def __init__(self, weights, patch1, patch2, patch3, is_conditional, u_net_gen, resolution=0):
+    def __init__(self, weights, patch1, patch2, patch3, is_conditional, u_net_gen, first_generator_kernel,
+                 first_discriminator_kernel,  resolution=0):
 
         self.patch1 = patch1
         self.patch2 = patch2
         self.patch3 = patch3
         self.prediction = None
-        self.SegSRGAN = SegSRGAN(u_net_gen=u_net_gen, image_row=patch1,
+        self.SegSRGAN = SegSRGAN(first_generator_kernel=first_generator_kernel,
+                                 first_discriminator_kernel=first_discriminator_kernel, u_net_gen=u_net_gen,
+                                 image_row=patch1,
                                  image_column=patch2,
                                  image_depth=patch3, is_conditional=is_conditional)
         self.generator_model = self.SegSRGAN.generator_model_for_pred()
@@ -224,6 +229,25 @@ def segmentation(input_file_path, step, new_resolution, path_output_cortex, path
     # TestFile = path de l'image en entree
     # high_resolution = tuple des resolutions (par axe)
 
+    # Get the generator kernel from the weights we are going to use
+
+    weights = h5py.File(weights_path, 'r')
+    G = weights[list(weights.keys())[1]]
+    weight_names = saving.load_attributes_from_hdf5_group(G, 'weight_names')
+    for i in weight_names:
+        if 'gen_conv1' in i:
+            weight_values = G[i]
+    first_generator_kernel = weight_values.shape[4]
+
+    # Get the generator kernel from the weights we are going to use
+
+    D = weights[list(weights.keys())[0]]
+    weight_names = saving.load_attributes_from_hdf5_group(D, 'weight_names')
+    for i in weight_names:
+        if 'conv_dis_1/kernel' in i:
+            weight_values = D[i]
+    first_discriminator_kernel = weight_values.shape[4]
+
     # Check resolution
     if np.isscalar(new_resolution):
         new_resolution = (new_resolution, new_resolution, new_resolution)
@@ -283,7 +307,8 @@ def segmentation(input_file_path, step, new_resolution, path_output_cortex, path
         patch3 = depth
 
     # Loading weights
-    segsrgan_test_instance = SegSRGAN_test(weights_path, patch1, patch2, patch3, is_conditional, u_net_gen, resolution)
+    segsrgan_test_instance = SegSRGAN_test(weights_path, patch1, patch2, patch3, is_conditional, u_net_gen,
+                                           first_generator_kernel, first_discriminator_kernel, resolution)
 
     # GAN
     print("Testing : ")
