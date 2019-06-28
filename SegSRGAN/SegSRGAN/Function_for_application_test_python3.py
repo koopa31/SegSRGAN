@@ -264,7 +264,7 @@ def segmentation(input_file_path, step, new_resolution, path_output_cortex, path
         new_resolution = (new_resolution, new_resolution, new_resolution)
     else:
         if len(new_resolution) != 3:
-            raise AssertionError('Not support this resolution !')
+            raise AssertionError('Resolution not supported!')
 
     # Read low-resolution image
     if input_file_path.endswith('.nii.gz'):
