@@ -48,7 +48,7 @@ Where:
 > * **patch** is the size of the patches
 > * **spline_order** for the interpolation
 > * **by_batch** is to enable the by-batch processing
-> * **is_conditional** to perform a conditional GAN on the LR image resolution
+
 
 
 ## Segmentation of a set of images with several step and patch values
@@ -56,7 +56,7 @@ Where:
 In order to facilitate the segmentation of several images, you can run SegSRGAN/SegSRGAN/job_model.py:
 
 `python job_model.py --path
---patch --step --result_folder_name --weights_path --is_conditional`
+--patch --step --result_folder_name --weights_path`
 
 The list of the paths of the images to be processed must be stored in a csv file.
 
@@ -66,7 +66,6 @@ Where:
 > * **patch** list of patch sizes 
 > * **step** list of steps 
 > * **result_folder_name** Name of the folder containing the results
-> * **is_conditional** Boolean to perform a conditional neural network with a condition on z-resolution
 
 Example of syntax for step and patch setting:
 
