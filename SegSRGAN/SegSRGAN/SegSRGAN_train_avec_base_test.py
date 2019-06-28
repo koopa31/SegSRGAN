@@ -124,7 +124,7 @@ class SegSrganTrain(object):
             else:
                 print('Continue training from : ', resuming)
                 self.GeneratorModel.load_weights(resuming, by_name=True)
-        #                iteration = (initialize_epoch-1)*iterationPerEpoch
+                iteration = 0
         # patch test creation :
 
         t1 = time.time()
