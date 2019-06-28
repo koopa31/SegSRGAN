@@ -24,17 +24,12 @@ parser.add_argument("-wp", "--weights_path", type=str, help='Weights relative pa
 parser.add_argument("-bb", "--by_batch", type=str, help="Prediction on list of patches instead of using a for loop. "
                                                          "Enables for instance to automatically computes in multi-gpu "
                                                          "mode(default: %(default)s)", default="False")
-parser.add_argument("-ic", "--is_conditional", type=str, help="Enable conditional prediction on z resolution",
-                    default="False")
-parser.add_argument("-ung", "--u_net_gen", type=str, help="Enable U-net neural network",
-                    default="False")
 
 
 args = parser.parse_args()
 
 by_batch = ast.literal_eval(args.by_batch)
-is_conditional = ast.literal_eval(args.is_conditional)
-u_net_gen = ast.literal_eval(args.u_net_gen)
+
 # Argument :
 # name of the result folder
 result_folder = args.result_folder_name
@@ -128,8 +123,6 @@ for i in path_pour_application:
                                                                    path_output_hr=path_output_SR,
                                                                    weights_path=weights_path,
                                                                    by_batch=by_batch,
-                                                                   is_conditional=is_conditional,
-                                                                   u_net_gen=u_net_gen
                                                                    )
             else:
 
@@ -161,8 +154,6 @@ for i in path_pour_application:
                                                                        path_output_hr=path_output_SR,
                                                                        weights_path=weights_path,
                                                                        by_batch=by_batch,
-                                                                       is_conditional=is_conditional,
-                                                                       u_net_gen=u_net_gen
                                                                        )
                 else:
 
