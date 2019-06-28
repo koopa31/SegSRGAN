@@ -247,6 +247,8 @@ def segmentation(input_file_path, step, new_resolution, path_output_cortex, path
             weight_values = D[i]
     first_discriminator_kernel = weight_values.shape[4]
 
+    # Selection of the kind of network
+
     if 'G_cond' in list(weights.keys())[1]:
         is_conditional = True
         u_net_gen = False
