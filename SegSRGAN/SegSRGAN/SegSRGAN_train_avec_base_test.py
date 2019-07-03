@@ -322,7 +322,7 @@ class SegSrganTrain(object):
 
             Dice = (2 * np.sum(VP)) / (np.sum(Pos_pred) + np.sum(Pos_label))
 
-            MSE = np.sum(MSE_list) / (batch_size ** 3 * len(MSE_list))
+            MSE = np.sum(MSE_list) / (patch_size ** 3 * len(MSE_list))
 
             print("Iter " + str(EpochIndex) + " [Test Dice : " + str(Dice) + "]")
 
