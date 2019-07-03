@@ -316,6 +316,14 @@ def segmentation(input_file_path, step, new_resolution, path_output_cortex, path
         patch1 = height
         patch2 = width
         patch3 = depth
+    
+    if ((step>patch1) |  (step>patch2) | (step>patch1)) & patch is not None :
+        
+        raise AssertionError('The step need to be smaller than the patch size')
+        
+    if (np.shape(padded_interpolated_image)[0]<patch1)|(np.shape(padded_interpolated_image)[1]<patch2)|(np.shape(padded_interpolated_image)[3]<patch3):
+        
+        raise AssertionError('The patch size need to be smaller than the interpolated image size')
 
     # Loading weights
     segsrgan_test_instance = SegSRGAN_test(weights_path, patch1, patch2, patch3, is_conditional, u_net_gen,
