@@ -118,6 +118,10 @@ class SegSrganTrain(object):
 
         elif initialize_epoch < 1:
             raise AssertionError('Resumming needs a positive epoch')
+            
+        elif training_epoch < initialize_epoch : 
+            
+            raise AssertionError('initialize epoch need to be smaller than the total number of training epoch ')
         else:
             if resuming is None:
                 raise AssertionError('We need pretrained weights')
