@@ -79,6 +79,10 @@ class SegSRGAN(object):
                  lr_dis_model=0.0001, lr_gen_model=0.0001, multi_gpu=True,
                  is_conditional=False,
                  is_residual=True):
+        if (image_row %4!=0) |  (image_column %4!=0) | (image_depth %4!=0) :
+            
+            raise AssertionError('Patch size must be divisible by 4')
+            
         self.image_row = image_row
         self.image_column = image_column
         self.image_depth = image_depth
