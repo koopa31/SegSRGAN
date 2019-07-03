@@ -102,7 +102,7 @@ for i in path_pour_application:
 
             i_split = i.split("/")
 
-            path_output = "/".join(i_split[:(len(i_split) - 1)]) + "/code avec " + result_folder + "/patch " + str(
+            path_output = "/".join(i_split[:(len(i_split) - 1)]) + "/Result_with" + result_folder + "/patch " + str(
                 patch)
 
             print(path_output)
@@ -133,8 +133,8 @@ for i in path_pour_application:
 
                 i_split = i.split("/")
 
-                path_output = "/".join(i_split[:(len(i_split) - 1)]) + "/code avec " + result_folder + "/patch " + str(
-                    patch) + " step " + str(step) + " inversion shave padd"
+                path_output = "/".join(i_split[:(len(i_split) - 1)]) + "/Result_with " + result_folder + "/patch " + str(
+                    patch) + " step " + str(step) 
 
                 print(path_output)
 
