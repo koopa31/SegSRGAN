@@ -169,7 +169,7 @@ def create_patch_from_df_hr(df,
         label_image, reference_image, interpolated_image = remove_border(label_image, reference_image,
                                                                            interpolated_image, border_to_keep)
         
-        if (patch_size[0]>interpolated_image.shape[0])|(patch_size[1]>interpolated_image.shape[1]) | (patch_size[2]>interpolated_image.shape[2]) : 
+        if (patch_size>interpolated_image.shape[0])|(patch_size>interpolated_image.shape[1]) | (patch_size>interpolated_image.shape[2]) : 
             
             raise AssertionError('The patch size is too large compare to the size on the image')
 
