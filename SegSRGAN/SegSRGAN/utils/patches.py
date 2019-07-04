@@ -156,7 +156,7 @@ def create_patch_from_df_hr(df,
         t1 = time.time()
         
         low_resolution_image, reference_image, label_image, up_scale = create_lr_hr_label(reference_name, label_name,
-                                                                                          list_res[i])
+                                                                                          list_res[i]) #From here, the three images have the same size (see crop in create_lr_hr_label)
         
         border_to_keep = border_im_keep(reference_image, thresholdvalue)
         
@@ -168,6 +168,10 @@ def create_patch_from_df_hr(df,
         
         label_image, reference_image, interpolated_image = remove_border(label_image, reference_image,
                                                                            interpolated_image, border_to_keep)
+        
+        if (patch_size[0]>interpolated_image.shape[0])|(patch_size[1]>interpolated_image.shape[1]) | (patch_size[2]>interpolated_image.shape[2]) : 
+            
+            raise AssertionError('The patch size is too large compare to the size on the image')
 
         hdf5_labels, had5_dataa = create_patches(label_image, reference_image, interpolated_image, patch_size, stride)
         
@@ -272,8 +276,8 @@ def create_patches(label, hr, interp, patch_size, stride):
     # hdf5_labels[0] = label_hr_patch et 1=label_cortex_patch
 
     hdf5_labels = np.swapaxes(hdf5_labels, 0, 1)
-    # premiere dim = patch ex : hdf5_labels[0,0,:,:,:] = hr premier patch
-    # et hdf5_labels[0,1,:,:,:] = label premier patch
+    # premiere dim = patch ex : hdf5_labels[0,0,:,:,:] = hr first patch
+    # et hdf5_labels[0,1,:,:,:] = label first patch
 
     return hdf5_labels, hdf5_data
 
