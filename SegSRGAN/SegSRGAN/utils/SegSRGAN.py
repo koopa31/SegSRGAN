@@ -672,7 +672,7 @@ class SegSRGAN(object):
         # self.dis_model = multi_gpu_model(self.dis_model, gpus=num_gpu)
         self.dis_model_multi_gpu.compile(Adam(lr=self.lr_dis_model, beta_1=0.5, beta_2=0.999),
                                         loss=[wasserstein_loss, wasserstein_loss, partial_gp_loss],
-                                        loss_weights=[1, 1, self.lamb_gp])
+                                        loss_weights=[1, 1, 1])
         # multi gpu training ne change rien au temps d'exectution sur romeo. meme en changeant l'argument cpu_merge=False.
 
         return self.dis_model, self.dis_model_multi_gpu
