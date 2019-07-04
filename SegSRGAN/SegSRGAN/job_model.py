@@ -114,19 +114,33 @@ for i in path_pour_application:
                 path_output_cortex = path_output + "/Cortex " + str(patch) + ".nii.gz"
 
                 path_output_SR = path_output + "/SR " + str(patch) + ".nii.gz"
-
-                Function_for_application_test_python3.segmentation(input_file_path=i,
-                                                                   step=20,
-                                                                   new_resolution=(0.5, 0.5, 0.5),
-                                                                   patch=patch,
-                                                                   path_output_cortex=path_output_cortex,
-                                                                   path_output_hr=path_output_SR,
-                                                                   weights_path=weights_path,
-                                                                   by_batch=by_batch,
-                                                                   )
+                
+                try :
+                    
+                    Function_for_application_test_python3.segmentation(input_file_path=i,
+                                                                       step=20,
+                                                                       new_resolution=(0.5, 0.5, 0.5),
+                                                                       patch=patch,
+                                                                       path_output_cortex=path_output_cortex,
+                                                                       path_output_hr=path_output_SR,
+                                                                       weights_path=weights_path,
+                                                                       by_batch=by_batch,
+                                                                       )
+                except (Exception,KeyboardInterrupt) as err :  # on attrape les erreur et on execute ce qu'il se passe en dessus (ici pour les erreur Exception et KeyboardInterrupt )
+                        
+                        if str(err) != "" :
+                            
+                            print('ERROR: %s' % str(err))
+                           
+                        if len(os.listdir(path_output))==0 :
+                            
+                            os.rmdir(path_output)
+                        else : 
+                            
+                            print("An error occurs but the result folder ",path_output," is not empty so cannot be deleted.")
             else:
 
-                print("already computed")
+                print("already computed. If not please delete the folder ", path_output)
         else:
 
             for step in ensemble_pas.loc[patch]:
@@ -145,16 +159,32 @@ for i in path_pour_application:
                     path_output_cortex = path_output + "/Cortex patch " + str(patch) + " step " + str(step) + ".nii.gz"
 
                     path_output_SR = path_output + "/SR.nii.gz" + str(patch) + " step " + str(step) + ".nii.gz"
+                    
+                    try : 
 
-                    Function_for_application_test_python3.segmentation(input_file_path=i,
-                                                                       step=step,
-                                                                       new_resolution=(0.5, 0.5, 0.5),
-                                                                       patch=patch,
-                                                                       path_output_cortex=path_output_cortex,
-                                                                       path_output_hr=path_output_SR,
-                                                                       weights_path=weights_path,
-                                                                       by_batch=by_batch,
-                                                                       )
+                        Function_for_application_test_python3.segmentation(input_file_path=i,
+                                                                           step=step,
+                                                                           new_resolution=(0.5, 0.5, 0.5),
+                                                                           patch=patch,
+                                                                           path_output_cortex=path_output_cortex,
+                                                                           path_output_hr=path_output_SR,
+                                                                           weights_path=weights_path,
+                                                                           by_batch=by_batch,
+                                                                           )
+                    except (Exception,KeyboardInterrupt) as err :  # on attrape les erreur et on execute ce qu'il se passe en dessus (ici pour les erreur Exception et KeyboardInterrupt )
+                        
+                        if str(err) != "" :
+                            
+                            print('ERROR: %s' % str(err))
+                           
+                        if len(os.listdir(path_output))==0 :
+                            
+                            os.rmdir(path_output)
+                        else : 
+                            
+                            print("An error occurs but the result folder ",path_output," is not empty so cannot be deleted.")
+                        
+                    
                 else:
 
-                    print("already computed")
+                    print("already computed. If not please delete the folder ", path_output)
