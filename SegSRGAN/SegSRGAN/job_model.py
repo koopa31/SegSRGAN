@@ -5,10 +5,18 @@ import glob
 import os
 import argparse
 import ast
+import sys
+
 
 import numpy as np
 
-weights_list = os.listdir(os.path.join(os.getcwd(), 'weights'))
+
+start = "\033[1m" # for printing in bold
+end = "\033[0;0m"
+RED = '\033[31m'   # mode 31 = red forground
+RESET = '\033[0m'  # mode 0  = reset
+
+weights_list = [os.path.join("weights/",x) for x in os.listdir(os.path.join(os.getcwd(),'weights'))]
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-p", "--path", type=str, help="Path of the csv file")
@@ -43,10 +51,46 @@ data = pd.read_csv(os.path.join(debut_relatif_path, args.path), header=None).ilo
 
 path_pour_application = [os.path.join(debut_relatif_path, i) for i in data]
 
+def pgcd(a,b):
+    #Retourne le PGCD de a et b  
+    r=1
+    if a<b:
+        a,b=b,a
+    if a!=0 and b!=0:
+        while r > 0:
+            r=a%b
+            a=b
+            b=r
+        return(a)
+        
+def ppcm_function(a,b):
+    
+    #Retourne le PPCM de a et b
+    if a!=0 and b!=0:
+        ppcm = (a*b)/pgcd(a,b)
+        return(int(ppcm))
+
 
 def list_of_lists(arg):
+    
     m = [x.split(' ') for x in arg.split(',')]
+    size_of_step_per_patch = [ len(x) for x in m]
+
+    if len(m) > 1 :
+        
+        ppcm = size_of_step_per_patch[0]
+        
+        for i in range(1,len(size_of_step_per_patch)) : 
+            
+            ppcm = ppcm_function(ppcm,size_of_step_per_patch[i])
+            
+        for i in range(len(m)) : 
+            
+            mult = ppcm / size_of_step_per_patch[i]
+            
+            m[i] = list(np.repeat(m[i],mult))
     m = np.array(m).astype('int')
+    
     return m.tolist()
 
 
@@ -83,8 +127,33 @@ def create_folder(directory):
         if not os.path.exists(directory):
             os.makedirs(directory)
     except OSError:
-        print('Error: Creating directory. ' + directory)
+        print(RED+start+'Error: Creating directory. ' + directory+end+RESET)
+        
+        
+def result_folder_name(base_folder,patch,step,result_folder) :
+    
+    base_folder_split = base_folder.split("/")
+    
+    path_output = "/".join(base_folder_split[:(len(base_folder_split) - 1)]) + "/Result_with_" + result_folder + "/patch " + str(
+        patch)
 
+    if patch is None : 
+
+        path_output_cortex = path_output + "/Cortex whole image" + ".nii.gz"
+
+        path_output_SR = path_output + "/SR  whole image"  + ".nii.gz"
+        
+    else : 
+        
+         path_output = path_output + " step " + str(step) 
+         
+         path_output_cortex = path_output + "/Cortex patch " + str(patch) + " step " + str(step) + ".nii.gz"
+
+         path_output_SR = path_output + "/SR patch " + str(patch) + " step " + str(step) + ".nii.gz"
+         
+    return path_output, path_output_cortex, path_output_SR
+
+         
 # Execution :
 
 
@@ -98,70 +167,18 @@ for i in path_pour_application:
 
     for patch in patchs:
 
-        if patch is None:
-
-            i_split = i.split("/")
-
-            path_output = "/".join(i_split[:(len(i_split) - 1)]) + "/Result_with_" + result_folder + "/patch " + str(
-                patch)
-
-            print(path_output)
-
-            if not os.path.exists(path_output):
-
-                create_folder(path_output)
-
-                path_output_cortex = path_output + "/Cortex " + str(patch) + ".nii.gz"
-
-                path_output_SR = path_output + "/SR " + str(patch) + ".nii.gz"
+            for step in np.unique(ensemble_pas.loc[patch]):
                 
-                try :
-                    
-                    Function_for_application_test_python3.segmentation(input_file_path=i,
-                                                                       step=20,
-                                                                       new_resolution=(0.5, 0.5, 0.5),
-                                                                       patch=patch,
-                                                                       path_output_cortex=path_output_cortex,
-                                                                       path_output_hr=path_output_SR,
-                                                                       weights_path=weights_path,
-                                                                       by_batch=by_batch,
-                                                                       )
-                except (Exception,KeyboardInterrupt) as err :  # on attrape les erreur et on execute ce qu'il se passe en dessus (ici pour les erreur Exception et KeyboardInterrupt )
-                        
-                        if str(err) != "" :
-                            
-                            print('ERROR: %s' % str(err))
-                           
-                        if len(os.listdir(path_output))==0 :
-                            
-                            os.rmdir(path_output)
-                        else : 
-                            
-                            print("An error occurs but the result folder ",path_output," is not empty so cannot be deleted.")
-            else:
-
-                print("already computed. If not please delete the folder ", path_output)
-        else:
-
-            for step in ensemble_pas.loc[patch]:
-
-                i_split = i.split("/")
-
-                path_output = "/".join(i_split[:(len(i_split) - 1)]) + "/Result_with_ " + result_folder + "/patch " + str(
-                    patch) + " step " + str(step) 
-
-                print(path_output)
+                path_output, path_output_cortex, path_output_SR = result_folder_name(i,patch,step,result_folder)
+        
+                print("\n"+start+"Processing : "+path_output+"\n"+end)
 
                 if not os.path.exists(path_output):
 
                     create_folder(path_output)
-
-                    path_output_cortex = path_output + "/Cortex patch " + str(patch) + " step " + str(step) + ".nii.gz"
-
-                    path_output_SR = path_output + "/SR.nii.gz" + str(patch) + " step " + str(step) + ".nii.gz"
                     
                     try : 
-
+                        
                         Function_for_application_test_python3.segmentation(input_file_path=i,
                                                                            step=step,
                                                                            new_resolution=(0.5, 0.5, 0.5),
@@ -175,16 +192,22 @@ for i in path_pour_application:
                         
                         if str(err) != "" :
                             
-                            print('ERROR: %s' % str(err))
+                            print('\n'+RED+start+'ERROR: %s' % str(err))
+                            print("\n"+RESET+end)
                            
                         if len(os.listdir(path_output))==0 :
                             
-                            os.rmdir(path_output)
+                            print("\n"+start+"The folder ",path_output,"have been deleted ! \n"+end)
+                            
+                            os.rmdir(path_output) # Delete the folder path_output because in case of error the folder was already created but empty.
+                            
                         else : 
                             
-                            print("An error occurs but the result folder ",path_output," is not empty so cannot be deleted.")
+                            print("\n"+RED+start+"An error occurs but the result folder ",path_output," is not empty so cannot be deleted."+end+RESET+"\n")
+                            
+                        sys.exit()
                         
                     
                 else:
 
-                    print("already computed. If not please delete the folder ", path_output)
+                    print("\n"+start+"already computed. If not please delete the folder ", path_output+end,"\n")
