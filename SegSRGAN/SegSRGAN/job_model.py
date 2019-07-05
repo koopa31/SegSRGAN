@@ -11,12 +11,14 @@ import sys
 import numpy as np
 
 
+
+
 start = "\033[1m" # for printing in bold
 end = "\033[0;0m"
 RED = '\033[31m'   # mode 31 = red forground
 RESET = '\033[0m'  # mode 0  = reset
 
-weights_list = [os.path.join("weights/",x) for x in os.listdir(os.path.join(os.getcwd(),'weights'))]
+weights_list = [os.path.join("weights",x) for x in os.listdir(os.path.join(os.getcwd(),'weights'))]
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-p", "--path", type=str, help="Path of the csv file")
@@ -138,24 +140,24 @@ def create_folder(directory):
         
 def result_folder_name(base_folder,patch,step,result_folder) :
     
-    base_folder_split = base_folder.split("/")
+    base_folder_split =  os.path.split(base_folder)
     
-    path_output = "/".join(base_folder_split[:(len(base_folder_split) - 1)]) + "/Result_with_" + result_folder + "/patch " + str(
-        patch)
+    path_output = os.path.join(*base_folder_split[:(len(base_folder_split) - 1)],"Result_with_"+result_folder,"patch "+str(
+        patch))
 
     if patch is None : 
 
-        path_output_cortex = path_output + "/Cortex whole image" + ".nii.gz"
+        path_output_cortex = os.path.join(path_output,"Cortex whole image.nii.gz")
 
-        path_output_SR = path_output + "/SR  whole image"  + ".nii.gz"
+        path_output_SR = os.path.join(path_output,"SR  whole image.nii.gz")
         
     else : 
         
          path_output = path_output + " step " + str(step) 
          
-         path_output_cortex = path_output + "/Cortex patch " + str(patch) + " step " + str(step) + ".nii.gz"
+         path_output_cortex = os.path.join(path_output,"Cortex patch " + str(patch) + " step " + str(step) + ".nii.gz")
 
-         path_output_SR = path_output + "/SR patch " + str(patch) + " step " + str(step) + ".nii.gz"
+         path_output_SR = os.path.join(path_output + "SR patch " + str(patch) + " step " + str(step) + ".nii.gz")
          
     return path_output, path_output_cortex, path_output_SR
 
@@ -182,6 +184,8 @@ for i in path_pour_application:
                 if not os.path.exists(path_output):
 
                     create_folder(path_output)
+                
+                if len(os.listdir(path_output))==0 :
                     
                     try : 
                         
@@ -215,5 +219,7 @@ for i in path_pour_application:
                         
                     
                 else:
+                    
+                    
 
-                    print("\n"+start+"already computed. If not please delete the folder ", path_output+end,"\n")
+                    print("\n"+start+"The output folder : ", path_output,"already exists and is not empty. Generally because the result have already been computed"+end,"\n")
