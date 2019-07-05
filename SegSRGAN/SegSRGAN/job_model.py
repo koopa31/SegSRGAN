@@ -95,10 +95,16 @@ def list_of_lists(arg):
 
 
 def list_of(arg):
-    m = [x for x in arg.split(',')]
-    m = np.array(m).astype('int')
-    return m.tolist()
-
+    
+    m=[]
+    for x in arg.split(',') : 
+        
+        if x != "None":
+            m.append(int(x))
+        else : 
+            m.append(None)
+        
+    return m
 
 ensemble_pas = list_of_lists(args.step)
 patchs = list_of(args.patch)
