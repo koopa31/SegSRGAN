@@ -27,7 +27,7 @@ import argparse
 import os
 import sys
 
-sys.path.insert(0, './utils')
+sys.path.insert(0, os.path.join('.",utils'))
 from SegSRGAN import SegSRGAN
 from patches import create_patch_from_df_hr
 import pandas as pd
@@ -84,7 +84,7 @@ class SegSrganTrain(object):
         """
         # snapshot_prefix='weights/SegSRGAN_epoch'
         print("train begin")
-        snapshot_prefix = snapshot_folder + "/SegSRGAN_epoch"
+        snapshot_prefix = os.path.join(snapshot_folder,"SegSRGAN_epoch")
 
         # boolean to print only one time 'the number of patch not in one epoch (mode batch_size)'
         never_print = True
@@ -151,7 +151,7 @@ class SegSrganTrain(object):
                                     contrast_list=test_contrast_list, list_res=res_test, order=3,
                                     thresholdvalue=0, patch_size=patch_size, batch_size=1,
                                     # 1 to keep all data
-                                    path_save_npy=folder_training_data + "/test_mini_batch", stride=20,
+                                    path_save_npy=os.path.join(folder_training_data,"test_mini_batch"), stride=20,
                                     is_conditional=self.is_conditional)
 
         t2 = time.time()
@@ -177,7 +177,7 @@ class SegSrganTrain(object):
                 create_patch_from_df_hr(df=data_train, per_cent_val_max=self.percent_val_max,
                                         contrast_list=train_contrast_list, list_res=res_train, order=3,
                                         thresholdvalue=0, patch_size=patch_size, batch_size=batch_size,
-                                        path_save_npy=folder_training_data + "/train_mini_batch", stride=20,
+                                        path_save_npy=os.path.join(folder_training_data,"train_mini_batch"), stride=20,
                                         is_conditional=self.is_conditional)
             iterationPerEpoch = len(train_Path_Datas_mini_batch)
 
@@ -334,9 +334,9 @@ class SegSrganTrain(object):
             df_dice.to_csv(dice_file)
             df_MSE.to_csv(mse_file)
 
-            shutil.rmtree(folder_training_data + "/train_mini_batch")
+            shutil.rmtree(os.path.join(folder_training_data,"train_mini_batch"))
 
-        shutil.rmtree(folder_training_data + "/test_mini_batch")
+        shutil.rmtree(os.path.join(folder_training_data,"test_mini_batch"))
 
 
 if __name__ == '__main__':
