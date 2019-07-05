@@ -36,7 +36,7 @@ from itertools import product
 from sklearn.feature_extraction.image import extract_patches
 from ImageReader import NIFTIReader
 from ImageReader import DICOMReader
-sys.path.insert(0, './utils')
+sys.path.insert(0, os.path.join('.','utils'))
 from utils3d import modcrop3D
 
 
@@ -212,7 +212,8 @@ def create_patch_from_df_hr(df,
             
             t1 = time.time()
             
-            np.save(path_save_npy + "/Datas_mini_batch_"+str(mini_batch) + ".npy",datas[:batch_size, :, :, :, :])
+            np.save(os.path.join(path_save_npy ,"Datas_mini_batch_"+str(mini_batch)) + ".npy",
+                    datas[:batch_size, :, :, :, :])
             
             t2 = time.time()
             
@@ -222,7 +223,8 @@ def create_patch_from_df_hr(df,
             
             t1 = time.time()
             
-            np.save(path_save_npy + "/Label_mini_batch_" + str(mini_batch) + ".npy", labels[:batch_size, :, :, :, :])
+            np.save(os.path.join(path_save_npy,"Label_mini_batch_" + str(mini_batch) + ".npy"), 
+                    labels[:batch_size, :, :, :, :])
             
             t2 = time.time()
             
@@ -231,9 +233,9 @@ def create_patch_from_df_hr(df,
             labels = labels[batch_size:, :, :, :, :]
             labels_list = [labels]
 
-            path_data_mini_batch.append(path_save_npy + "/Datas_mini_batch_" + str(mini_batch) + ".npy")
+            path_data_mini_batch.append(os.path.join(path_save_npy,"Datas_mini_batch_" + str(mini_batch) + ".npy"))
             
-            path_labels_mini_batch.append(path_save_npy + "/Label_mini_batch_" + str(mini_batch) + ".npy")
+            path_labels_mini_batch.append(os.path.join(path_save_npy,"Label_mini_batch_" + str(mini_batch) + ".npy"))
             
             remaining_patch = datas.shape[0]
             
