@@ -32,12 +32,13 @@ from keras.layers import Conv3D, Add, UpSampling3D, Activation, Concatenate
 from keras.optimizers import Adam
 from keras.initializers import lecun_normal
 import keras.backend as K
+import os
 
 gen_initializer = lecun_normal()
 
 import sys
 
-sys.path.insert(0, './utils')
+sys.path.insert(0, os.path.join('.','utils'))
 from layers import wasserstein_loss, ReflectPadding3D, gradient_penalty_loss, InstanceNormalization3D, \
     activation_SegSRGAN, charbonnier_loss
 from Adam_lr_mult import LR_Adam

@@ -9,10 +9,10 @@ import SimpleITK as sitk
 import scipy.ndimage
 from ast import literal_eval as make_tuple
 
-s = os.path.abspath(__file__).split("/")
-wd = "/".join(s[0:(len(s) - 1)])
+s = os.path.split(__file__)
+wd = os.path.join(*s[0:(len(s) - 1)])
 os.chdir(wd)
-sys.path.insert(0, os.getcwd() + '/utils')
+sys.path.insert(0, os.path.join(os.getcwd(),"utils"))
 
 from utils3d import shave3D
 from utils3d import pad3D
@@ -20,6 +20,11 @@ from utils.SegSRGAN import SegSRGAN
 from ImageReader import NIFTIReader
 from ImageReader import DICOMReader
 from keras.engine import saving
+
+GREEN = '\033[32m' # mode 32 = green forground
+start = "\033[1m" # for printing in bold
+end = "\033[0;0m"
+RESET = '\033[0m'  # mode 0  = reset
 
 
 class SegSRGAN_test(object):
@@ -203,7 +208,7 @@ class SegSRGAN_test(object):
                         weight[indice_patch[i][0]:indice_patch[i][0] + patch1,
                         indice_patch[i][1]:indice_patch[i][1] + patch2, indice_patch[i][2]:indice_patch[i][2] + patch3])
         # weight sum of patches
-        print('Done !')
+        print(GREEN+start+'\nDone !'+end+RESET)
         estimated_hr = temp_hr_image / weighted_image
         estimated_segmentation = temp_seg / weighted_image
 
