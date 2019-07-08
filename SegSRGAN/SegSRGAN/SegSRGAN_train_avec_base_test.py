@@ -27,7 +27,7 @@ import argparse
 import os
 import sys
 
-sys.path.insert(0, os.path.join('.",utils'))
+sys.path.insert(0, os.path.join('.','utils'))
 from SegSRGAN import SegSRGAN
 from patches import create_patch_from_df_hr
 import pandas as pd
@@ -342,7 +342,6 @@ class SegSrganTrain(object):
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
-    # path qui apres concatenation des path contenu dans le fichier csv amène au ficFhier.
     parser.add_argument('-begining_path', '--base_path', help='path to concatenate with relative path contains in the '
                                                               'csv. Not needed if the path in the csv file are not '
                                                               'relative path', type=str, default='')
