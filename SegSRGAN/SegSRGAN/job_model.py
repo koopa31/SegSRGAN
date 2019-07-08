@@ -157,7 +157,7 @@ def result_folder_name(base_folder,patch,step,result_folder) :
          
          path_output_cortex = os.path.join(path_output,"Cortex patch " + str(patch) + " step " + str(step) + ".nii.gz")
 
-         path_output_SR = os.path.join(path_output + "SR patch " + str(patch) + " step " + str(step) + ".nii.gz")
+         path_output_SR = os.path.join(path_output,"SR patch " + str(patch) + " step " + str(step) + ".nii.gz")
          
     return path_output, path_output_cortex, path_output_SR
 
