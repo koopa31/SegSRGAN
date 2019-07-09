@@ -11,106 +11,12 @@ import sys
 import numpy as np
 
 
-
-
+# Fonction which will be used hereafter :
+ 
 start = "\033[1m" # for printing in bold
 end = "\033[0;0m"
 RED = '\033[31m'   # mode 31 = red forground
 RESET = '\033[0m'  # mode 0  = reset
-
-weights_list = [os.path.join("weights",x) for x in os.listdir(os.path.join(os.getcwd(),'weights'))]
-
-parser = argparse.ArgumentParser()
-parser.add_argument("-p", "--path", type=str, help="Path of the csv file")
-parser.add_argument("-dp", "--debut_path", type=str, help="Path beginning of the csv (default: %(default)s voxels)",
-                    default='')
-parser.add_argument("-pa", "--patch", type=str, help="Patch size (default: %(default)s)", default=128)
-parser.add_argument("-s", "--step", type=str, help="Step between patches. Must be a tuple of tuple (default: "
-                                                   "%(default)s)", default=64)
-parser.add_argument("-rf", "--result_folder_name", type=str, help='Name of the folder where the result is going to be '
-                                                                  'stored')
-parser.add_argument("-wp", "--weights_path", type=str, help='Weights relative path. List of the available weights:'
-                                                            ' %(default)s', default=weights_list)
-parser.add_argument("-bb", "--by_batch", type=str, help="Prediction on list of patches instead of using a for loop. "
-                                                         "Enables for instance to automatically computes in multi-gpu "
-                                                         "mode(default: %(default)s)", default="False")
-
-
-args = parser.parse_args()
-
-by_batch = ast.literal_eval(args.by_batch)
-
-# Argument :
-# name of the result folder
-result_folder = args.result_folder_name
-
-weights_path = args.weights_path
-
-debut_relatif_path = args.debut_path  # Path to Base_pour_romeo
-
-data = pd.read_csv(os.path.join(debut_relatif_path, args.path), header=None).iloc[:, 0].sort_values()
-
-
-path_pour_application = [os.path.join(debut_relatif_path, i) for i in data]
-
-def pgcd(a,b):
-    #Retourne le PGCD de a et b  
-    r=1
-    if a<b:
-        a,b=b,a
-    if a!=0 and b!=0:
-        while r > 0:
-            r=a%b
-            a=b
-            b=r
-        return(a)
-        
-def ppcm_function(a,b):
-    
-    #Retourne le PPCM de a et b
-    if a!=0 and b!=0:
-        ppcm = (a*b)/pgcd(a,b)
-        return(int(ppcm))
-
-
-def list_of_lists(arg):
-    
-    m = [x.split(' ') for x in arg.split(',')]
-    size_of_step_per_patch = [ len(x) for x in m]
-
-    if len(m) > 1 :
-        
-        ppcm = size_of_step_per_patch[0]
-        
-        for i in range(1,len(size_of_step_per_patch)) : 
-            
-            ppcm = ppcm_function(ppcm,size_of_step_per_patch[i])
-            
-        for i in range(len(m)) : 
-            
-            mult = ppcm / size_of_step_per_patch[i]
-            
-            m[i] = list(np.repeat(m[i],mult))
-    m = np.array(m).astype('int')
-    
-    return m.tolist()
-
-
-def list_of(arg):
-    
-    m=[]
-    for x in arg.split(',') : 
-        
-        if x != "None":
-            m.append(int(x))
-        else : 
-            m.append(None)
-        
-    return m
-
-ensemble_pas = list_of_lists(args.step)
-patchs = list_of(args.patch)
-
 
 def absolute_weights_path(path):
     """
@@ -161,6 +67,123 @@ def result_folder_name(base_folder,patch,step,result_folder) :
          
     return path_output, path_output_cortex, path_output_SR
 
+
+
+
+def pgcd(a,b):
+    #Retourne le PGCD de a et b  
+    r=1
+    if a<b:
+        a,b=b,a
+    if a!=0 and b!=0:
+        while r > 0:
+            r=a%b
+            a=b
+            b=r
+        return(a)
+        
+def ppcm_function(a,b):
+    
+    #Retourne le PPCM de a et b
+    if a!=0 and b!=0:
+        ppcm = (a*b)/pgcd(a,b)
+        return(int(ppcm))
+
+
+def list_of_lists(arg):
+    
+    m = [x.split(' ') for x in arg.split(',')]
+    size_of_step_per_patch = [ len(x) for x in m]
+
+    if len(m) > 1 :
+        
+        ppcm = size_of_step_per_patch[0]
+        
+        for i in range(1,len(size_of_step_per_patch)) : 
+            
+            ppcm = ppcm_function(ppcm,size_of_step_per_patch[i])
+            
+        for i in range(len(m)) : 
+            
+            mult = ppcm / size_of_step_per_patch[i]
+            
+            m[i] = list(np.repeat(m[i],mult))
+            
+    m = np.array(m).astype('int')
+    
+    return m.tolist()
+
+
+def list_of(arg,result_type=int):
+    
+    m=[]
+    for x in arg.split(',') : 
+        
+        if x != "None":
+            m.append(result_type(x))
+        else : 
+            m.append(None)
+        
+    return m
+
+
+
+weights_list = [os.path.join("weights",x) for x in os.listdir(os.path.join(os.getcwd(),'weights'))]
+
+parser = argparse.ArgumentParser()
+parser.add_argument("-p", "--path", type=str, help="Path of the csv file")
+parser.add_argument("-dp", "--debut_path", type=str, help="Path beginning of the csv (default: %(default)s voxels)",
+                    default='')
+parser.add_argument("-pa", "--patch", type=str, help="Patch size (default: %(default)s)", default=128)
+parser.add_argument("-s", "--step", type=str, help="Step between patches. Must be a tuple of tuple (default: "
+                                                   "%(default)s)", default=64)
+parser.add_argument("-rf", "--result_folder_name", type=str, help='Name of the folder where the result is going to be '
+                                                                  'stored')
+parser.add_argument("-wp", "--weights_path", type=str, help='Weights relative path. List of the available weights:'
+                                                            ' %(default)s', default=weights_list)
+parser.add_argument("-bb", "--by_batch", type=str, help="Prediction on list of patches instead of using a for loop. "
+                                                         "Enables for instance to automatically computes in multi-gpu "
+                                                         "mode(default: %(default)s)", default="False")
+
+parser.add_argument('-n', '--newlowres', type=str, help='Resolution of results (SR and segmentation).' 
+                    'Ex : 0.5,0.5,0.5 ',default='0.5,0.5,0.5')
+
+
+args = parser.parse_args()
+
+resolution = args.newlowres
+
+
+
+by_batch = ast.literal_eval(args.by_batch)
+
+# Argument :
+# name of the result folder
+result_folder = args.result_folder_name
+
+weights_path = args.weights_path
+
+debut_relatif_path = args.debut_path  # Path to Base_pour_romeo
+
+data = pd.read_csv(os.path.join(debut_relatif_path, args.path), header=None).iloc[:, 0].sort_values()
+
+
+path_pour_application = [os.path.join(debut_relatif_path, i) for i in data]
+
+
+resolution = tuple(list_of(resolution,float))
+
+if len(resolution) != 3 :
+    
+    raise AssertionError("\n"+RED+start+'The resolution have to be have size 3 !'+end+RESET+"\n")
+
+ensemble_pas = list_of_lists(args.step)
+patchs = list_of(args.patch,int)
+
+if len(ensemble_pas) != len(patchs):
+    
+    raise AssertionError("\n"+RED+start+'Each patch size need to have its own step (the number of "," in the patch argument must to be the same as the one in the step argument)'+end+RESET+"\n")
+
          
 # Execution :
 
@@ -191,7 +214,7 @@ for i in path_pour_application:
                         
                         Function_for_application_test_python3.segmentation(input_file_path=i,
                                                                            step=step,
-                                                                           new_resolution=(0.5, 0.5, 0.5),
+                                                                           new_resolution=resolution,
                                                                            patch=patch,
                                                                            path_output_cortex=path_output_cortex,
                                                                            path_output_hr=path_output_SR,
