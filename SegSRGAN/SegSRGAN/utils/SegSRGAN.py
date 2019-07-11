@@ -39,9 +39,9 @@ gen_initializer = lecun_normal()
 import sys
 
 sys.path.insert(0, os.path.join('.','utils'))
-from layers import wasserstein_loss, ReflectPadding3D, gradient_penalty_loss, InstanceNormalization3D, \
+from utils.layers import wasserstein_loss, ReflectPadding3D, gradient_penalty_loss, InstanceNormalization3D, \
     activation_SegSRGAN, charbonnier_loss
-from Adam_lr_mult import LR_Adam
+from utils.Adam_lr_mult import LR_Adam
 from keras import losses
 from keras.utils import multi_gpu_model
 from tensorflow.python.client import device_lib

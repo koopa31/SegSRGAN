@@ -37,7 +37,7 @@ from sklearn.feature_extraction.image import extract_patches
 from ImageReader import NIFTIReader
 from ImageReader import DICOMReader
 sys.path.insert(0, os.path.join('.','utils'))
-from utils3d import modcrop3D
+from utils.utils3d import modcrop3D
 
 
 import SimpleITK as sitk
