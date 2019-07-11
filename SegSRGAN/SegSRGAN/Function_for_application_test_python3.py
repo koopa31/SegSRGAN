@@ -14,8 +14,8 @@ wd = os.path.join(*s[0:(len(s) - 1)])
 os.chdir(wd)
 sys.path.insert(0, os.path.join(os.getcwd(),"utils"))
 
-from utils3d import shave3D
-from utils3d import pad3D
+from utils.utils3d import shave3D
+from utils.utils3d import pad3D
 from utils.SegSRGAN import SegSRGAN
 from ImageReader import NIFTIReader
 from ImageReader import DICOMReader

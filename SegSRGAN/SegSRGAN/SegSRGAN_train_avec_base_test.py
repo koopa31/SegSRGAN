@@ -28,8 +28,8 @@ import os
 import sys
 
 sys.path.insert(0, os.path.join('.','utils'))
-from SegSRGAN import SegSRGAN
-from patches import create_patch_from_df_hr
+from utils.SegSRGAN import SegSRGAN
+from utils.patches import create_patch_from_df_hr
 import pandas as pd
 from ast import literal_eval as make_tuple
 import shutil
