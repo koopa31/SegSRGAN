@@ -145,8 +145,8 @@ parser.add_argument("-bb", "--by_batch", type=str, help="Prediction on list of p
                                                          "Enables for instance to automatically computes in multi-gpu "
                                                          "mode(default: %(default)s)", default="False")
 
-parser.add_argument('-n', '--newlowres', type=str, help='Resolution of results (SR and segmentation).' 
-                    'Ex : 0.5,0.5,0.5 ',default='0.5,0.5,0.5')
+parser.add_argument('-n', '--new_low_res', type=str, help='Resolution of results (SR and segmentation).' 
+                    'Ex : 0.5,0.5,0.5 (default) ',default='0.5,0.5,0.5')
 
 
 args = parser.parse_args()
