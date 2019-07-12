@@ -9,17 +9,22 @@ import SimpleITK as sitk
 import scipy.ndimage
 from ast import literal_eval as make_tuple
 
-s = os.path.abspath(__file__).split("/")
-wd = "/".join(s[0:(len(s) - 1)])
+s = os.path.split(__file__)
+wd = os.path.join(*s[0:(len(s) - 1)])
 os.chdir(wd)
-sys.path.insert(0, os.getcwd() + '/utils')
+sys.path.insert(0, os.path.join(os.getcwd(),"utils"))
 
-from utils3d import shave3D
-from utils3d import pad3D
+from utils.utils3d import shave3D
+from utils.utils3d import pad3D
 from utils.SegSRGAN import SegSRGAN
 from ImageReader import NIFTIReader
 from ImageReader import DICOMReader
 from keras.engine import saving
+
+GREEN = '\033[32m' # mode 32 = green forground
+start = "\033[1m" # for printing in bold
+end = "\033[0;0m"
+RESET = '\033[0m'  # mode 0  = reset
 
 
 class SegSRGAN_test(object):
@@ -203,7 +208,7 @@ class SegSRGAN_test(object):
                         weight[indice_patch[i][0]:indice_patch[i][0] + patch1,
                         indice_patch[i][1]:indice_patch[i][1] + patch2, indice_patch[i][2]:indice_patch[i][2] + patch3])
         # weight sum of patches
-        print('Done !')
+        print(GREEN+start+'\nDone !'+end+RESET)
         estimated_hr = temp_hr_image / weighted_image
         estimated_segmentation = temp_seg / weighted_image
 
@@ -247,6 +252,8 @@ def segmentation(input_file_path, step, new_resolution, path_output_cortex, path
             weight_values = D[i]
     first_discriminator_kernel = weight_values.shape[4]
 
+    # Selection of the kind of network
+
     if 'G_cond' in list(weights.keys())[1]:
         is_conditional = True
         u_net_gen = False
@@ -262,7 +269,7 @@ def segmentation(input_file_path, step, new_resolution, path_output_cortex, path
         new_resolution = (new_resolution, new_resolution, new_resolution)
     else:
         if len(new_resolution) != 3:
-            raise AssertionError('Not support this resolution !')
+            raise AssertionError('Resolution not supported!')
 
     # Read low-resolution image
     if input_file_path.endswith('.nii.gz'):
@@ -314,6 +321,14 @@ def segmentation(input_file_path, step, new_resolution, path_output_cortex, path
         patch1 = height
         patch2 = width
         patch3 = depth
+    
+    if ((step>patch1) |  (step>patch2) | (step>patch3)) & (patch is not None) :
+        
+        raise AssertionError('The step need to be smaller than the patch size')
+        
+    if (np.shape(padded_interpolated_image)[0]<patch1)|(np.shape(padded_interpolated_image)[1]<patch2)|(np.shape(padded_interpolated_image)[2]<patch3):
+        
+        raise AssertionError('The patch size need to be smaller than the interpolated image size')
 
     # Loading weights
     segsrgan_test_instance = SegSRGAN_test(weights_path, patch1, patch2, patch3, is_conditional, u_net_gen,
