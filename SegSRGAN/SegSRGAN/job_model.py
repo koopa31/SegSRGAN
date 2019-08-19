@@ -151,7 +151,7 @@ parser.add_argument('-n', '--new_low_res', type=str, help='Resolution of results
 
 args = parser.parse_args()
 
-resolution = args.newlowres
+resolution = args.new_low_res
 
 
 
