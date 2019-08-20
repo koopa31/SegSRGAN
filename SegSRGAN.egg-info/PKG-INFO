@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: SegSRGAN
-Version: 1.1.7
+Version: 1.2.0
 Summary: Segmentation and super resolution GAN network
 Home-page: https://github.com/koopa31/SegSRGAN
 Author: Clément Cazorla
@@ -13,6 +13,31 @@ Description: # SegSRGAN
         ## Installation
         
         `pip install SegSRGAN`
+        
+        ## Perform a training
+        
+        `python SegSRGAN_train_avec_base_test.py --newlowres --csv  --snapshot_folder --dice_file --mse_file --folder_training_data`
+        
+        > * **csv** file which contains the paths to the files for the training. They are divided into two categories: train and test. As a consequence, it must contain 3 columns respectively called: HR\_image, Label\_image and Base (which can be equal to either Train or Test).  
+        > * **dice_file** CSV file where to store the DICE at each epoch (_string_)
+        > * **mse\_file** MSE file where to store the DICE at each epoch (*string*)
+        > * **folder\_training\_data** folder which contains the training images database (*string*)
+        > * **epoch** number of training epochs (*integer*)
+        > * **batchsize** number of patches per mini batch (*integer*)
+        > * **snapshot\_folder** how often the weights are saved on the disk (for instance if equal to 2, the weights are saved on the disk one epoch in two)(*integer*)}
+        > * **numcritic** how many times we train the discriminator before training the generator (*integer*)
+        
+        
+        But it is also possible to continue a training from its saved weight, adding the following parameters: 
+        
+        > * **initepoch** number of the epoch from which the training will continue (*integer*)
+        > * **weights** path to the saved weights from which the training will continue (*string*)
+        
+        
+        Two very important parameters to set the structure of the network are:
+        
+        > * **kernelgen**  Number of output channel of the first convolutional layer of the generator (see \hyperref[architecture]{ section \ref*{architecture}})
+        > * **kerneldis** Number of output channel of the first convolutional layer of the discriminator
         
         ## Perform a segmentation
         
@@ -31,7 +56,7 @@ Description: # SegSRGAN
         > * **patch** is the size of the patches
         > * **spline_order** for the interpolation
         > * **by_batch** is to enable the by-batch processing
-        > * **is_conditional** to perform a conditional GAN on the LR image resolution
+        
         
         
         ## Segmentation of a set of images with several step and patch values
@@ -39,7 +64,7 @@ Description: # SegSRGAN
         In order to facilitate the segmentation of several images, you can run SegSRGAN/SegSRGAN/job_model.py:
         
         `python job_model.py --path
-        --patch --step --result_folder_name --weights_relative_path --is_conditional`
+        --patch --step --result_folder_name --weights_path`
         
         The list of the paths of the images to be processed must be stored in a csv file.
         
@@ -49,11 +74,10 @@ Description: # SegSRGAN
         > * **patch** list of patch sizes 
         > * **step** list of steps 
         > * **result_folder_name** Name of the folder containing the results
-        > * **is_conditional** Boolean to perform a conditional neural network with a condition on z-resolution
         
         Example of syntax for step and patch setting:
         
-        --patch 64 128
+        --patch 64,128
         
         --step 32 64,64 128
         
