@@ -2,40 +2,52 @@ import os
 
 import progressbar
 import sys
+import h5py
 
 import numpy as np
 import SimpleITK as sitk
 import scipy.ndimage
 from ast import literal_eval as make_tuple
 
-s = os.path.abspath(__file__).split("/")
-wd = "/".join(s[0:(len(s) - 1)])
+s = os.path.split(__file__)
+wd = os.path.join(*s[0:(len(s) - 1)])
 os.chdir(wd)
-sys.path.insert(0, os.getcwd() + '/utils')
+sys.path.insert(0, os.path.join(os.getcwd(),"utils"))
 
-from utils3d import shave3D
-from utils3d import pad3D
-from SegSRGAN import SegSRGAN
+from utils.utils3d import shave3D
+from utils.utils3d import pad3D
+from utils.SegSRGAN import SegSRGAN
 from ImageReader import NIFTIReader
 from ImageReader import DICOMReader
+from keras.engine import saving
+
+GREEN = '\033[32m' # mode 32 = green forground
+start = "\033[1m" # for printing in bold
+end = "\033[0;0m"
+RESET = '\033[0m'  # mode 0  = reset
 
 
 class SegSRGAN_test(object):
 
-    def __init__(self, weights, patch1, patch2, patch3, is_conditional, resolution=0):
+    def __init__(self, weights, patch1, patch2, patch3, is_conditional, u_net_gen,is_residual, first_generator_kernel,
+                 first_discriminator_kernel,  resolution=0):
 
         self.patch1 = patch1
         self.patch2 = patch2
         self.patch3 = patch3
         self.prediction = None
-        self.SegSRGAN = SegSRGAN(image_row=patch1,
+        self.SegSRGAN = SegSRGAN(first_generator_kernel=first_generator_kernel,
+                                 first_discriminator_kernel=first_discriminator_kernel, u_net_gen=u_net_gen,
+                                 image_row=patch1,
                                  image_column=patch2,
-                                 image_depth=patch3, is_conditional=is_conditional)
+                                 image_depth=patch3, is_conditional=is_conditional,
+                                 is_residual = is_residual)
         self.generator_model = self.SegSRGAN.generator_model_for_pred()
         self.generator_model.load_weights(weights, by_name=True)
         self.generator = self.SegSRGAN.generator()
         self.is_conditional = is_conditional
         self.resolution = resolution
+        self.is_residual = is_residual
         self.res_tensor = np.expand_dims(np.expand_dims(np.ones([patch1, patch2, patch3]) * self.resolution, axis=0),
                                         axis=0)
 
@@ -198,7 +210,7 @@ class SegSRGAN_test(object):
                         weight[indice_patch[i][0]:indice_patch[i][0] + patch1,
                         indice_patch[i][1]:indice_patch[i][1] + patch2, indice_patch[i][2]:indice_patch[i][2] + patch3])
         # weight sum of patches
-        print('Done !')
+        print(GREEN+start+'\nDone !'+end+RESET)
         estimated_hr = temp_hr_image / weighted_image
         estimated_segmentation = temp_seg / weighted_image
 
@@ -206,7 +218,7 @@ class SegSRGAN_test(object):
 
 
 def segmentation(input_file_path, step, new_resolution, path_output_cortex, path_output_hr, weights_path, patch=None,
-                 spline_order=3, by_batch=False, is_conditional=False):
+                 spline_order=3, by_batch=False):
     """
 
     :param input_file_path: path of the image to be super resolved and segmented
@@ -218,18 +230,62 @@ def segmentation(input_file_path, step, new_resolution, path_output_cortex, path
     :param patch: the size of the patches
     :param spline_order: for the interpolation
     :param by_batch: to enable the by-batch processing
-    :param is_conditional: to perform a conditional GAN on the LR image resolution
     :return:
     """
     # TestFile = path de l'image en entree
     # high_resolution = tuple des resolutions (par axe)
+
+    # Get the generator kernel from the weights we are going to use
+
+    weights = h5py.File(weights_path, 'r')
+    G = weights[list(weights.keys())[1]]
+    weight_names = saving.load_attributes_from_hdf5_group(G, 'weight_names')
+    for i in weight_names:
+        if 'gen_conv1' in i:
+            weight_values = G[i]
+    first_generator_kernel = weight_values.shape[4]
+
+    # Get the generator kernel from the weights we are going to use
+
+    D = weights[list(weights.keys())[0]]
+    weight_names = saving.load_attributes_from_hdf5_group(D, 'weight_names')
+    for i in weight_names:
+        if 'conv_dis_1/kernel' in i:
+            weight_values = D[i]
+    first_discriminator_kernel = weight_values.shape[4]
+
+    # Selection of the kind of network
+    
+    if "_nn_residual" in list(weights.keys())[1] :
+        
+        residual_string = "_nn_residual"
+        is_residual = False
+        
+    else : 
+        
+        residual_string=""
+        is_residual = True
+        
+
+    if ('G_cond'+residual_string) == list(weights.keys())[1]:
+        is_conditional = True
+        u_net_gen = False
+    elif ('G_unet'+residual_string) == list(weights.keys())[1]:
+        is_conditional = False
+        u_net_gen = True
+    elif ('G_unet_cond'+residual_string) == list(weights.keys())[1] :
+        is_conditional = True
+        u_net_gen = True
+    else:
+        is_conditional = False
+        u_net_gen = False
 
     # Check resolution
     if np.isscalar(new_resolution):
         new_resolution = (new_resolution, new_resolution, new_resolution)
     else:
         if len(new_resolution) != 3:
-            raise AssertionError('Not support this resolution !')
+            raise AssertionError('Resolution not supported!')
 
     # Read low-resolution image
     if input_file_path.endswith('.nii.gz'):
@@ -281,9 +337,18 @@ def segmentation(input_file_path, step, new_resolution, path_output_cortex, path
         patch1 = height
         patch2 = width
         patch3 = depth
+    
+    if ((step>patch1) |  (step>patch2) | (step>patch3)) & (patch is not None) :
+        
+        raise AssertionError('The step need to be smaller than the patch size')
+        
+    if (np.shape(padded_interpolated_image)[0]<patch1)|(np.shape(padded_interpolated_image)[1]<patch2)|(np.shape(padded_interpolated_image)[2]<patch3):
+        
+        raise AssertionError('The patch size need to be smaller than the interpolated image size')
 
     # Loading weights
-    segsrgan_test_instance = SegSRGAN_test(weights_path, patch1, patch2, patch3, is_conditional, resolution)
+    segsrgan_test_instance = SegSRGAN_test(weights_path, patch1, patch2, patch3, is_conditional, u_net_gen,is_residual,
+                                           first_generator_kernel, first_discriminator_kernel, resolution)
 
     # GAN
     print("Testing : ")
