@@ -254,11 +254,14 @@ def segmentation(input_file_path, step, new_resolution, path_output_cortex, path
 
     # Selection of the kind of network
 
-    if 'G_cond' in list(weights.keys())[1]:
+    if 'G_cond' == list(weights.keys())[1]:
         is_conditional = True
         u_net_gen = False
-    elif 'G_unet' in list(weights.keys())[1]:
+    elif 'G_unet' == list(weights.keys())[1]:
         is_conditional = False
+        u_net_gen = True
+    elif 'G_unet_cond' == list(weights.keys())[1] :
+        is_conditional = True
         u_net_gen = True
     else:
         is_conditional = False
