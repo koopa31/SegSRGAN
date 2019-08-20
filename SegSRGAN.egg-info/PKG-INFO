@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: SegSRGAN
-Version: 1.2.0
+Version: 2.0
 Summary: Segmentation and super resolution GAN network
 Home-page: https://github.com/koopa31/SegSRGAN
 Author: Clément Cazorla
