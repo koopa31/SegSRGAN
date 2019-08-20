@@ -29,7 +29,7 @@ RESET = '\033[0m'  # mode 0  = reset
 
 class SegSRGAN_test(object):
 
-    def __init__(self, weights, patch1, patch2, patch3, is_conditional, u_net_gen, first_generator_kernel,
+    def __init__(self, weights, patch1, patch2, patch3, is_conditional, u_net_gen,is_residual, first_generator_kernel,
                  first_discriminator_kernel,  resolution=0):
 
         self.patch1 = patch1
@@ -40,12 +40,14 @@ class SegSRGAN_test(object):
                                  first_discriminator_kernel=first_discriminator_kernel, u_net_gen=u_net_gen,
                                  image_row=patch1,
                                  image_column=patch2,
-                                 image_depth=patch3, is_conditional=is_conditional)
+                                 image_depth=patch3, is_conditional=is_conditional,
+                                 is_residual = is_residual)
         self.generator_model = self.SegSRGAN.generator_model_for_pred()
         self.generator_model.load_weights(weights, by_name=True)
         self.generator = self.SegSRGAN.generator()
         self.is_conditional = is_conditional
         self.resolution = resolution
+        self.is_residual = is_residual
         self.res_tensor = np.expand_dims(np.expand_dims(np.ones([patch1, patch2, patch3]) * self.resolution, axis=0),
                                         axis=0)
 
@@ -253,14 +255,25 @@ def segmentation(input_file_path, step, new_resolution, path_output_cortex, path
     first_discriminator_kernel = weight_values.shape[4]
 
     # Selection of the kind of network
+    
+    if "_nn_residual" in list(weights.keys())[1] :
+        
+        residual_string = "_nn_residual"
+        is_residual = False
+        
+    else : 
+        
+        residual_string=""
+        is_residual = True
+        
 
-    if 'G_cond' == list(weights.keys())[1]:
+    if ('G_cond'+residual_string) == list(weights.keys())[1]:
         is_conditional = True
         u_net_gen = False
-    elif 'G_unet' == list(weights.keys())[1]:
+    elif ('G_unet'+residual_string) == list(weights.keys())[1]:
         is_conditional = False
         u_net_gen = True
-    elif 'G_unet_cond' == list(weights.keys())[1] :
+    elif ('G_unet_cond'+residual_string) == list(weights.keys())[1] :
         is_conditional = True
         u_net_gen = True
     else:
@@ -334,7 +347,7 @@ def segmentation(input_file_path, step, new_resolution, path_output_cortex, path
         raise AssertionError('The patch size need to be smaller than the interpolated image size')
 
     # Loading weights
-    segsrgan_test_instance = SegSRGAN_test(weights_path, patch1, patch2, patch3, is_conditional, u_net_gen,
+    segsrgan_test_instance = SegSRGAN_test(weights_path, patch1, patch2, patch3, is_conditional, u_net_gen,is_residual,
                                            first_generator_kernel, first_discriminator_kernel, resolution)
 
     # GAN

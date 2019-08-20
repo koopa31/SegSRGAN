@@ -583,25 +583,33 @@ class SegSRGAN(object):
         if self.G:
             return self.G
         
+        if self.is_residual :
+            
+            residual_string = ""
+            
+        else :
+            
+            residual_string = "_nn_residual"
+        
         if self.u_net_gen  :
             
             if self.is_conditional :
                 
-                self.G = self.generator_block_u_net_cond('G_unet_cond')
+                self.G = self.generator_block_u_net_cond('G_unet_cond'+residual_string)
                 
             else : 
             
-                self.G = self.generator_block_u_net('G_unet')
+                self.G = self.generator_block_u_net('G_unet'+residual_string)
                 
         else :  
             
             if self.is_conditional :
                 
-                self.G = self.G = self.generator_block_conditionnal('G_cond')
+                self.G = self.G = self.generator_block_conditionnal('G_cond'+residual_string)
                 
             else : 
             
-                self.G = self.generator_block('G')
+                self.G = self.generator_block('G'+residual_string)
             
         return self.G
 
