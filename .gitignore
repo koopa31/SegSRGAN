@@ -1,2 +1,5 @@
 #git ignore file
 *.xml
+weight_*
+mse*
+dice*

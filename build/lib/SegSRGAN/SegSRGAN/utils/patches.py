@@ -23,18 +23,24 @@
   knowledge of the CeCILL-B license and that you accept its terms.
 """
 
-import numpy as np
-from itertools import product
-from sklearn.feature_extraction.image import extract_patches
-import SimpleITK as sitk
-import scipy.ndimage
-import sys
-sys.path.insert(0, './utils')
-from utils3d import modcrop3D
 import os
 import shutil
 import time
 import logging
+import sys
+import scipy.ndimage
+
+import numpy as np
+
+from itertools import product
+from sklearn.feature_extraction.image import extract_patches
+from ImageReader import NIFTIReader
+from ImageReader import DICOMReader
+sys.path.insert(0, os.path.join('.','utils'))
+from utils.utils3d import modcrop3D
+
+
+import SimpleITK as sitk
 
 
 def array_to_patches(arr, patch_shape=(3, 3, 3), extraction_step=1, normalization=False):
@@ -111,9 +117,9 @@ def create_patch_from_df_hr(df,
                             batch_size,
                             contrast_list,
                             list_res,
+                            patch_size,
                             order=3,
                             thresholdvalue=0,
-                            PatchSize=64,
                             stride=20,
                             is_conditional=False):
     
@@ -150,20 +156,24 @@ def create_patch_from_df_hr(df,
         t1 = time.time()
         
         low_resolution_image, reference_image, label_image, up_scale = create_lr_hr_label(reference_name, label_name,
-                                                                                          list_res[i])
+                                                                                          list_res[i]) #From here, the three images have the same size (see crop in create_lr_hr_label)
         
         border_to_keep = border_im_keep(reference_image, thresholdvalue)
         
-        reference_image , low_resolution_image = change_contrast(reference_image, low_resolution_image, contrast_list[i])
+        reference_image, low_resolution_image = change_contrast(reference_image, low_resolution_image, contrast_list[i])
         
         low_resolution_image = add_noise(low_resolution_image, per_cent_val_max)
     
-        interpolated_image , reference_image = norm_and_interp(reference_image, low_resolution_image, order, up_scale)
+        interpolated_image, reference_image = norm_and_interp(reference_image, low_resolution_image, order, up_scale)
         
-        label_image , reference_image , interpolated_image = remove_border(label_image, reference_image,
+        label_image, reference_image, interpolated_image = remove_border(label_image, reference_image,
                                                                            interpolated_image, border_to_keep)
+        
+        if (patch_size>interpolated_image.shape[0])|(patch_size>interpolated_image.shape[1]) | (patch_size>interpolated_image.shape[2]) : 
+            
+            raise AssertionError('The patch size is too large compare to the size on the image')
 
-        hdf5_labels, had5_dataa = create_patches(label_image, reference_image, interpolated_image, PatchSize, stride)
+        hdf5_labels, had5_dataa = create_patches(label_image, reference_image, interpolated_image, patch_size, stride)
         
         np.random.seed(0)       # makes the random numbers predictable
         random_order = np.random.permutation(had5_dataa.shape[0])
@@ -202,7 +212,8 @@ def create_patch_from_df_hr(df,
             
             t1 = time.time()
             
-            np.save(path_save_npy + "/Datas_mini_batch_"+str(mini_batch) + ".npy",datas[:batch_size, :, :, :, :])
+            np.save(os.path.join(path_save_npy ,"Datas_mini_batch_"+str(mini_batch)) + ".npy",
+                    datas[:batch_size, :, :, :, :])
             
             t2 = time.time()
             
@@ -212,7 +223,8 @@ def create_patch_from_df_hr(df,
             
             t1 = time.time()
             
-            np.save(path_save_npy + "/Label_mini_batch_" + str(mini_batch) + ".npy", labels[:batch_size, :, :, :, :])
+            np.save(os.path.join(path_save_npy,"Label_mini_batch_" + str(mini_batch) + ".npy"), 
+                    labels[:batch_size, :, :, :, :])
             
             t2 = time.time()
             
@@ -221,9 +233,9 @@ def create_patch_from_df_hr(df,
             labels = labels[batch_size:, :, :, :, :]
             labels_list = [labels]
 
-            path_data_mini_batch.append(path_save_npy + "/Datas_mini_batch_" + str(mini_batch) + ".npy")
+            path_data_mini_batch.append(os.path.join(path_save_npy,"Datas_mini_batch_" + str(mini_batch) + ".npy"))
             
-            path_labels_mini_batch.append(path_save_npy + "/Label_mini_batch_" + str(mini_batch) + ".npy")
+            path_labels_mini_batch.append(os.path.join(path_save_npy,"Label_mini_batch_" + str(mini_batch) + ".npy"))
             
             remaining_patch = datas.shape[0]
             
@@ -266,8 +278,8 @@ def create_patches(label, hr, interp, patch_size, stride):
     # hdf5_labels[0] = label_hr_patch et 1=label_cortex_patch
 
     hdf5_labels = np.swapaxes(hdf5_labels, 0, 1)
-    # premiere dim = patch ex : hdf5_labels[0,0,:,:,:] = hr premier patch
-    # et hdf5_labels[0,1,:,:,:] = label premier patch
+    # premiere dim = patch ex : hdf5_labels[0,0,:,:,:] = hr first patch
+    # et hdf5_labels[0,1,:,:,:] = label first patch
 
     return hdf5_labels, hdf5_data
 
@@ -312,24 +324,29 @@ def add_noise(lr, per_cent_val_max):
 
 
 def create_lr_hr_label(reference_name, label_name, new_resolution):
-    # Read NIFTI
-    reference_nifti = sitk.ReadImage(reference_name)
 
-    # Get data from NIFTI
-    reference_image = np.swapaxes(sitk.GetArrayFromImage(reference_nifti), 0, 2).astype('float32')
+    # Read the reference SR image
+    if reference_name.endswith('.nii.gz'):
+        reference_instance = NIFTIReader(reference_name)
+    elif os.path.isdir(reference_name):
+        reference_instance = DICOMReader(reference_name)
 
-    # Read NIFTI
-    label_nifti = sitk.ReadImage(label_name)
+    reference_image = reference_instance.get_np_array()
 
-    # Get data from NIFTI
-    label_image = np.swapaxes(sitk.GetArrayFromImage(label_nifti), 0, 2).astype('float32')
+    # Read the labels image
+    if label_name.endswith('.nii.gz'):
+        label_instance = NIFTIReader(label_name)
+    elif os.path.isdir(label_name):
+        label_instance = DICOMReader(label_name)
+
+    label_image = label_instance.get_np_array()
 
     constant = 2*np.sqrt(2*np.log(2))
     # As Greenspan et al. (Full_width_at_half_maximum : slice thickness)
     sigma_blur = new_resolution/constant
 
     # Get resolution to scaling factor
-    up_scale = tuple(itemb/itema for itema, itemb in zip(reference_nifti.GetSpacing(), new_resolution))
+    up_scale = tuple(itemb/itema for itema, itemb in zip(reference_instance.itk_image.GetSpacing(), new_resolution))
 
     # Modcrop to scale factor
     reference_image = modcrop3D(reference_image, up_scale)

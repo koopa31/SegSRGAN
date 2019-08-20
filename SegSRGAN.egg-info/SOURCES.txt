@@ -8,7 +8,7 @@ SegSRGAN.egg-info/requires.txt
 SegSRGAN.egg-info/top_level.txt
 SegSRGAN/SegSRGAN/Function_for_application_test_python3.py
 SegSRGAN/SegSRGAN/ImageReader.py
-SegSRGAN/SegSRGAN/SegSRGAN_train_avec_base_test.py
+SegSRGAN/SegSRGAN/SegSRGAN_training.py
 SegSRGAN/SegSRGAN/__init__.py
 SegSRGAN/SegSRGAN/job_model.py
 SegSRGAN/SegSRGAN/job epirmex/Job.py
