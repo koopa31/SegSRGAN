@@ -482,17 +482,127 @@ class SegSRGAN(object):
         model = Model(inputs=inputs, outputs=predictions, name=name)
 
         return model
+    
+    def generator_block_u_net_cond(self, name):  # generateur meme dim en entree et sortie si multiple de 4
+        
+        im = Input(shape=(1, self.image_row, self.image_column, self.image_depth), name='dis_input')
+
+        res = Input(shape=(1, self.image_row, self.image_column, self.image_depth), name='dis_input_res')
+
+        inputs = Concatenate(axis=-4)([im, res])
+    
+        # Representation
+        gennet = ReflectPadding3D(padding=3)(inputs)
+        gennet = Conv3D(self.generator_kernel, 7, strides=1, kernel_initializer=gen_initializer,
+                        use_bias=False,
+                        name=name + '_gen_conv1',
+                        data_format='channels_first')(gennet)
+        gennet = InstanceNormalization3D(name=name + '_gen_isnorm_conv1')(gennet)
+        gennet = Activation('relu')(gennet)
+    
+        # resblock :
+        gennet = resnet_blocks(gennet, self.generator_kernel, name=name + '_gen_block')
+    
+        # Downsampling 1
+        gennet_down_1 = ReflectPadding3D(padding=1)(gennet)
+        gennet_down_1 = Conv3D(self.generator_kernel * 2, 3, strides=2, kernel_initializer=gen_initializer,
+                               use_bias=False,
+                               name=name + '_gen_conv2',
+                               data_format='channels_first')(gennet_down_1)
+        gennet_down_1 = InstanceNormalization3D(name=name + '_gen_isnorm_conv2')(gennet_down_1)
+        gennet_down_1 = Activation('relu')(gennet_down_1)
+    
+        # resblock 1 :
+        gennet_down_1 = resnet_blocks(gennet_down_1, self.generator_kernel * 2, name=name + '_gen_block1')
+    
+        # Downsampling 2
+        gennet_down_2 = ReflectPadding3D(padding=1)(gennet_down_1)
+        gennet_down_2 = Conv3D(self.generator_kernel * 4, 3, strides=2, kernel_initializer=gen_initializer,
+                               use_bias=False,
+                               name=name + '_gen_conv3',
+                               data_format='channels_first')(gennet_down_2)
+        gennet_down_2 = InstanceNormalization3D(name=name + '_gen_isnorm_conv3')(gennet_down_2)
+        gennet_down_2 = Activation('relu')(gennet_down_2)
+    
+        # resblock 2
+        gennet_down_2 = resnet_blocks(gennet_down_2, self.generator_kernel * 4, name=name + '_gen_block2')
+    
+        # Upsampling X2 down_2 : 
+    
+        gennet_up_1 = UpSampling3D(size=(2, 2, 2),
+                                   data_format='channels_first')(gennet_down_2)
+        gennet_up_1 = ReflectPadding3D(padding=1)(gennet_up_1)
+        gennet_up_1 = Conv3D(self.generator_kernel * 2, 3, strides=1, kernel_initializer=gen_initializer,
+                             use_bias=False,
+                             name=name + '_gen_deconv1',
+                             data_format='channels_first')(gennet_up_1)
+        gennet_up_1 = InstanceNormalization3D(name=name + '_gen_isnorm_deconv1')(gennet_up_1)
+        gennet_up_1 = Activation('relu')(gennet_up_1)
+    
+        #        del gennet_down_2
+    
+        # Concatenante gennet_up_1 with gennet_down_1 
+        gennet_concate_1 = Concatenate(axis=-4)([gennet_up_1, gennet_down_1])
+    
+        #        del gennet_up_1
+        #        del gennet_down_1
+    
+        # Upsampling 2
+        gennet_up_2 = UpSampling3D(size=(2, 2, 2),
+                                   data_format='channels_first')(gennet_concate_1)
+        gennet_up_2 = ReflectPadding3D(padding=1)(gennet_up_2)
+        gennet_up_2 = Conv3D(self.generator_kernel, 3, strides=1, kernel_initializer=gen_initializer,
+                             use_bias=False,
+                             name=name + '_gen_deconv2',
+                             data_format='channels_first')(gennet_up_2)
+        gennet_up_2 = InstanceNormalization3D(name=name + '_gen_isnorm_deconv2')(gennet_up_2)
+        gennet_up_2 = Activation('relu')(gennet_up_2)
+    
+        # Concatenante gennet_up_2 with gennet_down_1
+        gennet_concate_2 = Concatenate(axis=-4)([gennet_up_2, gennet])
+    
+        #        del gennet_concate_1
+        #        del gennet_up_2
+    
+        # Reconstruction
+        gennet_concate_2 = ReflectPadding3D(padding=3)(gennet_concate_2)
+        gennet_concate_2 = Conv3D(2, 7, strides=1, kernel_initializer=gen_initializer,
+                                  use_bias=False,
+                                  name=name + '_gen_1conv',
+                                  data_format='channels_first')(gennet_concate_2)
+    
+        predictions = gennet_concate_2
+        predictions = activation_SegSRGAN(is_residual=self.is_residual)([predictions, inputs])
+    
+        model = Model(inputs=[im, res], outputs=predictions, name=name)
+    
+        return model
 
     def generator(self):
+        
         if self.G:
             return self.G
-        if self.u_net_gen:
-            self.G = self.generator_block_u_net('G_unet')
-        elif self.is_conditional:
-            self.G = self.generator_block_conditionnal('G_cond')
-        else:
-            self.G = self.generator_block('G')
-
+        
+        if self.u_net_gen  :
+            
+            if self.is_conditional :
+                
+                self.G = self.generator_block_u_net_cond('G_unet_cond')
+                
+            else : 
+            
+                self.G = self.generator_block_u_net('G_unet')
+                
+        else :  
+            
+            if self.is_conditional :
+                
+                self.G = self.G = self.generator_block_conditionnal('G_cond')
+                
+            else : 
+            
+                self.G = self.generator_block('G')
+            
         return self.G
 
     def discriminator(self):
