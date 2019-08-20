@@ -32,15 +32,16 @@ from keras.layers import Conv3D, Add, UpSampling3D, Activation, Concatenate
 from keras.optimizers import Adam
 from keras.initializers import lecun_normal
 import keras.backend as K
+import os
 
 gen_initializer = lecun_normal()
 
 import sys
 
-sys.path.insert(0, './utils')
-from layers import wasserstein_loss, ReflectPadding3D, gradient_penalty_loss, InstanceNormalization3D, \
+sys.path.insert(0, os.path.join('.','utils'))
+from utils.layers import wasserstein_loss, ReflectPadding3D, gradient_penalty_loss, InstanceNormalization3D, \
     activation_SegSRGAN, charbonnier_loss
-from Adam_lr_mult import LR_Adam
+from utils.Adam_lr_mult import LR_Adam
 from keras import losses
 from keras.utils import multi_gpu_model
 from tensorflow.python.client import device_lib
@@ -73,12 +74,16 @@ def resnet_blocks(input_res, kernel, name):
 
 class SegSRGAN(object):
     """Description of the GAN network structure"""
-    def __init__(self, image_row=64, image_column=64, image_depth=64,
+    def __init__(self, u_net_gen, image_row=64, image_column=64, image_depth=64,
                  first_discriminator_kernel=32, first_generator_kernel=16,
                  lamb_rec=1, lamb_adv=0.001, lamb_gp=10,
-                 lr_dis_model=0.0001, lr_gen_model=0.0001, u_net_gen=False, multi_gpu=True,
+                 lr_dis_model=0.0001, lr_gen_model=0.0001, multi_gpu=True,
                  is_conditional=False,
                  is_residual=True):
+        if (image_row %4!=0) |  (image_column %4!=0) | (image_depth %4!=0) :
+            
+            raise AssertionError('Patch size must be divisible by 4')
+            
         self.image_row = image_row
         self.image_column = image_column
         self.image_depth = image_depth
@@ -482,7 +487,7 @@ class SegSRGAN(object):
         if self.G:
             return self.G
         if self.u_net_gen:
-            self.G = self.generator_block_u_net('G')
+            self.G = self.generator_block_u_net('G_unet')
         elif self.is_conditional:
             self.G = self.generator_block_conditionnal('G_cond')
         else:
@@ -668,7 +673,7 @@ class SegSRGAN(object):
         # self.dis_model = multi_gpu_model(self.dis_model, gpus=num_gpu)
         self.dis_model_multi_gpu.compile(Adam(lr=self.lr_dis_model, beta_1=0.5, beta_2=0.999),
                                         loss=[wasserstein_loss, wasserstein_loss, partial_gp_loss],
-                                        loss_weights=[1, 1, self.lamb_gp])
+                                        loss_weights=[1, 1, 1])
         # multi gpu training ne change rien au temps d'exectution sur romeo. meme en changeant l'argument cpu_merge=False.
 
         return self.dis_model, self.dis_model_multi_gpu
