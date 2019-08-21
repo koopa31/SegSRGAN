@@ -352,7 +352,7 @@ if __name__ == '__main__':
                                                                                'implies (0.5,0.5,2) is the lower bounds'
                                                                                ' and (0.5,0.5,3) is the upper bounds',
                         nargs='+', required=True)
-    parser.add_argument('-contrast_max', '--contrast_max', help='Ex : 0.3 : NN trained on contrast between power 0.3'
+    parser.add_argument('-contrast_max', '--contrast_max', help='Ex : 0.3 : NN trained on contrast between power 0.7'
                                                                 ' and 1.3 of initial image (default=0.5)', type=float,
                         default=0.5)
     parser.add_argument('-percent_val_max', '--percent_val_max', help='NN trained on image on which we add gaussian '
