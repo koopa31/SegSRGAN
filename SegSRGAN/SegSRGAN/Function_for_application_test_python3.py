@@ -247,9 +247,7 @@ def segmentation(input_file_path, step, new_resolution, path_output_cortex, path
 
     D = weights[list(weights.keys())[0]]
     weight_names = saving.load_attributes_from_hdf5_group(D, 'weight_names')
-    for i in weight_names:
-        if 'conv_dis_1/kernel' in i:
-            weight_values = D[i]
+    weight_values = D[weight_names[-1]]
     first_discriminator_kernel = weight_values.shape[4]
 
     # Selection of the kind of network
