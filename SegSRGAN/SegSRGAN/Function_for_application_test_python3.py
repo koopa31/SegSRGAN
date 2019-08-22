@@ -240,14 +240,14 @@ def segmentation(input_file_path, step, new_resolution, path_output_cortex, path
     weights = h5py.File(weights_path, 'r')
     G = weights[list(weights.keys())[1]]
     weight_names = saving.load_attributes_from_hdf5_group(G, 'weight_names')
-    weight_values = G[weight_names[-1]]
+    weight_values = G[weight_names[0]]
     first_generator_kernel = weight_values.shape[4]
 
     # Get the generator kernel from the weights we are going to use
 
     D = weights[list(weights.keys())[0]]
     weight_names = saving.load_attributes_from_hdf5_group(D, 'weight_names')
-    weight_values = D[weight_names[-1]]
+    weight_values = D[weight_names[0]]
     first_discriminator_kernel = weight_values.shape[4]
 
     # Selection of the kind of network
