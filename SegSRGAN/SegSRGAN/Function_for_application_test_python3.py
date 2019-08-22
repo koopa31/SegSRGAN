@@ -240,9 +240,7 @@ def segmentation(input_file_path, step, new_resolution, path_output_cortex, path
     weights = h5py.File(weights_path, 'r')
     G = weights[list(weights.keys())[1]]
     weight_names = saving.load_attributes_from_hdf5_group(G, 'weight_names')
-    for i in weight_names:
-        if 'gen_conv1' in i:
-            weight_values = G[i]
+    weight_values = G[weight_names[-1]]
     first_generator_kernel = weight_values.shape[4]
 
     # Get the generator kernel from the weights we are going to use
@@ -347,7 +345,7 @@ def segmentation(input_file_path, step, new_resolution, path_output_cortex, path
         raise AssertionError('The patch size need to be smaller than the interpolated image size')
 
     # Loading weights
-    segsrgan_test_instance = SegSRGAN_test(weights_path, patch1, patch2, patch3, is_conditional, u_net_gen,is_residual,
+    segsrgan_test_instance = SegSRGAN_test(weights_path, patch1, patch2, patch3, is_conditional, u_net_gen, is_residual,
                                            first_generator_kernel, first_discriminator_kernel, resolution)
 
     # GAN
