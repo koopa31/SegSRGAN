@@ -1,1 +1,2 @@
 prune SegSRGAN/weights/
+prune data/weights/

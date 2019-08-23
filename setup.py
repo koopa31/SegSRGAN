@@ -9,7 +9,7 @@ with open(abspath("requirements.txt")) as f:
 
 setuptools.setup(
     name="SegSRGAN",
-    version="2.1.1",
+    version="2.1.2",
     author="Clément Cazorla", #Quentin Delannoy, Guillaume Dollé, Nicolas Passat, François Rousseau",
     author_email="clement.cazorla@univ-reims.fr", # quentin.delannoy@univ-reims.fr, guillaume.dolle@univ-reims.fr, nicolas.passat@univ-reims.fr, francois.rousseau@imt-atlantique.fr",
     description="Segmentation and super resolution GAN network",
