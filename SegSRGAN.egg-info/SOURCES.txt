@@ -11,6 +11,7 @@ SegSRGAN/SegSRGAN/ImageReader.py
 SegSRGAN/SegSRGAN/SegSRGAN_training.py
 SegSRGAN/SegSRGAN/__init__.py
 SegSRGAN/SegSRGAN/job_model.py
+SegSRGAN/SegSRGAN/example/segmentation.py
 SegSRGAN/SegSRGAN/job epirmex/Job.py
 SegSRGAN/SegSRGAN/job epirmex/__init__.py
 SegSRGAN/SegSRGAN/utils/Adam_lr_mult.py

@@ -1,6 +1,6 @@
 # SegSRGAN
 
-This algorithm is based on the [method](https://hal.archives-ouvertes.fr/hal-01895163) proposed by Chi-Hieu Pham in 2019.
+This algorithm is based on the [method](https://hal.archives-ouvertes.fr/hal-01895163) proposed by Chi-Hieu Pham in 2019. More information about the SEGSRGAN algorithm can be found in the [article](https://hal.archives-ouvertes.fr/hal-02189136/document)
 
 ## Installation
 
