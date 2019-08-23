@@ -4,7 +4,30 @@ This algorithm is based on the [method](https://hal.archives-ouvertes.fr/hal-018
 
 ## Installation
 
-`pip install SegSRGAN`
+### User (recommended)
+
+The library can be installed using Pypi
+
+```
+pip install SegSRGAN
+```
+
+NOTE: We recommend to use `virtualenv`
+
+### Developer
+
+First, clone the repository. Use the `make` to run the testsuite
+or yet create the pypi package.
+
+```
+git clone git@github.com:koopa31/SegSRGAN.git
+
+make test
+make pkg
+```
+
+
+make 
 
 ## Perform a training
 
