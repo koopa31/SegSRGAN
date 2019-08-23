@@ -27,10 +27,6 @@ import argparse
 import os
 import sys
 from pathlib import Path
-
-parent=Path(__file__).resolve().parent
-sys.path.insert(0,parent)
-
 from .utils.SegSRGAN import SegSRGAN
 from .utils.patches import create_patch_from_df_hr
 import pandas as pd
