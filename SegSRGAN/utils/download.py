@@ -7,7 +7,7 @@ import requests
 # and available from the repository.
 def download_weights( weights_path ):
     # We get the content of the weights folder.
-    z = requests.get('https://api.github.com/repos/koopa31/SegSRGAN/contents/SegSRGAN/SegSRGAN/weights?ref=develop')
+    z = requests.get('https://api.github.com/repos/koopa31/SegSRGAN/contents/weights?ref=develop')
     contents = z.json()
     # Creation of weights folder if it does not already exist.
     if os.path.isdir(weights_path) is False:
