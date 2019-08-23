@@ -9,10 +9,9 @@ import SimpleITK as sitk
 import scipy.ndimage
 from ast import literal_eval as make_tuple
 
-s = os.path.split(__file__)
-wd = os.path.join(*s[0:(len(s) - 1)])
-os.chdir(wd)
-sys.path.insert(0, os.path.join(os.getcwd(),"utils"))
+from pathlib import Path
+parent=Path(__file__).resolve().parent
+sys.path.insert(0, os.path.join(parent(),"utils"))
 
 from utils.utils3d import shave3D
 from utils.utils3d import pad3D
