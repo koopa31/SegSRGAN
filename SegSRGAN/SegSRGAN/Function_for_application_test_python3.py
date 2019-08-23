@@ -11,13 +11,13 @@ from ast import literal_eval as make_tuple
 
 from pathlib import Path
 parent=Path(__file__).resolve().parent
-sys.path.insert(0, os.path.join(parent(),"utils"))
+sys.path.insert(0,str(parent))
 
-from utils.utils3d import shave3D
-from utils.utils3d import pad3D
-from utils.SegSRGAN import SegSRGAN
-from ImageReader import NIFTIReader
-from ImageReader import DICOMReader
+from .utils.utils3d import shave3D
+from .utils.utils3d import pad3D
+from .utils.SegSRGAN import SegSRGAN
+from .ImageReader import NIFTIReader
+from .ImageReader import DICOMReader
 from keras.engine import saving
 
 GREEN = '\033[32m' # mode 32 = green forground
@@ -239,14 +239,18 @@ def segmentation(input_file_path, step, new_resolution, path_output_cortex, path
     weights = h5py.File(weights_path, 'r')
     G = weights[list(weights.keys())[1]]
     weight_names = saving.load_attributes_from_hdf5_group(G, 'weight_names')
-    weight_values = G[weight_names[0]]
+    for i in weight_names:
+        if 'gen_conv1' in i:
+            weight_values = G[i]
     first_generator_kernel = weight_values.shape[4]
 
     # Get the generator kernel from the weights we are going to use
 
     D = weights[list(weights.keys())[0]]
     weight_names = saving.load_attributes_from_hdf5_group(D, 'weight_names')
-    weight_values = D[weight_names[0]]
+    for i in weight_names:
+        if 'conv_dis_1/kernel' in i:
+            weight_values = D[i]
     first_discriminator_kernel = weight_values.shape[4]
 
     # Selection of the kind of network
@@ -342,7 +346,7 @@ def segmentation(input_file_path, step, new_resolution, path_output_cortex, path
         raise AssertionError('The patch size need to be smaller than the interpolated image size')
 
     # Loading weights
-    segsrgan_test_instance = SegSRGAN_test(weights_path, patch1, patch2, patch3, is_conditional, u_net_gen, is_residual,
+    segsrgan_test_instance = SegSRGAN_test(weights_path, patch1, patch2, patch3, is_conditional, u_net_gen,is_residual,
                                            first_generator_kernel, first_discriminator_kernel, resolution)
 
     # GAN

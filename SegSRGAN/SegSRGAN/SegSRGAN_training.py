@@ -26,14 +26,18 @@ import numpy as np
 import argparse
 import os
 import sys
+from pathlib import Path
 
-sys.path.insert(0, os.path.join('.','utils'))
-from utils.SegSRGAN import SegSRGAN
-from utils.patches import create_patch_from_df_hr
+parent=Path(__file__).resolve().parent
+sys.path.insert(0,parent)
+
+from .utils.SegSRGAN import SegSRGAN
+from .utils.patches import create_patch_from_df_hr
 import pandas as pd
 from ast import literal_eval as make_tuple
 import shutil
 import time
+
 
 
 class SegSrganTrain(object):
@@ -352,7 +356,7 @@ if __name__ == '__main__':
                                                                                'implies (0.5,0.5,2) is the lower bounds'
                                                                                ' and (0.5,0.5,3) is the upper bounds',
                         nargs='+', required=True)
-    parser.add_argument('-contrast_max', '--contrast_max', help='Ex : 0.3 : NN trained on contrast between power 0.7'
+    parser.add_argument('-contrast_max', '--contrast_max', help='Ex : 0.3 : NN trained on contrast between power 0.3'
                                                                 ' and 1.3 of initial image (default=0.5)', type=float,
                         default=0.5)
     parser.add_argument('-percent_val_max', '--percent_val_max', help='NN trained on image on which we add gaussian '
