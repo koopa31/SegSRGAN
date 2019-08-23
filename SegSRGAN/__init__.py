@@ -1,4 +1,9 @@
-from SegSRGAN.download import download_weights
+import os
+from .utils.download import download_weights
+from pathlib import Path
+parent=Path(__file__).resolve().parent
 
 name = "SegSRGAN"
-download_weights()
+weights_path = os.path.join(str(parent),"weights")
+
+download_weights( weights_path )

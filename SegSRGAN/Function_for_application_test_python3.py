@@ -9,16 +9,11 @@ import SimpleITK as sitk
 import scipy.ndimage
 from ast import literal_eval as make_tuple
 
-s = os.path.split(__file__)
-wd = os.path.join(*s[0:(len(s) - 1)])
-os.chdir(wd)
-sys.path.insert(0, os.path.join(os.getcwd(),"utils"))
-
-from utils.utils3d import shave3D
-from utils.utils3d import pad3D
-from utils.SegSRGAN import SegSRGAN
-from ImageReader import NIFTIReader
-from ImageReader import DICOMReader
+from .utils.utils3d import shave3D
+from .utils.utils3d import pad3D
+from .utils.SegSRGAN import SegSRGAN
+from .ImageReader import NIFTIReader
+from .ImageReader import DICOMReader
 from keras.engine import saving
 
 GREEN = '\033[32m' # mode 32 = green forground
