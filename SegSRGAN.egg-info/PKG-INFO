@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: SegSRGAN
-Version: 2.0
+Version: 2.0.2
 Summary: Segmentation and super resolution GAN network
 Home-page: https://github.com/koopa31/SegSRGAN
 Author: Clément Cazorla
@@ -8,7 +8,7 @@ Author-email: clement.cazorla@univ-reims.fr
 License: UNKNOWN
 Description: # SegSRGAN
         
-        This algorithm is based on the [method](https://hal.archives-ouvertes.fr/hal-01895163) proposed by Chi-Hieu Pham in 2019.
+        This algorithm is based on the [method](https://hal.archives-ouvertes.fr/hal-01895163) proposed by Chi-Hieu Pham in 2019. More information about the SEGSRGAN algorithm can be found in the [article](https://hal.archives-ouvertes.fr/hal-02189136/document)
         
         ## Installation
         
