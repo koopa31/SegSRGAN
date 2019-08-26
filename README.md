@@ -63,12 +63,17 @@ make
 > * **kernel_gen** (integer): number of output channels of the first convolutional layer of the generator.
 > * **kernel_dis** (integer): number of output channels of the first convolutional layer of the discriminator.
 > * **is_conditional** (Boolean): enables to train a conditional network with a condition on the input resolution (discriminator and generator are conditionnal)
-> * **u_net** (Boolean): enables to train U-Net network.
+> * **u_net** (Boolean): enables to train U-Net network (see difference between u-net and non u-net network in the images below).
 > * **is_residual** (Boolean): determines whether the structure of the network is residual or not. This option only impact the activation function of the generator (see image below for more detail).
 
 | ![Alt text](Image_read_me/Schéma_residual.png?raw=true  "Residual vs non residual network") | 
 |:--:| 
 | *Residual vs non residual network*|
+
+| ![Alt text](Image_read_me/Schema_u_net.png?raw=true  "Residual vs non residual network") 
+![Alt text](Image_read_me/Schema__nn_u_net.png?raw=true  "Residual vs non residual network")|
+|:--:| 
+| *U-net vs non U-net network*|
 
 
 ##### Options for continuing a training from set of weights :
