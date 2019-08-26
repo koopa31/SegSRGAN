@@ -71,9 +71,14 @@ make
 | *Residual vs non residual network*|
 
 | ![Alt text](Image_read_me/Schema_u_net.png?raw=true  "Residual vs non residual network") |
+|:--:| 
+| *U-net shaped network*|
+
 | ![Alt text](Image_read_me/Schema_nn_u_net.png?raw=true  "Residual vs non residual network") |
 |:--:| 
-| *U-net vs non U-net network*|
+| *Non u-net shaped network*|
+
+
 
 
 ##### Options for continuing a training from set of weights :
