@@ -66,9 +66,9 @@ make
 > * **u_net** (Boolean): enables to train U-Net network.
 > * **is_residual** (Boolean): determines whether the structure of the network is residual or not. This option only impact the activation function of the generator (see image below for more detail).
 
-
-![Alt text](Image_read_me/Schéma_residual.png?raw=true  "Residual vs non residual network")
-*Residual vs non residual network*
+| ![Alt text](Image_read_me/Schéma_residual.png?raw=true  "Residual vs non residual network") | 
+|:--:| 
+| *Residual vs non residual network*|
 
 
 ##### Options for continuing a training from set of weights :
