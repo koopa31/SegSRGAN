@@ -71,7 +71,7 @@ make
 | *Residual vs non residual network*|
 
 | ![Alt text](Image_read_me/Schema_u_net.png?raw=true  "Residual vs non residual network") |
-|![Alt text](Image_read_me/Schema__nn_u_net.png?raw=true  "Residual vs non residual network")|
+| ![Alt text](Image_read_me/Schema__nn_u_net.png?raw=true  "Residual vs non residual network") |
 |:--:| 
 | *U-net vs non U-net network*|
 
