@@ -27,7 +27,7 @@ make pkg
 ```
 
 
-make 
+make
 
 ## Installation
 
@@ -66,17 +66,22 @@ make
 > * **u_net** (Boolean): enables to train U-Net network (see difference between u-net and non u-net network in the images below).
 > * **is_residual** (Boolean): determines whether the structure of the network is residual or not. This option only impact the activation function of the generator (see image below for more detail).
 
-| ![Alt text](Image_read_me/Schéma_residual.png?raw=true  "Residual vs non residual network") | 
-|:--:| 
-| *Residual vs non residual network*|
+
+
+
+<figure>
+  <center>
+  <img src="Image_read_me/Schéma_residual.png" alt="Residual vs non residual network"/>
+  <figcaption> Residual vs non residual network </figcaption>
+</figure>
+
+
+
 
 | ![Alt text](Image_read_me/Schema_u_net.png?raw=true  "Residual vs non residual network") |
-|:--:| 
-| *U-net shaped network*|
-
+|:--:|
 | ![Alt text](Image_read_me/Schema_nn_u_net.png?raw=true  "Residual vs non residual network") |
-|:--:| 
-| *Non u-net shaped network*|
+| *U-net vs non u-net shaped network*|
 
 
 
