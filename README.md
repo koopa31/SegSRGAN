@@ -72,6 +72,7 @@ make
 
 
 
+
 ##### Options for continuing a training from set of weights :
 
 > * **init_epoch** (integer): number of the first epoch which will be considered during the continued training (e.g., 21 if the weights given were those obtained at the end of the 20th epoch). This is mainly useful for writing the weights in the same folder as the training which is continued. Warning – The number of epochs of the remaining training is then epoch − initepoch +1.
