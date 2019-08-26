@@ -68,7 +68,11 @@ make
 
 
 
+<<<<<<< HEAD
 ![Alt text](Image_read_me/Schéma_residual.png "Residual vs non residual network")
+=======
+![Alt text](Image_read_me/Schéma_residual.png"Residual vs non residual network" "Residual vs non residual network")
+>>>>>>> 501ed56648bab7a7f68648a256a861d572d2b2c1
 
 
 
