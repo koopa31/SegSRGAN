@@ -68,12 +68,11 @@ make
 
 
 
-
-<figure>
-  <center>
-  <img src="Image_read_me/Schéma_residual.png" alt="Residual vs non residual network"/>
-  <figcaption> Residual vs non residual network </figcaption>
-</figure>
+<p align="center">
+  <img src="Image_read_me/Schéma_residual.png" alt="Residual vs non residual network"/ >
+  <br/> <!-- Permet de sauter des ligne-->
+  Residual vs non residual network
+</p>
 
 
 
