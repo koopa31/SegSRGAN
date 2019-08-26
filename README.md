@@ -68,6 +68,7 @@ make
 
 
 ![Alt text](Image_read_me/Schéma_residual.png?raw=true  "Residual vs non residual network")
+*Residual vs non residual network*
 
 
 ##### Options for continuing a training from set of weights :
