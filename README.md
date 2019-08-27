@@ -63,16 +63,13 @@ python SegSRGAN_training.py
 > * **csv** (string): CSV file that contains the paths to the files used for training. These files are divided into two categories: train and test. Consequently, it must contain 3 columns, called: HR_image, Label_image and Base (which is equal to either or Test), respectively
 > * **dice_file** (string): CSV file where to store the DICE at each epoch
 > * **mse\_file**(string): MSE file where to store the DICE at each epoch
-> * **folder\_training\_data** (string): folder which contains the training images database
+
 > * **epoch** (integer) : number of training epochs
 > * **batch_size** (integer) : number of patches per mini batch
 > * **number\_of\_disciminator\_iteration** (integer): how many times we train the discriminator before training the generator
 > * **new_low_res** (tuple): resolution of the LR image generated during the training. One value is given per dimension, for fixed resolution (e.g.“−−new_low_res 0.5 0.5 3”). Two values are given per dimension if the resolutions have to be drawn between bounds (e.g. “−−new_low_res 0.5 0.5 4 −−new_low_res 1 1 2” means that for each image at each epoch, x and y resolutions are uniformly drawn between 0.5 and 1, whereas z resolution is uniformly drawn between 2 and 4.
 > * **snapshot_folder** (string): path of the folder in which the weights will be regularly saved after a given number of epochs (this number is given by **snapshot** (integer) argument). But it is also possible to continue a training from its saved weight, adding the following parameters:
 > * **folder_training_data** (string): folder where temporary files are written during the training (created at the begining of each epoch and deleted at the end of it)
-> * **initepoch** (integer): number of the epoch from which the training will continue
-> * **weights** (string): path to the saved weights from which the training will continue
-> * **batch_size** (integer): number of patches per mini-batch.
 
 #### Network architecture options :
 
@@ -112,12 +109,12 @@ where the block denoted as "Resblock" is defined as follow :
 
 
 
-##### Options for continuing a training from set of weights :
+#### Options for continuing a training from set of weights :
 
 > * **init_epoch** (integer): number of the first epoch which will be considered during the continued training (e.g., 21 if the weights given were those obtained at the end of the 20th epoch). This is mainly useful for writing the weights in the same folder as the training which is continued. Warning – The number of epochs of the remaining training is then epoch − initepoch +1.
 > * **weights** (string): path to the saved weights from which the training will continue.
 
-##### Options for data augmentation :
+#### Options for data augmentation :
 
 
 > * **percent_val_max**: multiplicative value that gives the ratio of the maximal value of the image, for defining the standard deviation of the additive Gaussian noise.
@@ -157,6 +154,8 @@ Where:
 
 In order to facilitate the segmentation of several images, you can run SegSRGAN/SegSRGAN/job_model.py:
 
+#### General description :
+
 ```
 python job_model.py
 --path
@@ -175,10 +174,58 @@ Where:
 > * **step** : list of steps
 > * **result_folder_name** : Name of the folder containing the results
 
-Example of syntax for step and patch setting:
+#### Example :
 
---patch 64,128
+```
 
---step 32 64,64 128
+python job_model . py −−path /home/data . csv −−patch "
+64,128" −−step "32 64 ,64 128" −−
+result_folder_name "
+weights_without_augmentation" −−weights_path "
+weights /Perso_without_data_augmentation"
 
-In this example we run steps 32 and 64 for patch 64 and steps 64 and 128 for patch 128. Be careful to respect the exact same spaces.
+```
+
+**csv path parameter :**
+
+A csv file, as the one mentioned
+in the above example, is used to get the paths of all the
+images to be processed. Only the first column of each
+entry will be used, and the file it must contain only
+paths (i.e. no header).
+
+**Step and patch parameters :** In this example, we run
+steps 32 and 64 for patch 64 and steps 64 and 128 for
+patch 128. The list of the paths of the images to be
+processed must be stored in a CSV file.
+Warning – It is mandatory to respect exactly the same
+shape for the given step and patch.
+Weights parameter. The implementation of the algorithm allows one two use two different kinds of
+weights:
+
+* The weights we have already trained.
+* New weights one can obtain through the training.
+
+In order to use the weights we have already
+trained, the easiest solution is to provide for the
+−−weights_path parameters some values as exemplified hereafter:
+* weights/Perso_without_data_augmentation:
+corresponding to the weights without data
+augmentation.
+* weights/Perso_with_constrast_0.5_and_noise_
+0.03_val_max: corresponding to the weights
+with data augmentation as described in Section 4.
+
+Others weights not presented in this article are available (the help of SegSRGAN provides the list of all
+these available weights).
+
+**Organizing the output storage:**
+
+ Each image to be processed has to be stored in its own folder. When
+processing a given input image (which can be either a NIfTI image or a DICOM folder), a dedicated
+folder is created for each output. This folder will
+be located in the folder of the input image which
+has been processed and will be named with respect
+to the value of the parameter −−result_folder_name (in our example the folder will be named “result_with_Weights_without_augmentation”). Finally, all initial image will contains a
+folder named “result_with_Weights_without_augmentation” and  this folder will contains contains two
+NIfTI file, namely the SR and the segmentation.
