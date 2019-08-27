@@ -194,7 +194,9 @@ images to be processed. Only the first column of each
 entry will be used, and the file it must contain only
 paths (i.e. no header).
 
-**Step and patch parameters :** In this example, we run
+**Step and patch parameters :**
+
+In this example, we run
 steps 32 and 64 for patch 64 and steps 64 and 128 for
 patch 128. The list of the paths of the images to be
 processed must be stored in a CSV file.
