@@ -85,7 +85,7 @@ python SegSRGAN_training.py
 
 
 <p align="center">
-  <img src="Image_read_me/Schéma_residual.png" alt="Residual vs non residual network"/ >
+  <img src="https://github.com/koopa31/SegSRGAN/blob/develop/Image_read_me/Schema_nn_u_net.png" alt="Residual vs non residual network"/ >
   <br/> <!-- Permet de sauter des ligne-->
   Residual vs non residual network
 </p>
@@ -93,9 +93,9 @@ python SegSRGAN_training.py
 
 
 
-| ![Alt text](Image_read_me/Schema_u_net.png?raw=true  "Residual vs non residual network") |
+| ![Alt text](https://github.com/koopa31/SegSRGAN/blob/develop/Image_read_me/Schema_u_net.png?raw=true  "U-net vs non u-net shaped network") |
 |:--:|
-| ![Alt text](Image_read_me/Schema_nn_u_net.png?raw=true  "Residual vs non residual network") |
+| ![Alt text](https://github.com/koopa31/SegSRGAN/blob/develop/Image_read_me/Schema_nn_u_net.png?raw=true  "U-net vs non u-net shaped network") |
 | *U-net vs non u-net shaped network*|
 
 
