@@ -85,7 +85,7 @@ python SegSRGAN_training.py
 
 
 <p align="center">
-  <img src="https://github.com/koopa31/SegSRGAN/blob/develop/Image_read_me/Schema_nn_u_net.png" alt="Residual vs non residual network"/ >
+  <img src="https://github.com/koopa31/SegSRGAN/blob/develop/Image_read_me/Schéma_residual.png" alt="Residual vs non residual network"/ >
   <br/> <!-- Permet de sauter des ligne-->
   Residual vs non residual network
 </p>
