@@ -12,7 +12,8 @@ import numpy as np
 
 
 # Fonction which will be used hereafter :
- 
+import requests
+
 start = "\033[1m" # for printing in bold
 end = "\033[0;0m"
 RED = '\033[31m'   # mode 31 = red forground
@@ -126,9 +127,16 @@ def list_of(arg,result_type=int):
         
     return m
 
+def list_of_weights():
+    z = requests.get('https://api.github.com/repos/koopa31/SegSRGAN/contents/data/weights?ref=develop')
+    contents = z.json()
+    weights_list= []
+    for content in contents:
+        weights_list.append(content['name'])
+    return weights_list
 
+weights_list = list_of_weights()
 
-weights_list = [os.path.join("weights",x) for x in os.listdir(os.path.join(os.getcwd(),'weights'))]
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-p", "--path", type=str, help="Path of the csv file")

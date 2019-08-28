@@ -9,11 +9,11 @@ import SimpleITK as sitk
 import scipy.ndimage
 from ast import literal_eval as make_tuple
 
-from .utils.utils3d import shave3D
-from .utils.utils3d import pad3D
-from .utils.SegSRGAN import SegSRGAN
-from .ImageReader import NIFTIReader
-from .ImageReader import DICOMReader
+from SegSRGAN.utils.utils3d import shave3D
+from SegSRGAN.utils.utils3d import pad3D
+from SegSRGAN.utils.SegSRGAN import SegSRGAN
+from SegSRGAN.ImageReader import NIFTIReader
+from SegSRGAN.ImageReader import DICOMReader
 from keras.engine import saving
 
 GREEN = '\033[32m' # mode 32 = green forground
