@@ -135,7 +135,7 @@ def list_of_weights():
     contents = z.json()
     weights_list= []
     for content in contents:
-        weights_list.append(content['name'])
+        weights_list.append(os.path.join('weights', content['name']))
     return weights_list
 
 weights_list = list_of_weights()
