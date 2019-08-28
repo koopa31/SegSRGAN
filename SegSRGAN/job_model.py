@@ -131,7 +131,7 @@ def list_of_weights():
     """
     Gets the list of all the existing weights from the Github repository
     """
-    z = requests.get('https://api.github.com/repos/koopa31/SegSRGAN/contents/data/weights?ref=develop')
+    z = requests.get('https://api.github.com/repos/koopa31/SegSRGAN/contents/data/weights?ref=master')
     contents = z.json()
     weights_list= []
     for content in contents:
