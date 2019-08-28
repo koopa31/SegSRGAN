@@ -78,11 +78,10 @@ python SegSRGAN_training.py
 
 
 <p align="center">
-  <img src="https://github.com/koopa31/SegSRGAN/blob/develop/Image_read_me/Schema_residual.png" alt="Residual vs non residual network"/ >
+  <img src="https://raw.githubusercontent.com/koopa31/SegSRGAN/master/Image_read_me/Schema_residual.png" alt="Residual vs non residual network"/ >
   <br/> <!-- Permet de sauter des ligne-->
   Residual vs non residual network
 </p>
-
 
 
 
@@ -95,7 +94,7 @@ where the block denoted as "Resblock" is defined as follow :
 
 
 <p align="center">
-  <img src="https://github.com/koopa31/SegSRGAN/blob/develop/Image_read_me/Resblock.png" alt="Resblock"/ >
+  <img src="https://raw.githubusercontent.com/koopa31/SegSRGAN/master/Image_read_me/Resblock.png" alt="Resblock"/ >
   <br/> <!-- Permet de sauter des ligne-->
   Resblock
 </p>
