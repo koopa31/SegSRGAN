@@ -12,8 +12,20 @@ import pandas as pd
 
 from SegSRGAN.utils.download import download_weights
 
+def absolute_weights_path(path):
+    """
+    Turn the weights path to its absolute path if relative.
+    :param path: Path to the weights directory
+    :return: Absolute path to the weights directory
+    """
+    if os.path.isabs(path) is False:
+        weights_path = os.path.join(os.path.split(__file__)[0], path)
+    else:
+        weights_path = path
+    return weights_path
+
 # downloading of the weights in case of the use of the pip package
-download_weights('SegSRGAN/weights')
+download_weights(absolute_weights_path('weights'))
 
 # Fonction which will be used hereafter :
 
@@ -23,17 +35,7 @@ end = "\033[0;0m"
 RED = '\033[31m'   # mode 31 = red forground
 RESET = '\033[0m'  # mode 0  = reset
 
-def absolute_weights_path(path):
-    """
-    Turn the weights path to its absolute path if relative.
-    :param path: Path to the weights directory
-    :return: Absolute path to the weights directory
-    """
-    if os.path.isabs(path) is False:
-        weights_path = os.path.join(os.getcwd(), path)
-    else:
-        weights_path = path
-    return weights_path
+
 
 
 def create_folder(directory):
