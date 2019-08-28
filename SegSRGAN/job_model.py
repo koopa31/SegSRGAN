@@ -1,18 +1,22 @@
 # -*- coding: utf-8 -*-
 import Function_for_application_test_python3
-import pandas as pd
 import glob
 import os
 import argparse
 import ast
 import sys
-
+import requests
 
 import numpy as np
+import pandas as pd
 
+from SegSRGAN.utils.download import download_weights
+
+# downloading of the weights in case of the use of the pip package
+download_weights('SegSRGAN/weights')
 
 # Fonction which will be used hereafter :
-import requests
+
 
 start = "\033[1m" # for printing in bold
 end = "\033[0;0m"
