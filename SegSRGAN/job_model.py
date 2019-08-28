@@ -128,6 +128,9 @@ def list_of(arg,result_type=int):
     return m
 
 def list_of_weights():
+    """
+    Gets the list of all the existing weights from the Github repository
+    """
     z = requests.get('https://api.github.com/repos/koopa31/SegSRGAN/contents/data/weights?ref=develop')
     contents = z.json()
     weights_list= []
