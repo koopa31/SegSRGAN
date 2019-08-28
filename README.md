@@ -10,7 +10,6 @@ The library can be installed using Pypi
 
 ```
 pip install SegSRGAN
-
 ```
 
 NOTE: We recommend to use `virtualenv`
@@ -56,13 +55,11 @@ python SegSRGAN_training.py
 ```
 
 ### Options :
-
 #### General options :
 
 > * **csv** (string): CSV file that contains the paths to the files used for the training. These files are divided into two categories: train and test. Consequently, it must contain 3 columns, called: HR_image, Label_image and Base (which is equal to either Train or Test), respectively
 > * **dice_file** (string): CSV file where to store the DICE at each epoch
-> * **mse\_file**(string): CSV file where to store the DICE at each epoch
-
+> * **mse\_file**(string): MSE file where to store the DICE at each epoch
 > * **epoch** (integer) : number of training epochs
 > * **batch_size** (integer) : number of patches per mini batch
 > * **number\_of\_disciminator\_iteration** (integer): how many times we train the discriminator before training the generator
