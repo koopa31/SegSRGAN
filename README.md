@@ -114,7 +114,7 @@ where the block denoted as "Resblock" is defined as follow :
 
 
 > * **percent_val_max**: multiplicative value that gives the ratio of the maximal value of the image, to define the standard deviation of the additive Gaussian noise.
-For instance, a value of $0.03$ means that $\sigma = 0.03 \max(X)$ where $\max(X)$ is the maximal value of the image $X$.
+For instance, a value of *0.03* means that *sigma = 0.03 max(X)* where *max(X)* is the maximal value of the image *X*.
 > * **contrast_max**: controls the modification of contrast of each image. For instance, a value of 0.4 means that at each epoch, each image will be set to a power uniformly drawn between 0.6 and 1.4.
 
 
