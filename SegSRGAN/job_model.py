@@ -51,27 +51,27 @@ def create_folder(directory):
         print(RED+start+'Error: Creating directory. ' + directory+end+RESET)
         
         
-def result_folder_name(base_folder,patch,step,result_folder) :
+def result_folder_name(base_folder, patch, step, result_folder) :
     
-    base_folder_split =  os.path.split(base_folder)
+    base_folder_split = os.path.split(base_folder)
     
-    path_output = os.path.join(*base_folder_split[:(len(base_folder_split) - 1)],"Result_with_"+result_folder,"patch "+str(
-        patch))
+    path_output = os.path.join(*base_folder_split[:(len(base_folder_split) - 1)], "Result_with_" + result_folder,
+                               "patch_" + str(patch))
 
-    if patch is None : 
+    if patch is None:
 
-        path_output_cortex = os.path.join(path_output,"Cortex whole image.nii.gz")
+        path_output_cortex = os.path.join(path_output, "Cortex_whole_image.nii.gz")
 
-        path_output_SR = os.path.join(path_output,"SR  whole image.nii.gz")
+        path_output_SR = os.path.join(path_output, "SR_whole_image.nii.gz")
         
-    else : 
+    else:
         
-         path_output = path_output + " step " + str(step) 
+         path_output = path_output + "_step_" + str(step)
          
-         path_output_cortex = os.path.join(path_output,"Cortex patch " + str(patch) + " step " + str(step) + ".nii.gz")
+         path_output_cortex = os.path.join(path_output, "Cortex_patch_" + str(patch) + "_step_" + str(step) + ".nii.gz")
 
-         path_output_SR = os.path.join(path_output,"SR patch " + str(patch) + " step " + str(step) + ".nii.gz")
-         
+         path_output_SR = os.path.join(path_output, "SR_patch_" + str(patch) + "_step_" + str(step) + ".nii.gz")
+
     return path_output, path_output_cortex, path_output_SR
 
 
