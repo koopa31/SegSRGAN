@@ -36,7 +36,7 @@ from itertools import product
 from sklearn.feature_extraction.image import extract_patches
 from ImageReader import NIFTIReader
 from ImageReader import DICOMReader
-from .utils.utils3d import modcrop3D
+from .utils3d import modcrop3D
 
 
 import SimpleITK as sitk
