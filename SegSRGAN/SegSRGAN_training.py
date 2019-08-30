@@ -27,8 +27,8 @@ import argparse
 import os
 import sys
 from pathlib import Path
-from .utils.SegSRGAN import SegSRGAN
-from .utils.patches import create_patch_from_df_hr
+from SegSRGAN.utils.SegSRGAN import SegSRGAN
+from SegSRGAN.utils.patches import create_patch_from_df_hr
 import pandas as pd
 from ast import literal_eval as make_tuple
 import shutil
