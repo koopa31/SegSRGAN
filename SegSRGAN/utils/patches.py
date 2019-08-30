@@ -31,6 +31,8 @@ import sys
 import scipy.ndimage
 
 import numpy as np
+import SegSRGAN.utils.interpolation as inter
+import SegSRGAN.utils.normalization as norm
 
 from itertools import product
 from sklearn.feature_extraction.image import extract_patches
@@ -162,8 +164,14 @@ def create_patch_from_df_hr(df,
         reference_image, low_resolution_image = change_contrast(reference_image, low_resolution_image, contrast_list[i])
         
         low_resolution_image = add_noise(low_resolution_image, per_cent_val_max)
-    
-        interpolated_image, reference_image = norm_and_interp(reference_image, low_resolution_image, order, up_scale)
+
+        interp = 'sitk'
+
+        normalized_low_resolution_image, reference_image = norm.Normalization\
+            (low_resolution_image, reference_image).get_normalized_image()
+
+        interpolated_image = inter.Interpolation(normalized_low_resolution_image, up_scale, order, interp).\
+            get_interpolated_image()
         
         label_image, reference_image, interpolated_image = remove_border(label_image, reference_image,
                                                                            interpolated_image, border_to_keep)
