@@ -1,16 +1,17 @@
 # -*- coding: utf-8 -*-
+import sys
+import os
+sys.path.insert(0,os.path.split(__file__)[0])
 import Function_for_application_test_python3
 import glob
-import os
 import argparse
 import ast
-import sys
 import requests
 
 import numpy as np
 import pandas as pd
 
-from SegSRGAN.utils.download import download_weights
+from utils.download import download_weights
 
 def absolute_weights_path(path):
     """
