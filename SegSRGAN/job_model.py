@@ -8,10 +8,12 @@ import argparse
 import ast
 import requests
 
+import warnings
+
 import numpy as np
 import pandas as pd
 
-from utils.download import download_weights
+#from 
 
 def absolute_weights_path(path):
     """
@@ -25,8 +27,42 @@ def absolute_weights_path(path):
         weights_path = path
     return weights_path
 
+def check_internet():
+    url='http://www.google.com/'
+    timeout=5
+    try:
+        _ = requests.get(url, timeout=timeout)
+        return True
+    except requests.ConnectionError:
+        return False
+
+
 # downloading of the weights in case of the use of the pip package
-download_weights(absolute_weights_path('weights'))
+
+if check_internet() :
+    
+    from utils.download import download_weights
+
+    download_weights(absolute_weights_path('weights'))
+    
+    def list_of_weights():
+        """
+        Gets the list of all the existing weights from the Github repository
+        """
+        z = requests.get('https://api.github.com/repos/koopa31/SegSRGAN/contents/data/weights?ref=master')
+        contents = z.json()
+        weights_list= []
+        for content in contents:
+            weights_list.append(os.path.join('weights', content['name']))
+        return weights_list
+
+    
+    weights_list = list_of_weights()
+    
+else : 
+    warnings.warn("The internet connection doesn't work so the local weights set cannot be updated with the remote one. May cause issue of non existing file")
+    
+    weights_list=[]
 
 # Fonction which will be used hereafter :
 
@@ -134,18 +170,8 @@ def list_of(arg,result_type=int):
         
     return m
 
-def list_of_weights():
-    """
-    Gets the list of all the existing weights from the Github repository
-    """
-    z = requests.get('https://api.github.com/repos/koopa31/SegSRGAN/contents/data/weights?ref=master')
-    contents = z.json()
-    weights_list= []
-    for content in contents:
-        weights_list.append(os.path.join('weights', content['name']))
-    return weights_list
 
-weights_list = list_of_weights()
+
 
 
 parser = argparse.ArgumentParser()
