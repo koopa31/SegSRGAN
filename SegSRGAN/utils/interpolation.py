@@ -18,11 +18,24 @@ class Interpolation():
 
     def get_scipy_interpolation(self):
         normalized_low_resolution_image = self.normalized_low_resolution_image
-        interpolated_image = scipy.ndimage.zoom(normalized_low_resolution_image, zoom=self.up_scale, order=self.order)
+        interpolated_image = scipy.ndimage.zoom(normalized_low_resolution_image, zoom=self.upscale, order=self.order)
         return interpolated_image
 
     def get_sitk_interpolation(self):
         normalized_low_resolution_image = sitk.GetImageFromArray(self.normalized_low_resolution_image)
-        interp = sitk.Expand(normalized_low_resolution_image, [1, 1, 6], sitk.sitkBSpline)
+        self.upscale = [int(i) for i in self.upscale]
+        self.upscale = swapList(self.upscale)
+        interp = sitk.Expand(normalized_low_resolution_image, list(self.upscale), sitk.sitkBSpline)
         interp = sitk.GetArrayFromImage(interp)
         return interp
+
+
+def swapList(newList):
+    size = len(newList)
+
+    # Swapping
+    temp = newList[0]
+    newList[0] = newList[size - 1]
+    newList[size - 1] = temp
+
+    return newList
