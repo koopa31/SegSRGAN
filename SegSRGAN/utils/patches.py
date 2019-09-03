@@ -122,7 +122,8 @@ def create_patch_from_df_hr(df,
                             order=3,
                             thresholdvalue=0,
                             stride=20,
-                            is_conditional=False):
+                            is_conditional=False,
+                            interp='scipy'):
     
     data_list = []
 
@@ -165,7 +166,6 @@ def create_patch_from_df_hr(df,
         
         low_resolution_image = add_noise(low_resolution_image, per_cent_val_max)
 
-        interp = 'sitk'
 
         normalized_low_resolution_image, reference_image = norm.Normalization\
             (low_resolution_image, reference_image).get_normalized_image()
