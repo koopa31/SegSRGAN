@@ -191,7 +191,7 @@ parser.add_argument("-bb", "--by_batch", type=str, help="Prediction on list of p
 
 parser.add_argument('-n', '--new_low_res', type=str, help='Resolution of results (SR and segmentation).' 
                     'Ex : 0.5,0.5,0.5 (default) ',default='0.5,0.5,0.5')
-
+parser.add_argument('-int', '--interp', type=str, help="Interpolation type for the training (scipy or sitk)", default='scipy')
 
 args = parser.parse_args()
 
@@ -264,6 +264,7 @@ for i in path_pour_application:
                                                                            path_output_hr=path_output_SR,
                                                                            weights_path=weights_path,
                                                                            by_batch=by_batch,
+                                                                           interp=args.interp
                                                                            )
                     except (Exception,KeyboardInterrupt) as err :  # on attrape les erreur et on execute ce qu'il se passe en dessus (ici pour les erreur Exception et KeyboardInterrupt )
                         

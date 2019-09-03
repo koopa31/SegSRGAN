@@ -17,6 +17,7 @@ from utils.SegSRGAN import SegSRGAN
 from ImageReader import NIFTIReader
 from ImageReader import DICOMReader
 from keras.engine import saving
+import SegSRGAN.utils.interpolation as inter
 
 GREEN = '\033[32m' # mode 32 = green forground
 start = "\033[1m" # for printing in bold
@@ -215,7 +216,7 @@ class SegSRGAN_test(object):
 
 
 def segmentation(input_file_path, step, new_resolution, path_output_cortex, path_output_hr, weights_path, patch=None,
-                 spline_order=3, by_batch=False):
+                 spline_order=3, by_batch=False, interp='scipy'):
     """
 
     :param input_file_path: path of the image to be super resolved and segmented
@@ -303,9 +304,8 @@ def segmentation(input_file_path, step, new_resolution, path_output_cortex, path
     up_scale = tuple(itema / itemb for itema, itemb in zip(itk_image.GetSpacing(), new_resolution))
 
     # spline interpolation
-    interpolated_image = scipy.ndimage.zoom(test_imageNorm,
-                                           zoom=up_scale,
-                                           order=spline_order)
+    interpolated_image, up_scale = inter.Interpolation(test_imageNorm, up_scale, spline_order, interp). \
+        get_interpolated_image(image_instance)
 
     if patch is not None:
 
@@ -363,7 +363,7 @@ def segmentation(input_file_path, step, new_resolution, path_output_cortex, path
     estimated_hr_imageInverseNorm[
         estimated_hr_imageInverseNorm <= test_imageMinValue] = test_imageMinValue  # Clear negative value
     output_image = sitk.GetImageFromArray(np.swapaxes(estimated_hr_imageInverseNorm, 0, 2))
-    output_image.SetSpacing(new_resolution)
+    output_image.SetSpacing(tuple(np.array(image_instance.itk_image.GetSpacing())/np.array(up_scale)))
     output_image.SetOrigin(itk_image.GetOrigin())
     output_image.SetDirection(itk_image.GetDirection())
 
@@ -371,7 +371,7 @@ def segmentation(input_file_path, step, new_resolution, path_output_cortex, path
 
     # Cortex segmentation
     output_cortex = sitk.GetImageFromArray(np.swapaxes(estimated_cortex, 0, 2))
-    output_cortex.SetSpacing(new_resolution)
+    output_cortex.SetSpacing(tuple(np.array(image_instance.itk_image.GetSpacing())/np.array(up_scale)))
     output_cortex.SetOrigin(itk_image.GetOrigin())
     output_cortex.SetDirection(itk_image.GetDirection())
 
