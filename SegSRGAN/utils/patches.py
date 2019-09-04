@@ -305,18 +305,6 @@ def remove_border(label, hr, interp, border):
     label = label[border[0][0]:border[0][1], border[1][0]:border[1][1], border[2][0]:border[2][1]]
     interp = interp[border[0][0]:border[0][1], border[1][0]:border[1][1], border[2][0]:border[2][1]]
     return label, hr, interp
-        
-        
-def norm_and_interp(hr, LR, order, up_scale):
-    # Normalization by the max valeur of LR image
-    max_value = np.max(LR)
-    normalized_reference_image = hr/max_value
-    normalized_low_resolution_image = LR/max_value
-        
-    # Cubic Interpolation     
-    interpolated_image = scipy.ndimage.zoom(normalized_low_resolution_image, zoom=up_scale, order=order)
-    
-    return interpolated_image, normalized_reference_image
 
 
 def add_noise(lr, per_cent_val_max):
@@ -330,7 +318,7 @@ def add_noise(lr, per_cent_val_max):
     return lr
 
 
-def create_lr_hr_label(reference_name, label_name, new_resolution):
+def create_lr_hr_label(reference_name, label_name, new_resolution, interp):
 
     # Read the reference SR image
     if reference_name.endswith('.nii.gz'):
@@ -368,8 +356,13 @@ def create_lr_hr_label(reference_name, label_name, new_resolution):
     print('Generating LR images with the resolution of ', new_resolution)
 
     # Down sampling
-    low_resolution_image = scipy.ndimage.zoom(BlurReferenceImage, zoom=(1/float(idxScale) for idxScale in up_scale),
-                                              order=0)
+    if interp == 'scipy':
+        low_resolution_image = scipy.ndimage.zoom(BlurReferenceImage, zoom=(1/float(idxScale) for idxScale in up_scale),
+                                                order=0)
+    elif interp == 'sitk':
+        low_resolution_image = BlurReferenceImage[::up_scale[0], ::up_scale[1], ::up_scale[2]]
+    else:
+        raise TypeError('Wrong interp value')
 
     return low_resolution_image, reference_image, label_image, up_scale
 
