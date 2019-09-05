@@ -11,9 +11,9 @@ class Interpolation():
 
     def get_interpolated_image(self, original_LR=None):
         if self.interp == 'scipy':
-            interpolated_image = self.get_scipy_interpolation()
+            interpolated_image, self.upscale = self.get_scipy_interpolation()
         elif self.interp == 'sitk':
-            interpolated_image = self.get_sitk_interpolation(original_LR)
+            interpolated_image, self.upscale = self.get_sitk_interpolation(original_LR)
         return interpolated_image, self.upscale
 
     def get_scipy_interpolation(self):
