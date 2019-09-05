@@ -17,7 +17,7 @@ from utils.SegSRGAN import SegSRGAN
 from ImageReader import NIFTIReader
 from ImageReader import DICOMReader
 from keras.engine import saving
-import SegSRGAN.utils.interpolation as inter
+import utils.interpolation as inter
 
 GREEN = '\033[32m' # mode 32 = green forground
 start = "\033[1m" # for printing in bold
