@@ -28,7 +28,7 @@ class Interpolation():
         normalized_low_resolution_image.SetDirection(original_LR.itk_image.GetDirection())
         self.upscale = [round(i) for i in self.upscale]
         interp = sitk.Expand(normalized_low_resolution_image, list(self.upscale), sitk.sitkBSpline)
-        interp = sitk.GetArrayFromImage(interp)
+        interp = np.swapaxes(sitk.GetArrayFromImage(interp), 0, 2)
         return interp, self.upscale
 
 
