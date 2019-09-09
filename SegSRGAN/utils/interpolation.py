@@ -23,10 +23,15 @@ class Interpolation():
 
     def get_sitk_interpolation(self, original_LR):
         normalized_low_resolution_image = sitk.GetImageFromArray(np.swapaxes(self.normalized_low_resolution_image, 0, 2))
-        normalized_low_resolution_image.SetSpacing(original_LR.itk_image.GetSpacing())
-        normalized_low_resolution_image.SetOrigin(original_LR.itk_image.GetOrigin())
-        normalized_low_resolution_image.SetDirection(original_LR.itk_image.GetDirection())
-        self.upscale = [round(i) for i in self.upscale]
+        if type(original_LR) == type(normalized_low_resolution_image):
+            normalized_low_resolution_image.SetSpacing(original_LR.GetSpacing())
+            normalized_low_resolution_image.SetOrigin(original_LR.GetOrigin())
+            normalized_low_resolution_image.SetDirection(original_LR.GetDirection())
+        else:
+            normalized_low_resolution_image.SetSpacing(original_LR.itk_image.GetSpacing())
+            normalized_low_resolution_image.SetOrigin(original_LR.itk_image.GetOrigin())
+            normalized_low_resolution_image.SetDirection(original_LR.itk_image.GetDirection())
+        self.upscale = [int(round(i)) for i in self.upscale]
         interp = sitk.Expand(normalized_low_resolution_image, list(self.upscale), sitk.sitkBSpline)
         interp = np.swapaxes(sitk.GetArrayFromImage(interp), 0, 2)
         return interp, self.upscale

@@ -31,8 +31,8 @@ import sys
 import scipy.ndimage
 
 import numpy as np
-import SegSRGAN.utils.interpolation as inter
-import SegSRGAN.utils.normalization as norm
+import utils.interpolation as inter
+import utils.normalization as norm
 
 from itertools import product
 from sklearn.feature_extraction.image import extract_patches
@@ -157,8 +157,9 @@ def create_patch_from_df_hr(df,
         
         t1 = time.time()
         
-        low_resolution_image, reference_image, label_image, up_scale = create_lr_hr_label(reference_name, label_name,
-                                                                                          list_res[i]) #From here, the three images have the same size (see crop in create_lr_hr_label)
+        low_resolution_image, reference_image, label_image, up_scale, original_LR = create_lr_hr_label(reference_name,
+                                                                                                       label_name,
+                                                                                          list_res[i], interp) #From here, the three images have the same size (see crop in create_lr_hr_label)
         
         border_to_keep = border_im_keep(reference_image, thresholdvalue)
         
@@ -170,8 +171,8 @@ def create_patch_from_df_hr(df,
         normalized_low_resolution_image, reference_image = norm.Normalization\
             (low_resolution_image, reference_image).get_normalized_image()
 
-        interpolated_image = inter.Interpolation(normalized_low_resolution_image, up_scale, order, interp).\
-            get_interpolated_image()
+        interpolated_image, up_scale = inter.Interpolation(normalized_low_resolution_image, up_scale, order, interp).\
+            get_interpolated_image(original_LR)
         
         label_image, reference_image, interpolated_image = remove_border(label_image, reference_image,
                                                                            interpolated_image, border_to_keep)
@@ -359,12 +360,17 @@ def create_lr_hr_label(reference_name, label_name, new_resolution, interp):
     if interp == 'scipy':
         low_resolution_image = scipy.ndimage.zoom(BlurReferenceImage, zoom=(1/float(idxScale) for idxScale in up_scale),
                                                 order=0)
+        original_LR = None
     elif interp == 'sitk':
-        low_resolution_image = BlurReferenceImage[::up_scale[0], ::up_scale[1], ::up_scale[2]]
+        low_resolution_image = BlurReferenceImage[::int(round(up_scale[0])), ::int(round(up_scale[1])), ::int(round(up_scale[2]))]
+        original_LR = sitk.GetImageFromArray(np.swapaxes(low_resolution_image, 0, 2))
+        original_LR.SetSpacing(new_resolution)
+        original_LR.SetOrigin(reference_instance.itk_image.GetOrigin())
+        original_LR.SetDirection(reference_instance.itk_image.GetDirection())
     else:
         raise TypeError('Wrong interp value')
 
-    return low_resolution_image, reference_image, label_image, up_scale
+    return low_resolution_image, reference_image, label_image, up_scale, original_LR
 
 
 def change_contrast(hr, lr, power):
