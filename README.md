@@ -107,7 +107,6 @@ where the block denoted as "Resblock" is defined as follow :
 <p align="center">
   <img src="https://raw.githubusercontent.com/koopa31/SegSRGAN/develop/Image_read_me/discri.png" alt="Resblock"/ >
   <br/> <!-- Permet de sauter des ligne-->
-  Resblock
 </p>
 
 
