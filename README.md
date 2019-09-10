@@ -68,8 +68,8 @@ python SegSRGAN_training.py
 > * **snapshot_folder** (string): path of the folder in which the weights will be regularly saved after a given number of epochs (this number is given by **snapshot** (integer) argument). But it is also possible to continue a training from its saved weight, adding the following parameters:
 > * **folder_training_data** (string): folder where temporary files are written during the training (created at the begining of each epoch and deleted at the end of it)
 > * **interp** (string): Interpolation type which is used for the reconstruction of the high resolution image before 
->applying the neural network. Can be either scipy or sitk (scipy by default). The downsampling method associated to each 
->interpolation method is different. With scipy, the downsampling is performed by a scipy method whereas we perform a classical,
+>applying the neural network. Can be either 'scipy' or 'sitk' ('scipy' by default). The downsampling method associated to each 
+>interpolation method is different. With Scipy, the downsampling is performed by a Scipy method whereas we perform a classical,
 >manual downsampling for sitk. 
 >
 #### Network architecture options :
@@ -211,15 +211,27 @@ weights:
 In order to use the weights we have already
 trained, the easiest solution is to provide for the
 −−weights_path parameters some values as exemplified hereafter:
-* weights/Perso_without_data_augmentation:
+* **weights/Perso_without_data_augmentation**:
 corresponding to the weights without data
-augmentation.
-* weights/Perso_with_constrast_0.5_and_noise_
-0.03_val_max: corresponding to the weights
-with data augmentation as described in Section 4.
+augmentation. kernel_gen = 16 and kernel_dis = 32.
+* **weights/Perso_with_constrast_0.5_and_noise_
+0.03_val_max**: corresponding to the weights
+with data augmentation as described in Section 4. Here contrast_max=0.5, which means each image
+was set to a power uniformly drawn between 0.5 and 1.5. Moreover, percent_val_max=0.03 which means
+we added a gaussian noise whose sigma is equal to 0.03% of the max value of the image. kernel_gen = 16 and kernel_dis 
+= 32.
+* **weights/Perso_with_constrast_0.5_and_noise_0.03_val_max_res_between_2_and_4**: The same parameters as the one above
+except that the resolution of each image as been randomly chosen between 2 and 4. kernel_gen = 16 and kernel_dis = 32.
+* **weights/Perso_with_constrast_0.5_and_noise_0.03_val_max_res_between_2_and_4**: The same parameters as the one above
+except that the resolution of each image as been randomly chosen between 2 and 4, which implies we set
+-n 0.5 0.5 2 -n 0.5 0.5 4. kernel_gen = 16 and kernel_dis = 32.
+* **weights/Perso_with_constrast_0.5_and_noise_0.03_val_max_res_between_2_and_4_conditional**: The same parameters as the one above
+except we set is_conditional to True which implies the weights have been trained conditionally to the 
+resolution of the images. kernel_gen = 16 and kernel_dis = 32. 
+* **weights/Perso_without_data_agmentation_u_net** The weights of the unet architecture detailed above. kernel_gen = 28
+ and kernel_dis = 32.
 
-Others weights not presented in this article are available (the help of SegSRGAN provides the list of all
-these available weights).
+**NB:** The list of the names of all the available weights can be obtained using the help function of SegSRGAN.
 
 **Organizing the output storage:**
 
