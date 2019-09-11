@@ -182,7 +182,7 @@ Where:
 > * **patch** : list of patch sizes
 > * **step** : list of steps
 > * **result_folder_name** : Name of the folder containing the results
-** **
+
 #### Example :
 
 ```
@@ -230,8 +230,6 @@ was set to a power uniformly drawn between 0.5 and 1.5. Moreover, percent_val_ma
 we added a gaussian noise whose sigma is equal to 0.03% of the max value of the image. kernel_gen = 16 and kernel_dis 
 = 32.
 * **weights/Perso_with_constrast_0.5_and_noise_0.03_val_max_res_between_2_and_4**: The same parameters as the one above
-except that the resolution of each image as been randomly chosen between 2 and 4. kernel_gen = 16 and kernel_dis = 32.
-* **weights/Perso_with_constrast_0.5_and_noise_0.03_val_max_res_between_2_and_4**: The same parameters as the one above
 except that the resolution of each image as been randomly chosen between 2 and 4, which implies we set
 -n 0.5 0.5 2 -n 0.5 0.5 4. kernel_gen = 16 and kernel_dis = 32.
 * **weights/Perso_with_constrast_0.5_and_noise_0.03_val_max_res_between_2_and_4_conditional**: The same parameters as the one above
@@ -240,7 +238,11 @@ resolution of the images. kernel_gen = 16 and kernel_dis = 32.
 * **weights/Perso_without_data_agmentation_u_net** The weights of the unet architecture detailed above. kernel_gen = 28
  and kernel_dis = 32.
 
-**NB:** The list of the names of all the available weights can be obtained using the help function of SegSRGAN.
+**NB:** All the weights detailed above where trained on a database built from 
+[dCHP database](http://www.developingconnectome.org/open-access-dhcp-data-terms-of-use-version-4-0_2019-05-23/)
+ (32 images for the training and 8 for the validation test). Moreover, they were all trained with 64<sup>3</sup> 
+ patches.
+ The list of the names of all the available weights can be obtained using the help function of SegSRGAN.
 
 **Organizing the output storage:**
 
