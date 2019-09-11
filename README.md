@@ -75,9 +75,9 @@ python SegSRGAN_training.py
 #### Network architecture options :
 
 > * **kernel_gen** (integer): number of output channels of the first convolutional layer of the generator. The convolutions
->number in each layer of the network is going to be a multiple of kernel_gen.
+>number in each layer of the network is going to be a multiple of kernel_gen as shown in the schemes below.
 > * **kernel_dis** (integer): number of output channels of the first convolutional layer of the discriminator. The convolutions
->number in each layer of the network is going to be a multiple of kernel_dis.
+>number in each layer of the network is going to be a multiple of kernel_dis as shown in the schemes below.
 > * **is_conditional** (Boolean): enables to train a conditional network with a condition on the input resolution (discriminator and generator are conditional).
 > * **u_net** (Boolean): enables to train U-Net network (see difference between u-net and non u-net network in the images below).
 > * **is_residual** (Boolean): determines whether the structure of the network is residual or not. This option only impacts the activation function of the generator (see image below for more details).
