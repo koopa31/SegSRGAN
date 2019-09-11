@@ -65,7 +65,7 @@ python SegSRGAN_training.py
 > * **batch_size** (integer) : number of patches per mini batch
 > * **number\_of\_disciminator\_iteration** (integer): how many times we train the discriminator before training the generator
 > * **new_low_res** (tuple): resolution of the LR image generated during the training. One value is given per dimension, for fixed resolution (e.g.“−−new_low_res 0.5 0.5 3”). Two values are given per dimension if the resolutions have to be drawn between bounds (e.g. “−−new_low_res 0.5 0.5 4 −−new_low_res 1 1 2” means that for each image at each epoch, x and y resolutions are uniformly drawn between 0.5 and 1, whereas z resolution is uniformly drawn between 2 and 4.
-> * **snapshot_folder** (string): path of the folder in which the weights will be regularly saved after a given number of epochs (this number is given by **snapshot** (integer) argument). But it is also possible to continue a training from its saved weight, adding the following parameters:
+> * **snapshot_folder** (string): path of the folder in which the weights will be regularly saved after a given number of epochs (this number is given by **snapshot** (integer) argument). But it is also possible to continue a training from saved weights (detailed below).
 > * **folder_training_data** (string): folder where temporary files are written during the training (created at the begining of each epoch and deleted at the end of it)
 > * **interp** (string): Interpolation type which is used for the reconstruction of the high resolution image before 
 >applying the neural network. Can be either 'scipy' or 'sitk' ('scipy' by default). The downsampling method associated to each 
@@ -95,7 +95,7 @@ python SegSRGAN_training.py
 | ![Alt text](https://github.com/koopa31/SegSRGAN/blob/develop/Image_read_me/Schema_u_net.png?raw=true  "U-net vs non u-net shaped network") |
 |:--:|
 | ![Alt text](https://github.com/koopa31/SegSRGAN/blob/develop/Image_read_me/Schema_nn_u_net.png?raw=true  "U-net vs non u-net shaped network") |
-| *U-net vs non u-net shaped network*|
+| *U-net vs non u-net shaped network's generator *|
 
 where the block denoted as "Resblock" is defined as follow :
 
@@ -109,6 +109,7 @@ where the block denoted as "Resblock" is defined as follow :
 <p align="center">
   <img src="https://raw.githubusercontent.com/koopa31/SegSRGAN/develop/Image_read_me/discri.png" alt="Resblock"/ >
   <br/> <!-- Permet de sauter des ligne-->
+  Discriminator architecture
 </p>
 
 
@@ -176,11 +177,13 @@ The list of the paths of the images to be processed must be stored in a CSV file
 
 Where:
 
-> * **path** : Path of the CSV file
+> * **path** : Path of the CSV file which contains the paths of the images to be processed (**Warning**: No header 
+>should be written, it won't work otherwise)
 > * **patch** : list of patch sizes
 > * **step** : list of steps
 > * **result_folder_name** : Name of the folder containing the results
 
+#####
 #### Example :
 
 ```
@@ -220,7 +223,7 @@ trained, the easiest solution is to provide for the
 −−weights_path parameters some values as exemplified hereafter:
 * **weights/Perso_without_data_augmentation**:
 corresponding to the weights without data
-augmentation. kernel_gen = 16 and kernel_dis = 32.
+augmentation. kernel_gen = 16, kernel_dis = 32, contrast_max=0 and percent_val_max=0.
 * **weights/Perso_with_constrast_0.5_and_noise_
 0.03_val_max**: corresponding to the weights
 with data augmentation as described in Section 4. Here contrast_max=0.5, which means each image
