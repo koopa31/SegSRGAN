@@ -182,8 +182,7 @@ Where:
 > * **patch** : list of patch sizes
 > * **step** : list of steps
 > * **result_folder_name** : Name of the folder containing the results
-
-#####
+** **
 #### Example :
 
 ```
