@@ -87,7 +87,7 @@ python SegSRGAN_training.py
 <p align="center">
   <img src="https://raw.githubusercontent.com/koopa31/SegSRGAN/develop/Image_read_me/Schema_residual.png" alt="Residual vs non residual network"/ >
   <br/> <!-- Permet de sauter des ligne-->
-  Residual vs non residual network
+  Residual vs non residual networks generators
 </p>
 
 
@@ -95,7 +95,7 @@ python SegSRGAN_training.py
 | ![Alt text](https://github.com/koopa31/SegSRGAN/blob/develop/Image_read_me/Schema_u_net.png?raw=true  "U-net vs non u-net shaped network") |
 |:--:|
 | ![Alt text](https://github.com/koopa31/SegSRGAN/blob/develop/Image_read_me/Schema_nn_u_net.png?raw=true  "U-net vs non u-net shaped network") |
-| *U-net vs non u-net shaped network's generator *|
+| *U-net vs non u-net shaped network's generator* |
 
 where the block denoted as "Resblock" is defined as follow :
 
@@ -222,27 +222,25 @@ trained, the easiest solution is to provide for the
 −−weights_path parameters some values as exemplified hereafter:
 * **weights/Perso_without_data_augmentation**:
 corresponding to the weights without data
-augmentation. kernel_gen = 16, kernel_dis = 32, contrast_max=0 and percent_val_max=0.
+augmentation(**contrast_max=0** and **percent_val_max=0**). **kernel_gen = 16** and **kernel_dis = 32**.
 * **weights/Perso_with_constrast_0.5_and_noise_
 0.03_val_max**: corresponding to the weights
-with data augmentation as described in Section 4. Here contrast_max=0.5, which means each image
-was set to a power uniformly drawn between 0.5 and 1.5. Moreover, percent_val_max=0.03 which means
-we added a gaussian noise whose sigma is equal to 0.03% of the max value of the image. kernel_gen = 16 and kernel_dis 
-= 32.
+with data augmentation as described in Section 4. Here **contrast_max=0.5**, which means each image
+was set to a power uniformly drawn between 0.5 and 1.5. Moreover, **percent_val_max=0.03** which means
+we added a gaussian noise whose sigma is equal to 0.03% of the max value of the image.
 * **weights/Perso_with_constrast_0.5_and_noise_0.03_val_max_res_between_2_and_4**: The same parameters as the one above
-except that the resolution of each image as been randomly chosen between 2 and 4, which implies we set
--n 0.5 0.5 2 -n 0.5 0.5 4. kernel_gen = 16 and kernel_dis = 32.
+except that the resolution of each image as been randomly chosen between 2 and 4, which implies we set **-n 0.5 0.5 2 -n 0.5 0.5 4**.
 * **weights/Perso_with_constrast_0.5_and_noise_0.03_val_max_res_between_2_and_4_conditional**: The same parameters as the one above
-except we set is_conditional to True which implies the weights have been trained conditionally to the 
-resolution of the images. kernel_gen = 16 and kernel_dis = 32. 
-* **weights/Perso_without_data_agmentation_u_net** The weights of the unet architecture detailed above. kernel_gen = 28
- and kernel_dis = 32.
+except we set is_conditional to **True** which implies the weights have been trained conditionally to the 
+resolution of the images.
+* **weights/Perso_without_data_agmentation_u_net** The weights of the unet architecture detailed above. **kernel_gen = 28**
+ and **kernel_dis = 32**.
 
 **NB:** All the weights detailed above where trained on a database built from 
 [dCHP database](http://www.developingconnectome.org/open-access-dhcp-data-terms-of-use-version-4-0_2019-05-23/)
  (32 images for the training and 8 for the validation test). Moreover, they were all trained with 64<sup>3</sup> 
  patches.
- The list of the names of all the available weights can be obtained using the help function of SegSRGAN.
+ The list of the names of all the available weights can be obtained using the help function of job_model.py.
 
 **Organizing the output storage:**
 
