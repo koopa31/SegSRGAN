@@ -378,11 +378,11 @@ if __name__ == '__main__':
                         default=16)
     parser.add_argument('--kernel_dis', help='Number of filters of the first layer of discriminator (default=32)',
                         type=int, default=32)
-    parser.add_argument('--lrgen', help='Learning rate of generator (default=0.0001)', type=int, default=0.0001)
-    parser.add_argument('--lrdis', help='Learning rate of discriminator (default=0.0001)', type=int, default=0.0001)
+    parser.add_argument('--lrgen', help='Learning rate of generator (default=0.0001)',type=float, default=0.0001)
+    parser.add_argument('--lrdis', help='Learning rate of discriminator (default=0.0001)',type=float, default=0.0001)
     parser.add_argument('--lambrec', help='Lambda of reconstruction loss (default=1)', type=int, default=1)
-    parser.add_argument('--lambadv', help='Lambda of adversarial loss (default=0.001)', type=int, default=0.001)
-    parser.add_argument('--lambgp', help='Lambda of gradient penalty loss (default=10)', type=int, default=10)
+    parser.add_argument('--lambadv', help='Lambda of adversarial loss (default=0.001)',type=float, default=0.001)
+    parser.add_argument('--lambgp', help='Lambda of gradient penalty loss (default=10)',type=int, default=10)
     parser.add_argument('--number_of_disciminator_iteration', help='Number of training time for discriminator (default=5) ', type=int,
                         default=5)
     parser.add_argument('-dice', '--dice_file', help='Dice path for save dice a the end of each epoch. Ex : '
@@ -407,7 +407,7 @@ if __name__ == '__main__':
                                                               "for SR estimation) ? Value in {True,False} default : "
                                                               "True", type=str, default="True")
     parser.add_argument('-ps', '--patch_size', type=int, help="Size of the patches (default: %(default)s)", default=64)
-    parser.add_argument('-int', '--interp', type=str, help="Interpolation type for the training (scipy or sitk)")
+    parser.add_argument('-int', '--interp', type=str, help="Interpolation type for the training (scipy or sitk). Default: %(default)s",default="scipy")
     args = parser.parse_args()
 
     # Transform str to boolean
