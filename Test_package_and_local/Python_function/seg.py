@@ -4,16 +4,6 @@ from pathlib import Path
 import importlib
 import argparse
 
-"""parent=Path(__file__).resolve().parent
-parent_parent=parent.parent
-
-sys.path.insert(0,os.path.join(str(parent),".."))
-
-print(Path(__file__))
-print(Path(__file__).resolve())
-print(parent_parent)
-print(parent)
-print(os.path.join(str(parent),".."))"""
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-i", "--image_path", type=str, help="Path of the image")
@@ -21,10 +11,22 @@ parser.add_argument("-i", "--image_path", type=str, help="Path of the image")
 args = parser.parse_args()
 
 
+import subprocess
+import sys
+
+reqs = subprocess.check_output([sys.executable, '-m', 'pip', 'freeze']) 
+installed_packages = [r.decode().split('==')[0] for r in reqs.split()]  
+
+if "SegSRGAN" not in installed_packages :
+	raise AssertionError("\n \nRun this test need the package SegSRGAN install. Please set the 'package_test' variable to 'true' in the makefile. Then run 'make create_venv_and_install_SegSRGAN' and finally the command will become available");
+
+
+
+
 from SegSRGAN.Function_for_application_test_python3 import segmentation
 
 
-wpath = "weights/Perso_without_data_augmentation"
+wpath = "weights/Perso_with_constrast_0.5_and_noise_0.03_val_max"
 
 
 # Find the weight location downloaded via the module import.

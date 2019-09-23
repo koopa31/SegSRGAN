@@ -23,7 +23,7 @@ printf $img_path >> $2/job_model.csv
 
 echo $img_path
 
-weights="weights/Perso_without_data_augmentation"
+weights="weights/Perso_with_constrast_0.5_and_noise_0.03_val_max"
 
 
 if [[ $4 == "true" ]]
@@ -52,7 +52,7 @@ echo "File : "$python_file_path
 python $python_file_path --path $2/job_model.csv\
 			--patch "128,200"\
 			--step "100 128,150 200"\
-			--result_folder_name "weights_without_augmentation"\
+			--result_folder_name "weights_with_augmentation"\
 			--weights_path $weight_path
 
 
