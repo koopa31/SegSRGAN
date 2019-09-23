@@ -1,9 +1,15 @@
 #git ignore file
 *.xml
 weight_*
+#SegSRGAN/weights/
 mse*
 
+Test_package_and_local/Image_for_training/*
+Test_package_and_local/Image_for_testing/*
+
 dice*
+
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -108,3 +114,6 @@ ENV/
 .mypy_cache/
 
 SegSRGAN/weight
+
+
+
