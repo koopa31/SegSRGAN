@@ -16,6 +16,7 @@ from utils.utils3d import pad3D
 from utils.SegSRGAN import SegSRGAN
 from utils.ImageReader import NIFTIReader
 from utils.ImageReader import DICOMReader
+from utils.normalization import Normalization
 from keras.engine import saving
 import utils.interpolation as inter
 
@@ -253,17 +254,17 @@ def segmentation(input_file_path, step, new_resolution, path_output_cortex, path
     first_discriminator_kernel = weight_values.shape[4]
 
     # Selection of the kind of network
-    
+
     if "_nn_residual" in list(weights.keys())[1] :
-        
+
         residual_string = "_nn_residual"
         is_residual = False
-        
-    else : 
-        
+
+    else :
+
         residual_string=""
         is_residual = True
-        
+
 
     if ('G_cond'+residual_string) == list(weights.keys())[1]:
         is_conditional = True
@@ -297,7 +298,7 @@ def segmentation(input_file_path, step, new_resolution, path_output_cortex, path
 
     norm_instance = Normalization(test_image)
 
-    
+
     test_imageNorm = norm_instance.get_normalized_image()
 
 
@@ -338,13 +339,13 @@ def segmentation(input_file_path, step, new_resolution, path_output_cortex, path
         patch1 = height
         patch2 = width
         patch3 = depth
-    
+
     if ((step>patch1) |  (step>patch2) | (step>patch3)) & (patch is not None) :
-        
+
         raise AssertionError('The step need to be smaller than the patch size')
-        
+
     if (np.shape(padded_interpolated_image)[0]<patch1)|(np.shape(padded_interpolated_image)[1]<patch2)|(np.shape(padded_interpolated_image)[2]<patch3):
-        
+
         raise AssertionError('The patch size need to be smaller than the interpolated image size')
 
     # Loading weights
