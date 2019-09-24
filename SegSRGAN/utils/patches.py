@@ -36,8 +36,8 @@ import utils.normalization as norm
 
 from itertools import product
 from sklearn.feature_extraction.image import extract_patches
-from ImageReader import NIFTIReader
-from ImageReader import DICOMReader
+from .ImageReader import NIFTIReader
+from .ImageReader import DICOMReader
 from .utils3d import modcrop3D
 
 

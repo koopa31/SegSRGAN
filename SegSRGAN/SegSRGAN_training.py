@@ -88,6 +88,9 @@ class SegSrganTrain(object):
         print("train begin")
         snapshot_prefix = os.path.join(snapshot_folder,"SegSRGAN_epoch")
 
+        print("Generator metrics name :"+str(self.GeneratorModel_multi_gpu.metrics_names))
+        print("Disciminator metrics name :"+str(self.DiscriminatorModel_multi_gpu.metrics_names))
+
         # boolean to print only one time 'the number of patch not in one epoch (mode batch_size)'
         never_print = True
         if os.path.exists(snapshot_folder) is False:

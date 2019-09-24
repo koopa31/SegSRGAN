@@ -6,6 +6,7 @@ mse*
 
 Test_package_and_local/Image_for_training/*
 Test_package_and_local/Image_for_testing/*
+Test_package_and_local/venv*
 
 dice*
 

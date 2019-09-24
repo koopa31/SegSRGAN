@@ -14,8 +14,8 @@ sys.path.insert(0,os.path.split(__file__)[0])
 from utils.utils3d import shave3D
 from utils.utils3d import pad3D
 from utils.SegSRGAN import SegSRGAN
-from ImageReader import NIFTIReader
-from ImageReader import DICOMReader
+from utils.ImageReader import NIFTIReader
+from utils.ImageReader import DICOMReader
 from keras.engine import saving
 import utils.interpolation as inter
 
