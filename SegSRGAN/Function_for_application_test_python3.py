@@ -293,8 +293,12 @@ def segmentation(input_file_path, step, new_resolution, path_output_cortex, path
 
     test_image = image_instance.get_np_array()
     test_imageMinValue = float(np.min(test_image))
-    test_imageMaxValue = float(np.max(test_image))
-    test_imageNorm = test_image / test_imageMaxValue
+
+
+    norm_instance = Normalization(test_image)
+
+    
+    test_imageNorm = norm_instance.get_normalized_image()
 
 
     resolution = image_instance.get_resolution()
@@ -359,7 +363,7 @@ def segmentation(input_file_path, step, new_resolution, path_output_cortex, path
     estimated_cortex = shave3D(estimated_cortex, border_to_add)
 
     # SR image
-    estimated_hr_imageInverseNorm = padded_estimated_hr_image * test_imageMaxValue
+    estimated_hr_imageInverseNorm = norm_instance.get_denormalized_result_image(padded_estimated_hr_image)
     estimated_hr_imageInverseNorm[
         estimated_hr_imageInverseNorm <= test_imageMinValue] = test_imageMinValue  # Clear negative value
     output_image = sitk.GetImageFromArray(np.swapaxes(estimated_hr_imageInverseNorm, 0, 2))
