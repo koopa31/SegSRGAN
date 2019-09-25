@@ -299,7 +299,7 @@ def segmentation(input_file_path, step, new_resolution, path_output_cortex, path
     norm_instance = Normalization(test_image)
 
 
-    test_imageNorm = norm_instance.get_normalized_image()
+    test_imageNorm = norm_instance.get_normalized_image()[0] #zero indice means get only the normalized LR 
 
 
     resolution = image_instance.get_resolution()

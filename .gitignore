@@ -1,7 +1,7 @@
 #git ignore file
 *.xml
 weight_*
-#SegSRGAN/weights/
+SegSRGAN/weights/
 mse*
 
 Test_package_and_local/Image_for_training/*
