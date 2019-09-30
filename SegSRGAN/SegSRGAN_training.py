@@ -30,6 +30,7 @@ sys.path.insert(0,os.path.split(__file__)[0])
 from pathlib import Path
 from utils.SegSRGAN import SegSRGAN
 from utils.patches import create_patch_from_df_hr
+import SegSRGAN.utils.interpolation as interps
 import pandas as pd
 from ast import literal_eval as make_tuple
 import shutil
@@ -68,7 +69,7 @@ class SegSrganTrain(object):
               mse_file,
               folder_training_data, patch_size,
               training_epoch=200, batch_size=16, snapshot_epoch=1, initialize_epoch=1, number_of_disciminator_iteration=5,
-              resuming=None, interp='scipy'):
+              resuming=None, interp='scipy', interpolation_type='Spline'):
         """
 
         :param patch_size:
@@ -157,7 +158,8 @@ class SegSrganTrain(object):
                                     thresholdvalue=0, patch_size=patch_size, batch_size=1,
                                     # 1 to keep all data
                                     path_save_npy=os.path.join(folder_training_data,"test_mini_batch"), stride=20,
-                                    is_conditional=self.is_conditional, interp =interp)
+                                    is_conditional=self.is_conditional, interp =interp,
+                                    interpolation_type=interpolation_type)
 
         t2 = time.time()
 
@@ -183,7 +185,8 @@ class SegSrganTrain(object):
                                         contrast_list=train_contrast_list, list_res=res_train, order=3,
                                         thresholdvalue=0, patch_size=patch_size, batch_size=batch_size,
                                         path_save_npy=os.path.join(folder_training_data,"train_mini_batch"), stride=20,
-                                        is_conditional=self.is_conditional, interp=interp)
+                                        is_conditional=self.is_conditional, interp=interp,
+                                        interpolation_type=interpolation_type)
             iterationPerEpoch = len(train_Path_Datas_mini_batch)
 
             t2 = time.time()
@@ -343,7 +346,7 @@ class SegSrganTrain(object):
 
         shutil.rmtree(os.path.join(folder_training_data,"test_mini_batch"))
 
-
+interps_list = list(interps.interpolations.keys())
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
@@ -410,7 +413,10 @@ if __name__ == '__main__':
                                                               "for SR estimation) ? Value in {True,False} default : "
                                                               "True", type=str, default="True")
     parser.add_argument('-ps', '--patch_size', type=int, help="Size of the patches (default: %(default)s)", default=64)
-    parser.add_argument('-int', '--interp', type=str, help="Interpolation type for the training (scipy or sitk). Default: %(default)s",default="scipy")
+    parser.add_argument('-int', '--interp', type=str, help="Interpolation type for the training (scipy or sitk). "
+                                                           "Default: %(default)s",default="scipy")
+    parser.add_argument('-it', '--interpolation_type', type=str, help='list of available:%(default)s',
+                        default=interps_list)
     args = parser.parse_args()
 
     # Transform str to boolean
@@ -460,4 +466,5 @@ if __name__ == '__main__':
                          dice_file=args.dice_file,
                          mse_file=args.mse_file,
                          snapshot_folder=args.snapshot_folder,
-                         folder_training_data=args.folder_training_data, interp=args.interp)
+                         folder_training_data=args.folder_training_data, interp=args.interp,
+                         interpolation_type=args.interpolation_type)

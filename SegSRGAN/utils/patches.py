@@ -123,7 +123,8 @@ def create_patch_from_df_hr(df,
                             thresholdvalue=0,
                             stride=20,
                             is_conditional=False,
-                            interp='scipy'):
+                            interp='scipy',
+                            interpolation_type='Spline'):
     
     data_list = []
 
@@ -171,7 +172,8 @@ def create_patch_from_df_hr(df,
         normalized_low_resolution_image, reference_image = norm.Normalization\
             (low_resolution_image, reference_image).get_normalized_image()
 
-        interpolated_image, up_scale = inter.Interpolation(normalized_low_resolution_image, up_scale, order, interp).\
+        interpolated_image, up_scale = inter.Interpolation(normalized_low_resolution_image, up_scale, order, interp,
+                                                           interpolation_type).\
             get_interpolated_image(original_LR)
         
         label_image, reference_image, interpolated_image = remove_border(label_image, reference_image,
