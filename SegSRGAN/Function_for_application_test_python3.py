@@ -216,8 +216,8 @@ class SegSRGAN_test(object):
         return estimated_hr, estimated_segmentation
 
 
-def segmentation(input_file_path, step, new_resolution, path_output_cortex, path_output_hr, weights_path, patch=None,
-                 spline_order=3, by_batch=False, interp='scipy'):
+def segmentation(input_file_path, step, new_resolution, path_output_cortex, path_output_hr, weights_path,
+                 interpolation_type, patch=None, spline_order=3, by_batch=False, interp='scipy'):
     """
 
     :param input_file_path: path of the image to be super resolved and segmented
@@ -309,7 +309,8 @@ def segmentation(input_file_path, step, new_resolution, path_output_cortex, path
     up_scale = tuple(itema / itemb for itema, itemb in zip(itk_image.GetSpacing(), new_resolution))
 
     # spline interpolation
-    interpolated_image, up_scale = inter.Interpolation(test_imageNorm, up_scale, spline_order, interp). \
+    interpolated_image, up_scale = inter.Interpolation(test_imageNorm, up_scale, spline_order, interp,
+                                                       interpolation_type). \
         get_interpolated_image(image_instance)
 
     if patch is not None:

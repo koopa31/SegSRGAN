@@ -12,7 +12,7 @@ import warnings
 
 import numpy as np
 import pandas as pd
-
+import SegSRGAN.utils.interpolation as interps
 #from 
 
 def absolute_weights_path(path):
@@ -172,7 +172,7 @@ def list_of(arg,result_type=int):
 
 
 
-
+interps_list = list(interps.interpolations.keys())
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-p", "--path", type=str, help="Path of the csv file")
@@ -192,6 +192,7 @@ parser.add_argument("-bb", "--by_batch", type=str, help="Prediction on list of p
 parser.add_argument('-n', '--new_low_res', type=str, help='Resolution of results (SR and segmentation).' 
                     'Ex : 0.5,0.5,0.5 (default) ',default='0.5,0.5,0.5')
 parser.add_argument('-int', '--interp', type=str, help="Interpolation type for the training (scipy or sitk)", default='scipy')
+parser.add_argument('-it', '--interpolation_type', type=str, help='list of available:%(default)s', default=interps_list)
 
 args = parser.parse_args()
 
@@ -259,6 +260,7 @@ for i in path_pour_application:
                         Function_for_application_test_python3.segmentation(input_file_path=i,
                                                                            step=step,
                                                                            new_resolution=resolution,
+                                                                           interpolation_type=args.interpolation_type,
                                                                            patch=patch,
                                                                            path_output_cortex=path_output_cortex,
                                                                            path_output_hr=path_output_SR,
