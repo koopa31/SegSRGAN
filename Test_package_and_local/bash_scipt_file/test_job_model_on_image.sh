@@ -8,22 +8,24 @@ yourfilenames=$(find $2"/Image_for_testing/" -name "*.nii.gz" -type f )
 
 echo "first_file:"$yourfilenames | awk '{print $2}'
 
+img_path=""
+
 for eachfile in $yourfilenames
 do
    	if [[ $eachfile == *"Result"* ]]
 	then
   		:
-	else 
-		img_path=$eachfile
+	else 	
+		echo $eachfile
+		img_path="$img_path\n$eachfile"
 	fi
 done
 
 
-printf $img_path >> $2/job_model.csv
+printf ${img_path:2} >> $2/job_model.csv
 
-echo $img_path
 
-weights="weights/Perso_with_constrast_0.5_and_noise_0.03_val_max"
+weights="weights/Perso_without_data_augmentation"
 
 
 if [[ $4 == "true" ]]
@@ -52,7 +54,7 @@ echo "File : "$python_file_path
 python $python_file_path --path $2/job_model.csv\
 			--patch "128,200"\
 			--step "100 128,150 200"\
-			--result_folder_name "weights_with_augmentation"\
+			--result_folder_name "weights_without_augmentation"\
 			--weights_path $weight_path
 
 
