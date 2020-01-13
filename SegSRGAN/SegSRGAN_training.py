@@ -30,7 +30,7 @@ sys.path.insert(0,os.path.split(__file__)[0])
 from pathlib import Path
 from utils.SegSRGAN import SegSRGAN
 from utils.patches import create_patch_from_df_hr
-import SegSRGAN.utils.interpolation as interps
+import utils.interpolation as interps
 import pandas as pd
 from ast import literal_eval as make_tuple
 import shutil
