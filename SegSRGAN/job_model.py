@@ -12,7 +12,7 @@ import warnings
 
 import numpy as np
 import pandas as pd
-import SegSRGAN.utils.interpolation as interps
+import utils.interpolation as interps
 #from 
 
 def absolute_weights_path(path):
