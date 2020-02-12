@@ -7,6 +7,7 @@ mse*
 Test_package_and_local/Image_for_training/*
 Test_package_and_local/Image_for_testing/*
 Test_package_and_local/venv*
+Test_package_and_local/job_model.csv
 
 dice*
 
@@ -115,6 +116,8 @@ ENV/
 .mypy_cache/
 
 SegSRGAN/weight
+
+
 
 
 
