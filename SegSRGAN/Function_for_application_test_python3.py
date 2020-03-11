@@ -19,6 +19,11 @@ from utils.ImageReader import DICOMReader
 from utils.normalization import Normalization
 from keras.engine import saving
 import utils.interpolation as inter
+import tensorflow as tf
+
+config = tf.ConfigProto()
+config.gpu_options.allow_growth = True
+sess = tf.Session(config=config)
 
 GREEN = '\033[32m' # mode 32 = green forground
 start = "\033[1m" # for printing in bold
@@ -287,7 +292,7 @@ def segmentation(input_file_path, step, new_resolution, path_output_cortex, path
             raise AssertionError('Resolution not supported!')
 
     # Read low-resolution image
-    if input_file_path.endswith('.nii.gz'):
+    if input_file_path.endswith('.nii.gz') or input_file_path.endswith('.hdr'):
         image_instance = NIFTIReader(input_file_path)
     elif os.path.isdir(input_file_path):
         image_instance = DICOMReader(input_file_path)

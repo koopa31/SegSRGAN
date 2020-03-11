@@ -324,7 +324,7 @@ def add_noise(lr, per_cent_val_max):
 def create_lr_hr_label(reference_name, label_name, new_resolution, interp):
 
     # Read the reference SR image
-    if reference_name.endswith('.nii.gz'):
+    if reference_name.endswith('.nii.gz') or reference_name.endswith('.hdr'):
         reference_instance = NIFTIReader(reference_name)
     elif os.path.isdir(reference_name):
         reference_instance = DICOMReader(reference_name)
@@ -332,7 +332,7 @@ def create_lr_hr_label(reference_name, label_name, new_resolution, interp):
     reference_image = reference_instance.get_np_array()
 
     # Read the labels image
-    if label_name.endswith('.nii.gz'):
+    if label_name.endswith('.nii.gz') or label_name.endswith('.hdr'):
         label_instance = NIFTIReader(label_name)
     elif os.path.isdir(label_name):
         label_instance = DICOMReader(label_name)
