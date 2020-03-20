@@ -6,6 +6,7 @@ import numpy as np
 import logging
 import time
 import pandas as pd
+import argparse
 
 #sys.path.insert(0,os.path.split(os.path.split(__file__)[0])[0])
 
@@ -17,17 +18,7 @@ from utils.ImageReader import NIFTIReader
 from utils.ImageReader import DICOMReader
 
 
-SRReCNN3D_result_path_list = ["/home/quentin/Romeo/Segmentation_neural_network/DHCP_sous_base_for_romeo/LR/sub-CC00363XX09/SRReCNN3D_perso_iter_28100/SR.nii.gz"]
-Label_path_list = ["/home/quentin/Romeo/Segmentation_neural_network/DHCP_sous_base_for_romeo/Labels/sub-CC00363XX09.nii.gz"]
-path_save_npy = "/home/quentin/Romeo/tpm/dev_u_net_comparaison_train/"
-thresholdvalue = 0
-patch_size = 64
-stride = 20
-batch_size = 1
-
-
-
-def create_patches(SRReCNN3D_result_path_list,Label_path_list,path_save_npy,thresholdvalue = 0,patch_size = 64,stride = 20,batch_size = 32): 
+def create_patches(SRReCNN3D_result_path_list,Label_path_list,HR_path_list,path_save_npy,thresholdvalue = 0,patch_size = 64,stride = 20,batch_size = 32): 
     mini_batch = 0
     
     data_list = []
@@ -50,17 +41,20 @@ def create_patches(SRReCNN3D_result_path_list,Label_path_list,path_save_npy,thre
     remaining_patch = 0
     
     for i in range(len(SRReCNN3D_result_path_list)) :
-    
+        
+        print(SRReCNN3D_result_path_list[i])
         SRReCNN3D = NIFTIReader(SRReCNN3D_result_path_list[i])
         Label = NIFTIReader(Label_path_list[i])
+        HR = NIFTIReader(HR_path_list[i])
         
         np_SRReCNN3D = SRReCNN3D.get_np_array()
         np_Label = Label.get_np_array()
+        np_HR = HR.get_np_array()
         
         
         np_Label = patch.put_label_and_sr_to_same_dimension(np_SRReCNN3D,np_Label) #Upscale can imply dimension reduction. ex : upscale of 6 factor can't result into 203 (not mutiple of 6) shaped vector. In this case we suppose the last value removed. 
         
-        border = patch.border_im_keep(np_SRReCNN3D, thresholdvalue)
+        border = patch.border_im_keep(np_HR, thresholdvalue)
         
         np_SRReCNN3D , np_Label = patch.remove_border(np_SRReCNN3D,np_Label,border)
         
@@ -122,11 +116,34 @@ def create_patches(SRReCNN3D_result_path_list,Label_path_list,path_save_npy,thre
         
             mini_batch += 1
             
-    print(remaining_patch)
+    print(remaining_patch,"Patch will not be processed")
     
     return path_data_mini_batch,path_labels_mini_batch
 
 
 
+parser = argparse.ArgumentParser()
+parser.add_argument("-csv_path", "--csv_path", type=str, help="Path of the csv file")
+parser.add_argument("-path_save_npy", "--path_save_npy", type=str, help="Path for saving training and testing file")
+    
+    
+args = parser.parse_args()
 
+
+data = pd.read_csv(args.csv_path)
+    
+SRReCNN3D_result_path_list_train =  data[data["Base"]=="Train"]["SRRECNN3D_result_path"].tolist()
+Label_path_list_train = data[data["Base"]=="Train"]["Label_path"].tolist()
+HR_path_list_train = data[data["Base"]=="Train"]["HR_path"].tolist()
+path_save_npy_train = args.path_save_npy+"/Train"
+
+SRReCNN3D_result_path_list_test =  data[data["Base"]=="Test"]["SRRECNN3D_result_path"].tolist()
+Label_path_list_test = data[data["Base"]=="Test"]["Label_path"].tolist()
+HR_path_list_test = data[data["Base"]=="Test"]["HR_path"].tolist()
+path_save_npy_test = args.path_save_npy+"/Test"
+
+print("making Training data : \n")
+create_patches(SRReCNN3D_result_path_list_train,Label_path_list_train,HR_path_list_train,path_save_npy_train,thresholdvalue = 0,patch_size = 64,stride = 20,batch_size = 32)
+print("making Testing data : \n")
+create_patches(SRReCNN3D_result_path_list_test,Label_path_list_test,HR_path_list_test,path_save_npy_test,thresholdvalue = 0,patch_size = 64,stride = 20,batch_size = 1)
 
