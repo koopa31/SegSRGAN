@@ -20,6 +20,7 @@ from utils.normalization import Normalization
 from keras.engine import saving
 import utils.interpolation as inter
 import tensorflow as tf
+from skimage import measure
 
 config = tf.ConfigProto()
 config.gpu_options.allow_growth = True
@@ -34,7 +35,7 @@ RESET = '\033[0m'  # mode 0  = reset
 class SegSRGAN_test(object):
 
     def __init__(self, weights, patch1, patch2, patch3, is_conditional, u_net_gen,is_residual, first_generator_kernel,
-                 first_discriminator_kernel,  resolution=0):
+                 first_discriminator_kernel,  resolution=0,fit_mask=False):
 
         self.patch1 = patch1
         self.patch2 = patch2
@@ -45,7 +46,8 @@ class SegSRGAN_test(object):
                                  image_row=patch1,
                                  image_column=patch2,
                                  image_depth=patch3, is_conditional=is_conditional,
-                                 is_residual = is_residual)
+                                 is_residual = is_residual,fit_mask=fit_mask)
+        self.fit_mask = fit_mask       
         self.generator_model = self.SegSRGAN.generator_model_for_pred()
         self.generator_model.load_weights(weights, by_name=True)
         self.generator = self.SegSRGAN.generator()
@@ -74,9 +76,18 @@ class SegSRGAN_test(object):
         height, width, depth = np.shape(test_image)
 
         temp_hr_image = np.zeros_like(test_image)
-        temp_seg = np.zeros_like(test_image)
+        
         weighted_image = np.zeros_like(test_image)
+        
+        seg_shape = list(test_image.shape)
+        
+        if self.fit_mask : 
+            seg_shape.insert(0,2)
+        else : 
+            seg_shape.insert(0,1)
 
+        temp_seg = np.zeros(seg_shape)
+        
         # if is_conditional is set to True we predict on the image AND the resolution
         if self.is_conditional is True:
             if not by_batch:
@@ -99,8 +110,8 @@ class SegSRGAN_test(object):
                             # Adding
                             temp_hr_image[idx:idx + self.patch1, idy:idy + self.patch2,
                             idz:idz + self.patch3] += predict_patch[0, 0, :, :, :]
-                            temp_seg[idx:idx + self.patch1, idy:idy + self.patch2, idz:idz + self.patch3] += \
-                                predict_patch[0, 1, :, :, :]
+                            temp_seg[:,idx:idx + self.patch1, idy:idy + self.patch2, idz:idz + self.patch3] += \
+                                predict_patch[0, 1:, :, :, :]
                             weighted_image[idx:idx + self.patch1, idy:idy + self.patch2,
                             idz:idz + self.patch3] += np.ones_like(predict_patch[0, 0, :, :, :])
 
@@ -127,9 +138,6 @@ class SegSRGAN_test(object):
 
                 pred = self.generator.predict(patches, batch_size=patches.shape[0])
 
-                weight = np.zeros_like(test_image)
-                temp_hr_image = np.zeros(test_image)
-                temp_seg = np.zeros(test_image)
 
                 for i in range(indice_patch.shape[0]):
                     temp_hr_image[indice_patch[i][0]:indice_patch[i][0] + patch1,
@@ -137,11 +145,11 @@ class SegSRGAN_test(object):
                                                                                                                        i, 0,
                                                                                                                        :, :,
                                                                                                                        :]
-                    temp_seg[indice_patch[i][0]:indice_patch[i][0] + patch1, indice_patch[i][1]:indice_patch[i][1] + patch2,
-                    indice_patch[i][2]:indice_patch[i][2] + patch3] += pred[i, 1, :, :, :]
-                    weight[indice_patch[i][0]:indice_patch[i][0] + patch1, indice_patch[i][1]:indice_patch[i][1] + patch2,
+                    temp_seg[1:,indice_patch[i][0]:indice_patch[i][0] + patch1, indice_patch[i][1]:indice_patch[i][1] + patch2,
+                    indice_patch[i][2]:indice_patch[i][2] + patch3] += pred[i, 1:, :, :, :]
+                    weighted_image[indice_patch[i][0]:indice_patch[i][0] + patch1, indice_patch[i][1]:indice_patch[i][1] + patch2,
                     indice_patch[i][2]:indice_patch[i][2] + patch3] + np.ones_like(
-                        weight[indice_patch[i][0]:indice_patch[i][0] + patch1,
+                        weighted_image[indice_patch[i][0]:indice_patch[i][0] + patch1,
                         indice_patch[i][1]:indice_patch[i][1] + patch2, indice_patch[i][2]:indice_patch[i][2] + patch3])
         else:
             if not by_batch:
@@ -160,13 +168,12 @@ class SegSRGAN_test(object):
                             image_tensor = test_patch.reshape(1, 1, self.patch1, self.patch2, self.patch3).astype(
                                 np.float32)
                             predict_patch = self.generator.predict(image_tensor, batch_size=1)
-
                             # Adding
                             temp_hr_image[idx:idx + self.patch1, idy:idy + self.patch2,
                             idz:idz + self.patch3] += predict_patch[0, 0, :, :, :]
-                            temp_seg[idx:idx + self.patch1, idy:idy + self.patch2,
+                            temp_seg[:,idx:idx + self.patch1, idy:idy + self.patch2,
                             idz:idz + self.patch3] += predict_patch[0,
-                                                      1, :, :, :]
+                                                      1:, :, :, :]
                             weighted_image[idx:idx + self.patch1, idy:idy + self.patch2,
                             idz:idz + self.patch3] += np.ones_like(predict_patch[0, 0, :, :, :])
 
@@ -194,10 +201,6 @@ class SegSRGAN_test(object):
 
                 pred = self.generator.predict(patches, batch_size=patches.shape[0])
 
-                weight = np.zeros_like(test_image)
-                temp_hr_image = np.zeros(test_image)
-                temp_seg = np.zeros(test_image)
-
                 for i in range(indice_patch.shape[0]):
                     temp_hr_image[indice_patch[i][0]:indice_patch[i][0] + patch1,
                     indice_patch[i][1]:indice_patch[i][1] + patch2,
@@ -205,13 +208,13 @@ class SegSRGAN_test(object):
                                                                        i, 0,
                                                                        :, :,
                                                                        :]
-                    temp_seg[indice_patch[i][0]:indice_patch[i][0] + patch1,
+                    temp_seg[:,indice_patch[i][0]:indice_patch[i][0] + patch1,
                     indice_patch[i][1]:indice_patch[i][1] + patch2,
-                    indice_patch[i][2]:indice_patch[i][2] + patch3] += pred[i, 1, :, :, :]
-                    weight[indice_patch[i][0]:indice_patch[i][0] + patch1,
+                    indice_patch[i][2]:indice_patch[i][2] + patch3] += pred[i, 1:, :, :, :]
+                    weighted_image[indice_patch[i][0]:indice_patch[i][0] + patch1,
                     indice_patch[i][1]:indice_patch[i][1] + patch2,
                     indice_patch[i][2]:indice_patch[i][2] + patch3] + np.ones_like(
-                        weight[indice_patch[i][0]:indice_patch[i][0] + patch1,
+                        weighted_image[indice_patch[i][0]:indice_patch[i][0] + patch1,
                         indice_patch[i][1]:indice_patch[i][1] + patch2, indice_patch[i][2]:indice_patch[i][2] + patch3])
         # weight sum of patches
         print(GREEN+start+'\nDone !'+end+RESET)
@@ -221,7 +224,7 @@ class SegSRGAN_test(object):
         return estimated_hr, estimated_segmentation
 
 
-def segmentation(input_file_path, step, new_resolution, path_output_cortex, path_output_hr, weights_path,
+def segmentation(input_file_path, step, new_resolution, path_output_cortex, path_output_hr, path_output_mask, weights_path,
                  interpolation_type, patch=None, spline_order=3, by_batch=False, interp='scipy'):
     """
 
@@ -230,6 +233,7 @@ def segmentation(input_file_path, step, new_resolution, path_output_cortex, path
     :param new_resolution: the new z-resolution we want for the output image
     :param path_output_cortex: output path of the segmented cortex
     :param path_output_hr: output path of the super resolution output image
+    :param path_output_mask: output path of the estimated mask. Only used if the weights have been obtain for also fit mask.
     :param weights_path: the path of the file which contains the pre-trained weights for the neural network
     :param patch: the size of the patches
     :param spline_order: for the interpolation
@@ -247,7 +251,18 @@ def segmentation(input_file_path, step, new_resolution, path_output_cortex, path
     for i in weight_names:
         if 'gen_conv1' in i:
             weight_values = G[i]
+        if 'gen_1conv' in i : 
+            last_conv = G[i]
+            
     first_generator_kernel = weight_values.shape[4]
+    nb_out_kernel = last_conv.shape[4]
+    
+    if nb_out_kernel==3:
+        fit_mask = True
+        print("The initialize network will fit mask")
+    elif nb_out_kernel==2:
+        fit_mask = False
+        print("The initialize network won't fit mask")
 
     # Get the generator kernel from the weights we are going to use
 
@@ -356,19 +371,21 @@ def segmentation(input_file_path, step, new_resolution, path_output_cortex, path
 
     # Loading weights
     segsrgan_test_instance = SegSRGAN_test(weights_path, patch1, patch2, patch3, is_conditional, u_net_gen,is_residual,
-                                           first_generator_kernel, first_discriminator_kernel, resolution)
+                                           first_generator_kernel, first_discriminator_kernel, resolution,fit_mask=fit_mask)
 
     # GAN
     print("Testing : ")
-    estimated_hr_image, estimated_cortex = segsrgan_test_instance.test_by_patch(padded_interpolated_image, step=step,
+    estimated_hr_image, estimated_seg = segsrgan_test_instance.test_by_patch(padded_interpolated_image, step=step,
                                                                              by_batch=by_batch)
+    
+    estimated_cortex = estimated_seg[0]
+    
+ 
     # parcours de l'image avec le patch
 
-    # Padding
-    # on fait l'operation de padding a l'envers
+    # shaving :
+    
     padded_estimated_hr_image = shave3D(estimated_hr_image, border_to_add)
-    estimated_cortex = shave3D(estimated_cortex, border_to_add)
-
     # SR image
     estimated_hr_imageInverseNorm = norm_instance.get_denormalized_result_image(padded_estimated_hr_image)
     estimated_hr_imageInverseNorm[
@@ -377,15 +394,35 @@ def segmentation(input_file_path, step, new_resolution, path_output_cortex, path
     output_image.SetSpacing(tuple(np.array(image_instance.itk_image.GetSpacing())/np.array(up_scale)))
     output_image.SetOrigin(itk_image.GetOrigin())
     output_image.SetDirection(itk_image.GetDirection())
-
     sitk.WriteImage(output_image, path_output_hr)
 
     # Cortex segmentation
+    estimated_cortex = shave3D(estimated_cortex, border_to_add)
     output_cortex = sitk.GetImageFromArray(np.swapaxes(estimated_cortex, 0, 2))
     output_cortex.SetSpacing(tuple(np.array(image_instance.itk_image.GetSpacing())/np.array(up_scale)))
     output_cortex.SetOrigin(itk_image.GetOrigin())
     output_cortex.SetDirection(itk_image.GetDirection())
-
     sitk.WriteImage(output_cortex, path_output_cortex)
+    
+    # Mask : 
+        
+    if fit_mask : 
+        estimated_mask = estimated_seg[1]
+        estimated_mask_binary = np.zeros_like(estimated_mask)
+        estimated_mask_binary[estimated_mask>0.5]=1
+        estimated_mask_binary = shave3D(estimated_mask_binary, border_to_add)
+        label_connected_region = measure.label(estimated_mask_binary, connectivity=2)
+        unique_elements, counts_elements = np.unique(label_connected_region[label_connected_region != 0], return_counts=
+                                                     True)
+        label_max_element = unique_elements[np.argmax(counts_elements)]
+        estimated_mask_binary[label_connected_region!=label_max_element] = 0
+        output_mask = sitk.GetImageFromArray(np.swapaxes(estimated_mask_binary, 0, 2))
+        output_mask.SetSpacing(tuple(np.array(image_instance.itk_image.GetSpacing())/np.array(up_scale)))
+        output_mask.SetOrigin(itk_image.GetOrigin())
+        output_mask.SetDirection(itk_image.GetDirection())
+        sitk.WriteImage(output_mask, path_output_mask)
+        
+    
+    
 
     return "Segmentation Done"

@@ -36,6 +36,8 @@ class activation_SegSRGAN(Layer):
         self.activation = activation
         self.is_residual = is_residual
         super(activation_SegSRGAN, self).__init__(**kwargs)
+        
+        # For now the activation function will apply soigmoid on channel seg_channel: and residual activation on int_channel. The residual part must be modify on int_channel: if we want to consider more input image 
 
     def build(self, input_shapes):
         super(activation_SegSRGAN, self).build(input_shapes)
@@ -45,13 +47,12 @@ class activation_SegSRGAN(Layer):
         first_input = inputs[1] # im
         
         if self.activation == 'sigmoid':
-            segmentation = K.sigmoid(recent_input[:, self.seg_channel, :, :, :])
+            segmentation = K.sigmoid(recent_input[:, self.seg_channel:, :, :, :]) #return a array enven if self.segchannel is the last indice
         else:
             assert'Do not support'
         intensity = recent_input[:, self.int_channel, :, :, :]
         
         # Adding channel
-        segmentation = K.expand_dims(segmentation, axis=1)
         intensity = K.expand_dims(intensity, axis=1)
         
         if self.is_residual :
@@ -187,3 +188,4 @@ class ReflectPadding3D(Layer):
         config = {'padding': self.padding}
         base_config = super(ReflectPadding3D, self).get_config()
         return dict(list(base_config.items()) + list(config.items()))
+    

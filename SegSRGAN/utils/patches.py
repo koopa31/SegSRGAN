@@ -124,7 +124,9 @@ def create_patch_from_df_hr(df,
                             stride=20,
                             is_conditional=False,
                             interp='scipy',
-                            interpolation_type='Spline'):
+                            interpolation_type='Spline',
+                            fit_mask=False,
+                            image_cropping_method='bounding_box'):
     
     data_list = []
 
@@ -153,14 +155,28 @@ def create_patch_from_df_hr(df,
         label_name = df["Label_image"].iloc[i]
         # path label
         
+        print(fit_mask)
+        print(image_cropping_method)
+        
+        if fit_mask or (image_cropping_method=='overlapping_with_mask'):
+            
+            mask_name = df["Mask_image"].iloc[i]
+        else : 
+            mask_name=None
+        
+        
         print('================================================================')
         print('Processing image : ', reference_name)
         
         t1 = time.time()
         
-        low_resolution_image, reference_image, label_image, up_scale, original_LR = create_lr_hr_label(reference_name,
+        low_resolution_image, reference_image, label_image, mask_image, up_scale, original_LR = create_lr_hr_label(reference_name,
                                                                                                        label_name,
-                                                                                          list_res[i], interp) #From here, the three images have the same size (see crop in create_lr_hr_label)
+                                                                                                       mask_name,
+                                                                                                       list_res[i], 
+                                                                                                       interp) #From here, the three images have the same size (see crop in create_lr_hr_label)
+        print(fit_mask)
+        print(image_cropping_method)
         
         border_to_keep = border_im_keep(reference_image, thresholdvalue)
         
@@ -176,15 +192,24 @@ def create_patch_from_df_hr(df,
                                                            interpolation_type).\
             get_interpolated_image(original_LR)
         
-        label_image, reference_image, interpolated_image = remove_border(label_image, reference_image,
-                                                                           interpolated_image, border_to_keep)
+        if image_cropping_method=='bounding_box' :
+            
+            print("cropping image with bouding box of coordinates",border_to_keep)
+        
+            label_image, reference_image, interpolated_image = remove_border(label_image, reference_image,
+                                                                               interpolated_image, border_to_keep)
         
         if (patch_size>interpolated_image.shape[0])|(patch_size>interpolated_image.shape[1]) | (patch_size>interpolated_image.shape[2]) : 
             
             raise AssertionError('The patch size is too large compare to the size on the image')
-
-        hdf5_labels, had5_dataa = create_patches(label_image, reference_image, interpolated_image, patch_size, stride)
         
+        print(fit_mask)
+        print(image_cropping_method)
+        hdf5_labels, had5_dataa = create_patches(label_image, reference_image, interpolated_image, mask_image, fit_mask, image_cropping_method, patch_size, stride)
+        
+        print(hdf5_labels.shape)
+        print(fit_mask)
+        print(image_cropping_method)
         np.random.seed(0)       # makes the random numbers predictable
         random_order = np.random.permutation(had5_dataa.shape[0])
         had5_dataa = had5_dataa[random_order, :, :, :, :]
@@ -217,6 +242,9 @@ def create_patch_from_df_hr(df,
                                 
         t2 = time.time()
         print("Image tranformation + patch creation and organisation :"+str(t2-t1))
+        
+        print(fit_mask)
+        print(image_cropping_method)
 
         while datas.shape[0] >= batch_size:
             
@@ -255,7 +283,7 @@ def create_patch_from_df_hr(df,
     return path_save_npy, path_data_mini_batch, path_labels_mini_batch, remaining_patch
 
 
-def create_patches(label, hr, interp, patch_size, stride):
+def create_patches(label, hr, interp, mask, fit_mask, image_cropping_method, patch_size, stride):
     
     # Extract 3D patches
     print('Generating training patches ')
@@ -277,21 +305,60 @@ def create_patches(label, hr, interp, patch_size, stride):
     # size)
 
     print('for the Cortex Labels patches of training phase.')
+    
+    if fit_mask or (image_cropping_method=='overlapping_with_mask'):
+    
+        mask_patch = array_to_patches(mask, patch_shape=(patch_size, patch_size, patch_size),
+                                              extraction_step=stride, normalization=False)
+    
+        # image seg dim = (nb_patch,patch_size,patch_size,patch_
+        # size)
+    
+        print('for the mask Labels patches of training phase.')
+   
+    # here, the dimension of the patch are [i,patch_size_patch_size,patch_size]
+    
+    if image_cropping_method == "overlapping_with_mask":
+        
+        # remove patch where overlapping with mask is less than 50% 
+        
+        data_patch,label_hr_patch,label_cortex_patch,mask_patch = remove_patch_based_on_overlapping_with_mask(data_patch, 
+                                                                                                              label_hr_patch,
+                                                                                                              label_cortex_patch,
+                                                                                                              mask_patch)
+    if fit_mask :
+        # Concatenate hr patches and Cortex segmentation : hr patches in the 1st channel, Segmentation the in 2nd channel and mask on the 3rd
+        hdf5_labels = np.stack((label_hr_patch, label_cortex_patch,mask_patch))
+        
+    else :   
+        # Concatenate hr patches and Cortex segmentation : hr patches in the 1st channel and Segmentation the in 2nd channel
+        hdf5_labels = np.stack((label_hr_patch, label_cortex_patch))
+        # hdf5_labels[0] = label_hr_patch et 1=label_cortex_patch
 
+    hdf5_labels = np.swapaxes(hdf5_labels, 0, 1)
+    # first dim = patch ex : hdf5_labels[0,0,:,:,:] = hr first patch
+    # et hdf5_labels[0,1,:,:,:] = label first patch
+    
     # n-dimensional Caffe supports data's form : [numberOfBatches,channels,heigh,width,depth]
     # Add channel axis !
     hdf5_data = data_patch[:, np.newaxis, :, :, :]
-    # ajoute une dimension de taille 1 en plus
-
-    # Concatenate hr patches and Cortex segmentation : hr patches in the 1st channel and Segmentation the in 2nd channel
-    hdf5_labels = np.stack((label_hr_patch, label_cortex_patch))
-    # hdf5_labels[0] = label_hr_patch et 1=label_cortex_patch
-
-    hdf5_labels = np.swapaxes(hdf5_labels, 0, 1)
-    # premiere dim = patch ex : hdf5_labels[0,0,:,:,:] = hr first patch
-    # et hdf5_labels[0,1,:,:,:] = label first patch
 
     return hdf5_labels, hdf5_data
+
+def remove_patch_based_on_overlapping_with_mask(data_patch,label_hr_patch,label_cortex_patch,mask_patch):
+    
+    patches_to_keep = [np.mean(mask_patch[i,:,:,:])>0.5 for i in range(mask_patch.shape[0])]
+    
+    print("after overlapping with mask",np.sum(patches_to_keep),"have been kept on the",len(patches_to_keep),"initial")
+    
+    data_patch = data_patch[patches_to_keep,:,:,:]
+    label_hr_patch = label_hr_patch[patches_to_keep,:,:,:]
+    label_cortex_patch = label_cortex_patch[patches_to_keep,:,:,:]
+    mask_patch = mask_patch[patches_to_keep,:,:,:]
+    
+    return data_patch,label_hr_patch,label_cortex_patch,mask_patch
+    
+    
 
                   
 def border_im_keep(hr, threshold_value):
@@ -321,7 +388,7 @@ def add_noise(lr, per_cent_val_max):
     return lr
 
 
-def create_lr_hr_label(reference_name, label_name, new_resolution, interp):
+def create_lr_hr_label(reference_name, label_name,mask_name,new_resolution, interp):
 
     # Read the reference SR image
     if reference_name.endswith('.nii.gz') or reference_name.endswith('.hdr'):
@@ -330,15 +397,7 @@ def create_lr_hr_label(reference_name, label_name, new_resolution, interp):
         reference_instance = DICOMReader(reference_name)
 
     reference_image = reference_instance.get_np_array()
-
-    # Read the labels image
-    if label_name.endswith('.nii.gz') or label_name.endswith('.hdr'):
-        label_instance = NIFTIReader(label_name)
-    elif os.path.isdir(label_name):
-        label_instance = DICOMReader(label_name)
-
-    label_image = label_instance.get_np_array()
-
+    
     constant = 2*np.sqrt(2*np.log(2))
     # As Greenspan et al. (Full_width_at_half_maximum : slice thickness)
     sigma_blur = new_resolution/constant
@@ -349,7 +408,30 @@ def create_lr_hr_label(reference_name, label_name, new_resolution, interp):
     # Modcrop to scale factor
     reference_image = modcrop3D(reference_image, up_scale)
 
+    # Read the labels image
+    if label_name.endswith('.nii.gz') or label_name.endswith('.hdr'):
+        label_instance = NIFTIReader(label_name)
+    elif os.path.isdir(label_name):
+        label_instance = DICOMReader(label_name)
+        
+    label_image = label_instance.get_np_array()
+        
     label_image = modcrop3D(label_image, up_scale)
+    
+    if mask_name is not None : # not none implies we need mask for remove somes patches or fit model for making mask prediction
+        # Read the mask image
+        if label_name.endswith('.nii.gz') or label_name.endswith('.hdr'):
+            mask_instance = NIFTIReader(mask_name)
+        elif os.path.isdir(label_name):
+            mask_instance = DICOMReader(mask_name)
+        
+        mask_image = mask_instance.get_np_array()
+        
+        mask_image = modcrop3D(mask_image, up_scale)
+        
+    else : 
+        
+        mask_image=None
 
 
     # ===== Generate input LR image =====
@@ -372,7 +454,7 @@ def create_lr_hr_label(reference_name, label_name, new_resolution, interp):
     else:
         raise TypeError('Wrong interp value')
 
-    return low_resolution_image, reference_image, label_image, up_scale, original_LR
+    return low_resolution_image, reference_image, label_image, mask_image, up_scale, original_LR
 
 
 def change_contrast(hr, lr, power):

@@ -132,12 +132,12 @@ args = parser.parse_args()
 
 data = pd.read_csv(args.csv_path)
     
-SRReCNN3D_result_path_list_train =  data[data["Base"]=="Train"]["SRRECNN3D_result_path"].tolist()
+SRReCNN3D_result_path_list_train =  data[data["Base"]=="Train"]["SR_path"].tolist()
 Label_path_list_train = data[data["Base"]=="Train"]["Label_path"].tolist()
 HR_path_list_train = data[data["Base"]=="Train"]["HR_path"].tolist()
 path_save_npy_train = args.path_save_npy+"/Train"
 
-SRReCNN3D_result_path_list_test =  data[data["Base"]=="Test"]["SRRECNN3D_result_path"].tolist()
+SRReCNN3D_result_path_list_test =  data[data["Base"]=="Test"]["SR_path"].tolist()
 Label_path_list_test = data[data["Base"]=="Test"]["Label_path"].tolist()
 HR_path_list_test = data[data["Base"]=="Test"]["HR_path"].tolist()
 path_save_npy_test = args.path_save_npy+"/Test"

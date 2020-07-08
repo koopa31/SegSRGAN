@@ -101,6 +101,8 @@ def result_folder_name(base_folder, patch, step, result_folder) :
 
         path_output_SR = os.path.join(path_output, "SR_whole_image.nii.gz")
         
+        path_output_mask = os.path.join(path_output, "Mask_whole_image.nii.gz")
+        
     else:
         
          path_output = path_output + "_step_" + str(step)
@@ -108,8 +110,10 @@ def result_folder_name(base_folder, patch, step, result_folder) :
          path_output_cortex = os.path.join(path_output, "Cortex_patch_" + str(patch) + "_step_" + str(step) + ".nii.gz")
 
          path_output_SR = os.path.join(path_output, "SR_patch_" + str(patch) + "_step_" + str(step) + ".nii.gz")
+         
+         path_output_mask = os.path.join(path_output, "Mask_patch_" + str(patch) + "_step_" + str(step) + ".nii.gz")
 
-    return path_output, path_output_cortex, path_output_SR
+    return path_output, path_output_cortex, path_output_SR, path_output_mask
 
 
 
@@ -245,7 +249,7 @@ for i in path_pour_application:
 
             for step in np.unique(ensemble_pas.loc[patch]):
                 
-                path_output, path_output_cortex, path_output_SR = result_folder_name(i,patch,step,result_folder)
+                path_output, path_output_cortex, path_output_SR, path_output_mask = result_folder_name(i,patch,step,result_folder)
         
                 print("\n"+start+"Processing : "+path_output+"\n"+end)
 
@@ -264,6 +268,7 @@ for i in path_pour_application:
                                                                            patch=patch,
                                                                            path_output_cortex=path_output_cortex,
                                                                            path_output_hr=path_output_SR,
+                                                                           path_output_mask=path_output_mask,
                                                                            weights_path=weights_path,
                                                                            by_batch=by_batch,
                                                                            interp=args.interp
