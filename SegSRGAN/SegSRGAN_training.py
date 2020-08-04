@@ -377,9 +377,9 @@ class SegSrganTrain(object):
                     
                     for i in range(self.nb_classe_mask):
                     
-                        VP_mask_all_label[i].append(np.sum((estimated_mask_discretized==i) & (TestLabels[:, 2+i, :, :, :] == i)))
+                        VP_mask_all_label[i].append(np.sum((estimated_mask_discretized==i) & (TestLabels[:, 2+i, :, :, :] == 1)))
                         Pos_pred_mask_all_label[i].append(np.sum(estimated_mask_discretized==i))
-                        Pos_label_mask_all_label[i].append(np.sum(TestLabels[:, 2+i, :, :, :] == i))
+                        Pos_label_mask_all_label[i].append(np.sum(TestLabels[:, 2+i, :, :, :] == 1))
 
             t2 = time.time()
 
