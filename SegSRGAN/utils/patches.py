@@ -126,7 +126,8 @@ def create_patch_from_df_hr(df,
                             interp='scipy',
                             interpolation_type='Spline',
                             fit_mask=False,
-                            image_cropping_method='bounding_box'):
+                            image_cropping_method='bounding_box',
+                            nb_classe_mask = 0):
     
     data_list = []
 
@@ -155,8 +156,6 @@ def create_patch_from_df_hr(df,
         label_name = df["Label_image"].iloc[i]
         # path label
         
-        print(fit_mask)
-        print(image_cropping_method)
         
         if fit_mask or (image_cropping_method=='overlapping_with_mask'):
             
@@ -175,6 +174,7 @@ def create_patch_from_df_hr(df,
                                                                                                        mask_name,
                                                                                                        list_res[i], 
                                                                                                        interp) #From here, the three images have the same size (see crop in create_lr_hr_label)
+        # mask_image will be None if no mask is fitted. 
         print(fit_mask)
         print(image_cropping_method)
         
@@ -196,8 +196,8 @@ def create_patch_from_df_hr(df,
             
             print("cropping image with bouding box of coordinates",border_to_keep)
         
-            label_image, reference_image, interpolated_image = remove_border(label_image, reference_image,
-                                                                               interpolated_image, border_to_keep)
+            label_image, reference_image, interpolated_image, mask_image = remove_border(label_image, reference_image,
+                                                                               interpolated_image,mask_image,border_to_keep)
         
         if (patch_size>interpolated_image.shape[0])|(patch_size>interpolated_image.shape[1]) | (patch_size>interpolated_image.shape[2]) : 
             
@@ -205,7 +205,7 @@ def create_patch_from_df_hr(df,
         
         print(fit_mask)
         print(image_cropping_method)
-        hdf5_labels, had5_dataa = create_patches(label_image, reference_image, interpolated_image, mask_image, fit_mask, image_cropping_method, patch_size, stride)
+        hdf5_labels, had5_dataa = create_patches(label_image, reference_image, interpolated_image, mask_image, fit_mask, image_cropping_method, patch_size, stride,nb_classe_mask)
         
         print(hdf5_labels.shape)
         print(fit_mask)
@@ -283,7 +283,7 @@ def create_patch_from_df_hr(df,
     return path_save_npy, path_data_mini_batch, path_labels_mini_batch, remaining_patch
 
 
-def create_patches(label, hr, interp, mask, fit_mask, image_cropping_method, patch_size, stride):
+def create_patches(label, hr, interp, mask, fit_mask, image_cropping_method, patch_size, stride,nb_classe_mask):
     
     # Extract 3D patches
     print('Generating training patches ')
@@ -310,7 +310,8 @@ def create_patches(label, hr, interp, mask, fit_mask, image_cropping_method, pat
     
         mask_patch = array_to_patches(mask, patch_shape=(patch_size, patch_size, patch_size),
                                               extraction_step=stride, normalization=False)
-    
+        binary_mask_patch = mask_patch.copy()
+        binary_mask_patch[binary_mask_patch!=0] = 1
         # image seg dim = (nb_patch,patch_size,patch_size,patch_
         # size)
     
@@ -325,19 +326,28 @@ def create_patches(label, hr, interp, mask, fit_mask, image_cropping_method, pat
         data_patch,label_hr_patch,label_cortex_patch,mask_patch = remove_patch_based_on_overlapping_with_mask(data_patch, 
                                                                                                               label_hr_patch,
                                                                                                               label_cortex_patch,
-                                                                                                              mask_patch)
+                                                                                                              binary_mask_patch)
     if fit_mask :
+        
+        mask_patch = np.array([[mask_patch[i]==j for j in range(nb_classe_mask)] for i in range(mask_patch.shape[0])])
+        
         # Concatenate hr patches and Cortex segmentation : hr patches in the 1st channel, Segmentation the in 2nd channel and mask on the 3rd
-        hdf5_labels = np.stack((label_hr_patch, label_cortex_patch,mask_patch))
+        label_hr_patch = np.expand_dims(label_hr_patch,axis=1)
+        label_cortex_patch = np.expand_dims(label_cortex_patch,axis=1)
+        
+        hdf5_labels = np.concatenate((label_hr_patch, label_cortex_patch,mask_patch),axis=1)
+        # first dim = patch ex : hdf5_labels[0,0,:,:,:] = hr first patch
+        # et hdf5_labels[0,1,:,:,:] = label first patch
         
     else :   
+        
         # Concatenate hr patches and Cortex segmentation : hr patches in the 1st channel and Segmentation the in 2nd channel
         hdf5_labels = np.stack((label_hr_patch, label_cortex_patch))
         # hdf5_labels[0] = label_hr_patch et 1=label_cortex_patch
 
-    hdf5_labels = np.swapaxes(hdf5_labels, 0, 1)
-    # first dim = patch ex : hdf5_labels[0,0,:,:,:] = hr first patch
-    # et hdf5_labels[0,1,:,:,:] = label first patch
+        hdf5_labels = np.swapaxes(hdf5_labels, 0, 1)
+        # first dim = patch ex : hdf5_labels[0,0,:,:,:] = hr first patch
+        # et hdf5_labels[0,1,:,:,:] = label first patch
     
     # n-dimensional Caffe supports data's form : [numberOfBatches,channels,heigh,width,depth]
     # Add channel axis !
@@ -370,11 +380,13 @@ def border_im_keep(hr, threshold_value):
     return border
 
 
-def remove_border(label, hr, interp, border):
+def remove_border(label, hr, interp,mask, border):
     hr = hr[border[0][0]:border[0][1], border[1][0]:border[1][1], border[2][0]:border[2][1]]
     label = label[border[0][0]:border[0][1], border[1][0]:border[1][1], border[2][0]:border[2][1]]
     interp = interp[border[0][0]:border[0][1], border[1][0]:border[1][1], border[2][0]:border[2][1]]
-    return label, hr, interp
+    if mask is not None : 
+        mask = mask[border[0][0]:border[0][1], border[1][0]:border[1][1], border[2][0]:border[2][1]]
+    return label, hr, interp,mask
 
 
 def add_noise(lr, per_cent_val_max):

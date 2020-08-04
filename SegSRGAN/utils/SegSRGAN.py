@@ -77,7 +77,8 @@ class SegSRGAN(object):
                  lr_dis_model=0.0001, lr_gen_model=0.0001, multi_gpu=True,
                  is_conditional=False,
                  is_residual=True,
-                 fit_mask = False):
+                 fit_mask = False,
+                 nb_classe_mask = 0):
         if (image_row %4!=0) |  (image_column %4!=0) | (image_depth %4!=0) :
             
             raise AssertionError('Patch size must be divisible by 4')
@@ -103,6 +104,7 @@ class SegSRGAN(object):
         self.is_conditional = is_conditional
         self.is_residual = is_residual
         self.fit_mask = fit_mask
+        self.nb_classe_mask = nb_classe_mask
 
     def discriminator_block(self, name):
         """Creates a discriminator model that takes an image as input and outputs a single value, representing whether
@@ -114,7 +116,7 @@ class SegSRGAN(object):
 
         if self.fit_mask : 
             
-            inputs = Input(shape=(3, self.image_row, self.image_column, self.image_depth), name='dis_input')
+            inputs = Input(shape=(2+self.nb_classe_mask, self.image_row, self.image_column, self.image_depth), name='dis_input')
         else :
             # In:
             inputs = Input(shape=(2, self.image_row, self.image_column, self.image_depth), name='dis_input')
@@ -236,7 +238,7 @@ class SegSRGAN(object):
         # Reconstruction
         gennet = ReflectPadding3D(padding=3)(gennet)
         if self.fit_mask : 
-            gennet = Conv3D(3, 7, strides=1, kernel_initializer=gen_initializer,
+            gennet = Conv3D(2+self.nb_classe_mask, 7, strides=1, kernel_initializer=gen_initializer,
                             use_bias=False,
                             name=name + '_gen_1conv',
                             data_format='channels_first')(gennet)
@@ -247,7 +249,7 @@ class SegSRGAN(object):
                             data_format='channels_first')(gennet)
 
         predictions = gennet
-        predictions = activation_SegSRGAN(is_residual=self.is_residual)(
+        predictions = activation_SegSRGAN(is_residual=self.is_residual,nb_classe_mask=self.nb_classe_mask,fit_mask=self.fit_mask)(
             [predictions, inputs])  # sigmoid proba + add input and pred SR
 
         model = Model(inputs=inputs, outputs=predictions, name=name)
@@ -263,7 +265,7 @@ class SegSRGAN(object):
         
         if self.fit_mask : 
             
-            im = Input(shape=(3, self.image_row, self.image_column, self.image_depth), name='dis_input')
+            im = Input(shape=(2+self.nb_classe_mask, self.image_row, self.image_column, self.image_depth), name='dis_input')
             
         else :
             # In:
@@ -397,7 +399,7 @@ class SegSRGAN(object):
         gennet = ReflectPadding3D(padding=3)(gennet)
         
         if self.fit_mask : 
-            gennet = Conv3D(3, 7, strides=1, kernel_initializer=gen_initializer,
+            gennet = Conv3D(2+self.nb_classe_mask, 7, strides=1, kernel_initializer=gen_initializer,
                             use_bias=False,
                             name=name + '_gen_1conv',
                             data_format='channels_first')(gennet)
@@ -409,7 +411,7 @@ class SegSRGAN(object):
             
 
         predictions = gennet
-        predictions = activation_SegSRGAN(is_residual=self.is_residual)(
+        predictions = activation_SegSRGAN(is_residual=self.is_residual,nb_classe_mask=self.nb_classe_mask,fit_mask=self.fit_mask)(
             [predictions, im])  # sigmoid proba + add input and pred SR
 
         model = Model(inputs=[im, res], outputs=predictions, name=name)
@@ -497,7 +499,7 @@ class SegSRGAN(object):
         gennet_concate_2 = ReflectPadding3D(padding=3)(gennet_concate_2)
         
         if self.fit_mask : 
-            gennet = Conv3D(3, 7, strides=1, kernel_initializer=gen_initializer,
+            gennet = Conv3D(2+self.nb_classe_mask, 7, strides=1, kernel_initializer=gen_initializer,
                             use_bias=False,
                             name=name + '_gen_1conv',
                             data_format='channels_first')(gennet)
@@ -508,7 +510,7 @@ class SegSRGAN(object):
                             data_format='channels_first')(gennet)
 
         predictions = gennet_concate_2
-        predictions = activation_SegSRGAN(is_residual=self.is_residual)([predictions, inputs])
+        predictions = activation_SegSRGAN(is_residual=self.is_residual,nb_classe_mask=self.nb_classe_mask,fit_mask=self.fit_mask)([predictions, inputs])
 
         model = Model(inputs=inputs, outputs=predictions, name=name)
 
@@ -599,7 +601,7 @@ class SegSRGAN(object):
         gennet_concate_2 = ReflectPadding3D(padding=3)(gennet_concate_2)
         
         if self.fit_mask : 
-            gennet = Conv3D(3, 7, strides=1, kernel_initializer=gen_initializer,
+            gennet = Conv3D(2+self.nb_classe_mask, 7, strides=1, kernel_initializer=gen_initializer,
                             use_bias=False,
                             name=name + '_gen_1conv',
                             data_format='channels_first')(gennet)
@@ -610,7 +612,7 @@ class SegSRGAN(object):
                             data_format='channels_first')(gennet)
     
         predictions = gennet_concate_2
-        predictions = activation_SegSRGAN(is_residual=self.is_residual)([predictions, inputs])
+        predictions = activation_SegSRGAN(is_residual=self.is_residual,nb_classe_mask=self.nb_classe_mask,fit_mask=self.fit_mask)([predictions, inputs])
     
         model = Model(inputs=[im, res], outputs=predictions, name=name)
     
@@ -780,9 +782,9 @@ class SegSRGAN(object):
         if self.fit_mask:
             
             # Input
-            real_dis = Input(shape=(3, self.image_row, self.image_column, self.image_depth), name='real_dis')
-            fake_dis = Input(shape=(3, self.image_row, self.image_column, self.image_depth), name='fake_dis')
-            interp_dis = Input(shape=(3, self.image_row, self.image_column, self.image_depth), name='interp_dis')
+            real_dis = Input(shape=(2+self.nb_classe_mask, self.image_row, self.image_column, self.image_depth), name='real_dis')
+            fake_dis = Input(shape=(2+self.nb_classe_mask, self.image_row, self.image_column, self.image_depth), name='fake_dis')
+            interp_dis = Input(shape=(2+self.nb_classe_mask, self.image_row, self.image_column, self.image_depth), name='interp_dis')
             
         else :
             

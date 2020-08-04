@@ -36,10 +36,27 @@ from ast import literal_eval as make_tuple
 import shutil
 import time
 import tensorflow as tf
+from utils.ImageReader import NIFTIReader
+from utils.ImageReader import DICOMReader
 
 config = tf.ConfigProto()
 config.gpu_options.allow_growth = True
 sess = tf.Session(config=config)
+
+
+def get_classes_number(Seg_path):
+    
+    # Read low-resolution image
+    if Seg_path.endswith('.nii.gz'):
+        image_instance = NIFTIReader(Seg_path)
+    elif os.path.isdir(Seg_path):
+        image_instance = DICOMReader(Seg_path)
+        
+    test_image = image_instance.get_np_array()
+    
+    nb_classe = np.max(test_image)+1
+    
+    return int(nb_classe)
 
 
 
@@ -47,14 +64,14 @@ sess = tf.Session(config=config)
 class SegSrganTrain(object):
     def __init__(self, base_path, contrast_max, percent_val_max, list_res_max, training_csv, multi_gpu, patch=64,
                  first_discriminator_kernel=32, first_generator_kernel=16, lamb_rec=1, lamb_adv=0.001, lamb_gp=10,
-                 lr_dis_model=0.0001, lr_gen_model=0.0001, u_net_gen=False, is_conditional=False, is_residual=True,fit_mask=False):
+                 lr_dis_model=0.0001, lr_gen_model=0.0001, u_net_gen=False, is_conditional=False, is_residual=True,fit_mask=False,nb_classe_mask = 0):
 
         self.SegSRGAN = SegSRGAN(image_row=patch, image_column=patch, image_depth=patch,
                                  first_discriminator_kernel=first_discriminator_kernel,
                                  first_generator_kernel=first_generator_kernel,
                                  lamb_rec=lamb_rec, lamb_adv=lamb_adv, lamb_gp=lamb_gp,
                                  lr_dis_model=lr_dis_model, lr_gen_model=lr_gen_model, u_net_gen=u_net_gen,
-                                 multi_gpu=multi_gpu, is_conditional=is_conditional,fit_mask=fit_mask)
+                                 multi_gpu=multi_gpu, is_conditional=is_conditional,fit_mask=fit_mask,nb_classe_mask=nb_classe_mask)
         self.generator = self.SegSRGAN.generator()
         self.training_csv = training_csv
         self.DiscriminatorModel, self.DiscriminatorModel_multi_gpu = self.SegSRGAN.discriminator_model()
@@ -67,8 +84,10 @@ class SegSrganTrain(object):
         self.is_conditional = is_conditional
         self.is_residual = is_residual
         self.fit_mask = fit_mask
+        self.nb_classe_mask = nb_classe_mask
 
         print("initialization completed")
+        
 
     def train(self,
               snapshot_folder,
@@ -119,12 +138,7 @@ class SegSrganTrain(object):
         
         if self.fit_mask or (image_cropping_method=='overlapping_with_mask'):
             
-            if "Mask_image" not in list(data):
-                
-                raise AssertionError('A colunm "Mask_image" which contains the path of the mask image need to be provided if the model is also fit to make brain mask prediction or if the image cropping is done by overlapping with mask')
-            else : 
-                
-                data["Mask_image"] = self.base_path + data["Mask_image"]
+            data["Mask_image"] = self.base_path + data["Mask_image"]
 
         data_train = data[data['Base'] == "Train"]
         data_test = data[data['Base'] == "Test"]
@@ -177,7 +191,8 @@ class SegSrganTrain(object):
                                     is_conditional=self.is_conditional, interp =interp,
                                     interpolation_type=interpolation_type,
                                     fit_mask=self.fit_mask,
-                                    image_cropping_method=image_cropping_method)
+                                    image_cropping_method=image_cropping_method,
+                                    nb_classe_mask = self.nb_classe_mask)
 
         t2 = time.time()
 
@@ -185,7 +200,10 @@ class SegSrganTrain(object):
         
         if self.fit_mask :
             
-            colunms_dice = ["Dice_label_1","Dice_Mask"]
+            colunms_dice = ["Dice_label_1"]
+            colunms_dice_mask =  ["Dice_mask"+str(i) for i in range(self.nb_classe_mask)]
+            colunms_dice.extend(colunms_dice_mask)
+            
         else : 
             colunms_dice=["Dice"]
 
@@ -212,7 +230,9 @@ class SegSrganTrain(object):
                                         is_conditional=self.is_conditional, interp=interp,
                                         interpolation_type=interpolation_type,
                                         fit_mask=self.fit_mask,
-                                        image_cropping_method=image_cropping_method)
+                                        image_cropping_method=image_cropping_method,
+                                        nb_classe_mask = self.nb_classe_mask)
+                
             iterationPerEpoch = len(train_Path_Datas_mini_batch)
 
             t2 = time.time()
@@ -267,14 +287,14 @@ class SegSrganTrain(object):
                     else:
 
                         # Generating fake and interpolation images
-                        print(train_input.shape)
                         fake_images = self.GeneratorModel_multi_gpu.predict(train_input)[1]
                         
+                        
                         if self.fit_mask :
-                            epsilon = np.random.uniform(0, 1, size=(batch_size, 3, 1, 1, 1))
+                            epsilon = np.random.uniform(0, 1, size=(batch_size, 2+self.nb_classe_mask, 1, 1, 1))
                         else : 
                             epsilon = np.random.uniform(0, 1, size=(batch_size, 2, 1, 1, 1))
-                            
+
                         interpolation = epsilon * train_output + (1 - epsilon) * fake_images
                         # Training
                         dis_loss = self.DiscriminatorModel_multi_gpu.train_on_batch([train_output, fake_images,
@@ -319,9 +339,10 @@ class SegSrganTrain(object):
             VP = []
             Pos_pred = []
             Pos_label = []
-            VP_mask = []
-            Pos_pred_mask = []
-            Pos_label_mask = []
+            # for the three following object first is the dimension of the mask class and the second dimension is the test patch dimension
+            VP_mask_all_label = [[] for i in range(self.nb_classe_mask)]
+            Pos_pred_mask_all_label = [[] for i in range(self.nb_classe_mask)]
+            Pos_label_mask_all_label = [[] for i in range(self.nb_classe_mask)]
 
             t1 = time.time()
 
@@ -352,11 +373,13 @@ class SegSrganTrain(object):
                 
                 if self.fit_mask : 
                     
-                    VP_mask.append(np.sum((pred[:, 2, :, :, :] > 0.5) & (TestLabels[:, 2, :, :, :] == 1)))
-    
-                    Pos_pred_mask.append(np.sum(pred[:, 2, :, :, :] > 0.5))
-    
-                    Pos_label_mask.append(np.sum(TestLabels[:, 2, :, :, :]))
+                    estimated_mask_discretized = np.argmax(pred[:, 2:, :, :, :],axis=1)
+                    
+                    for i in range(self.nb_classe_mask):
+                    
+                        VP_mask_all_label[i].append(np.sum((estimated_mask_discretized==i) & (TestLabels[:, 2+i, :, :, :] == i)))
+                        Pos_pred_mask_all_label[i].append(np.sum(estimated_mask_discretized==i))
+                        Pos_label_mask_all_label[i].append(np.sum(TestLabels[:, 2+i, :, :, :] == i))
 
             t2 = time.time()
 
@@ -389,10 +412,10 @@ class SegSrganTrain(object):
             
             if self.fit_mask : 
                 
-                Dice_Mask = (2 * np.sum(VP_mask)) / (np.sum(Pos_pred_mask) + np.sum(Pos_label_mask))
+                Dice_Mask = (2 * np.sum(VP_mask_all_label,axis=1)) / (np.sum(Pos_pred_mask_all_label,axis=1) + np.sum(Pos_label_mask_all_label,axis=1))
                 
                 df_dice.loc[EpochIndex, "Dice_label_1"] = Dice
-                df_dice.loc[EpochIndex, "Dice_Mask"] = Dice_Mask
+                df_dice.loc[EpochIndex, colunms_dice_mask] = Dice_Mask
                 
                 print("Iter " + str(EpochIndex) + " [Test Dice label 1 : " + str(Dice) + "]")
                 print("Iter " + str(EpochIndex) + " [Test Dice Mask : " + str(Dice_Mask) + "]")
@@ -526,6 +549,28 @@ if __name__ == '__main__':
 
     print("the low resolution of images will be choosen randomly between " + str(list_res_max[0]) + " and " +
           str(list_res_max[1]))
+    
+    data = pd.read_csv(args.csv)
+    
+    if fit_mask or (args.image_cropping_method=='overlapping_with_mask'):
+     
+         if "Mask_image" not in list(data):
+             
+             raise AssertionError('A colunm "Mask_image" which contains the path of the mask image need to be provided if the model is also fit to make brain mask prediction or if the image cropping is done by overlapping with mask')
+    
+         else : 
+             
+             data["Mask_image"] = args.base_path + data["Mask_image"]
+             
+             nb_classe_mask = get_classes_number(data["Mask_image"].iloc[0])
+             
+             print("the method will fit mask with ",nb_classe_mask,"classes")
+             
+    else : 
+        nb_classe_mask = 0
+        
+    
+        
 
     SegSRGAN_train = SegSrganTrain(training_csv=args.csv, contrast_max=args.contrast_max,
                                     percent_val_max=args.percent_val_max, first_discriminator_kernel=args.kernel_dis,
@@ -533,7 +578,7 @@ if __name__ == '__main__':
                                     lamb_adv=args.lambadv, lamb_gp=args.lambgp,
                                     lr_dis_model=args.lrdis, lr_gen_model=args.lrgen, base_path=args.base_path,
                                     list_res_max=list_res_max, u_net_gen=u_net, multi_gpu=multi_gpu,
-                                    is_conditional=is_conditional, is_residual=is_residual,fit_mask = fit_mask)
+                                    is_conditional=is_conditional, is_residual=is_residual,fit_mask = fit_mask,nb_classe_mask = nb_classe_mask)
 
     SegSRGAN_train.train(training_epoch=args.epoch, batch_size=args.batch_size,
                          snapshot_epoch=args.snapshot, initialize_epoch=args.init_epoch,

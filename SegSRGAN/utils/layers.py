@@ -30,11 +30,13 @@ import numpy as np
 
 
 class activation_SegSRGAN(Layer):
-    def __init__(self, int_channel=0, seg_channel=1, activation='sigmoid', is_residual=True, **kwargs):
+    def __init__(self, int_channel=0, seg_channel=1, activation='sigmoid', is_residual=True,nb_classe_mask=2,fit_mask=False, **kwargs):
         self.seg_channel = seg_channel
         self.int_channel = int_channel
         self.activation = activation
         self.is_residual = is_residual
+        self.nb_classe_mask = nb_classe_mask
+        self.fit_mask = fit_mask
         super(activation_SegSRGAN, self).__init__(**kwargs)
         
         # For now the activation function will apply soigmoid on channel seg_channel: and residual activation on int_channel. The residual part must be modify on int_channel: if we want to consider more input image 
@@ -47,7 +49,13 @@ class activation_SegSRGAN(Layer):
         first_input = inputs[1] # im
         
         if self.activation == 'sigmoid':
-            segmentation = K.sigmoid(recent_input[:, self.seg_channel:, :, :, :]) #return a array enven if self.segchannel is the last indice
+            segmentation_label = K.sigmoid(recent_input[:, self.seg_channel, :, :, :]) #return a array enven if self.segchannel is the last indice
+            segmentation = K.expand_dims(segmentation_label, axis=1)
+            
+            if self.fit_mask : 
+                segmentation_mask = K.softmax(recent_input[:, 2:(2+self.nb_classe_mask), :, :, :],axis=-4) 
+            
+                segmentation = K.concatenate([segmentation,segmentation_mask], axis=1)
         else:
             assert'Do not support'
         intensity = recent_input[:, self.int_channel, :, :, :]

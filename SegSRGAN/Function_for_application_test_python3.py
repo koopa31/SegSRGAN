@@ -35,7 +35,7 @@ RESET = '\033[0m'  # mode 0  = reset
 class SegSRGAN_test(object):
 
     def __init__(self, weights, patch1, patch2, patch3, is_conditional, u_net_gen,is_residual, first_generator_kernel,
-                 first_discriminator_kernel,  resolution=0,fit_mask=False):
+                 first_discriminator_kernel,  resolution=0,fit_mask=False,nb_classe_mask=0):
 
         self.patch1 = patch1
         self.patch2 = patch2
@@ -46,7 +46,8 @@ class SegSRGAN_test(object):
                                  image_row=patch1,
                                  image_column=patch2,
                                  image_depth=patch3, is_conditional=is_conditional,
-                                 is_residual = is_residual,fit_mask=fit_mask)
+                                 is_residual = is_residual,fit_mask=fit_mask,
+                                 nb_classe_mask = nb_classe_mask)
         self.fit_mask = fit_mask       
         self.generator_model = self.SegSRGAN.generator_model_for_pred()
         self.generator_model.load_weights(weights, by_name=True)
@@ -64,7 +65,7 @@ class SegSRGAN_test(object):
         """
         return self.patch
 
-    def test_by_patch(self, test_image, step=1, by_batch=False):
+    def test_by_patch(self, test_image, step=1, by_batch=False,nb_classe_mask=0):
         """
 
         :param test_image: Image to be tested
@@ -82,7 +83,7 @@ class SegSRGAN_test(object):
         seg_shape = list(test_image.shape)
         
         if self.fit_mask : 
-            seg_shape.insert(0,2)
+            seg_shape.insert(0,nb_classe_mask+1)
         else : 
             seg_shape.insert(0,1)
 
@@ -257,11 +258,13 @@ def segmentation(input_file_path, step, new_resolution, path_output_cortex, path
     first_generator_kernel = weight_values.shape[4]
     nb_out_kernel = last_conv.shape[4]
     
-    if nb_out_kernel==3:
+    if nb_out_kernel>2:
         fit_mask = True
+        nb_classe_mask = nb_out_kernel-2
         print("The initialize network will fit mask")
-    elif nb_out_kernel==2:
+    else :
         fit_mask = False
+        nb_classe_mask=0
         print("The initialize network won't fit mask")
 
     # Get the generator kernel from the weights we are going to use
@@ -371,12 +374,12 @@ def segmentation(input_file_path, step, new_resolution, path_output_cortex, path
 
     # Loading weights
     segsrgan_test_instance = SegSRGAN_test(weights_path, patch1, patch2, patch3, is_conditional, u_net_gen,is_residual,
-                                           first_generator_kernel, first_discriminator_kernel, resolution,fit_mask=fit_mask)
+                                           first_generator_kernel, first_discriminator_kernel, resolution,fit_mask=fit_mask,nb_classe_mask=nb_classe_mask)
 
     # GAN
     print("Testing : ")
     estimated_hr_image, estimated_seg = segsrgan_test_instance.test_by_patch(padded_interpolated_image, step=step,
-                                                                             by_batch=by_batch)
+                                                                             by_batch=by_batch,nb_classe_mask=nb_classe_mask)
     
     estimated_cortex = estimated_seg[0]
     
@@ -407,22 +410,22 @@ def segmentation(input_file_path, step, new_resolution, path_output_cortex, path
     # Mask : 
         
     if fit_mask : 
-        estimated_mask = estimated_seg[1]
-        estimated_mask_binary = np.zeros_like(estimated_mask)
-        estimated_mask_binary[estimated_mask>0.5]=1
-        estimated_mask_binary = shave3D(estimated_mask_binary, border_to_add)
-        label_connected_region = measure.label(estimated_mask_binary, connectivity=2)
-        unique_elements, counts_elements = np.unique(label_connected_region[label_connected_region != 0], return_counts=
-                                                     True)
-        label_max_element = unique_elements[np.argmax(counts_elements)]
-        estimated_mask_binary[label_connected_region!=label_max_element] = 0
-        output_mask = sitk.GetImageFromArray(np.swapaxes(estimated_mask_binary, 0, 2))
+        estimated_mask = estimated_seg[1:]
+        estimated_mask_discretized = np.full(estimated_mask.shape[1:], np.nan)
+        estimated_mask_discretized = np.argmax(estimated_mask,axis=0).astype(np.float64)
+        estimated_mask_discretized = shave3D(estimated_mask_discretized, border_to_add)
+        
+        
+        # label_connected_region = measure.label(estimated_mask_binary, connectivity=2)
+        # unique_elements, counts_elements = np.unique(label_connected_region[label_connected_region != 0], return_counts=
+        #                                              True)
+        # label_max_element = unique_elements[np.argmax(counts_elements)]
+        # estimated_mask_binary[label_connected_region!=label_max_element] = 0
+        output_mask = sitk.GetImageFromArray(np.swapaxes(estimated_mask_discretized, 0, 2))
         output_mask.SetSpacing(tuple(np.array(image_instance.itk_image.GetSpacing())/np.array(up_scale)))
         output_mask.SetOrigin(itk_image.GetOrigin())
         output_mask.SetDirection(itk_image.GetDirection())
         sitk.WriteImage(output_mask, path_output_mask)
         
-    
-    
 
     return "Segmentation Done"
