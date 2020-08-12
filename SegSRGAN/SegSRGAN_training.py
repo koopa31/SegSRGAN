@@ -64,14 +64,14 @@ def get_classes_number(Seg_path):
 class SegSrganTrain(object):
     def __init__(self, base_path, contrast_max, percent_val_max, list_res_max, training_csv, multi_gpu, patch=64,
                  first_discriminator_kernel=32, first_generator_kernel=16, lamb_rec=1, lamb_adv=0.001, lamb_gp=10,
-                 lr_dis_model=0.0001, lr_gen_model=0.0001, u_net_gen=False, is_conditional=False, is_residual=True,fit_mask=False,nb_classe_mask = 0):
+                 lr_dis_model=0.0001, lr_gen_model=0.0001, u_net_gen=False, is_conditional=False, is_residual=True,fit_mask=False,nb_classe_mask = 0,loss_name="charbonnier"):
 
         self.SegSRGAN = SegSRGAN(image_row=patch, image_column=patch, image_depth=patch,
                                  first_discriminator_kernel=first_discriminator_kernel,
                                  first_generator_kernel=first_generator_kernel,
                                  lamb_rec=lamb_rec, lamb_adv=lamb_adv, lamb_gp=lamb_gp,
                                  lr_dis_model=lr_dis_model, lr_gen_model=lr_gen_model, u_net_gen=u_net_gen,
-                                 multi_gpu=multi_gpu, is_conditional=is_conditional,fit_mask=fit_mask,nb_classe_mask=nb_classe_mask)
+                                 multi_gpu=multi_gpu, is_conditional=is_conditional,fit_mask=fit_mask,nb_classe_mask=nb_classe_mask,loss_name=loss_name)
         self.generator = self.SegSRGAN.generator()
         self.training_csv = training_csv
         self.DiscriminatorModel, self.DiscriminatorModel_multi_gpu = self.SegSRGAN.discriminator_model()
@@ -513,6 +513,8 @@ if __name__ == '__main__':
     
     parser.add_argument('-fm', '--fit_mask', type=str, help='does the model have to be trained also to fit brain mask estimation, Value in {True,False} %(default)s ',
                         default="False")
+    parser.add_argument('-rl', '--reconstruction_loss', type=str, help='String defining the reconstruction loss function %(default)s ',
+                    default="charbonnier")
     
     args = parser.parse_args()
 
@@ -578,8 +580,8 @@ if __name__ == '__main__':
                                     lamb_adv=args.lambadv, lamb_gp=args.lambgp,
                                     lr_dis_model=args.lrdis, lr_gen_model=args.lrgen, base_path=args.base_path,
                                     list_res_max=list_res_max, u_net_gen=u_net, multi_gpu=multi_gpu,
-                                    is_conditional=is_conditional, is_residual=is_residual,fit_mask = fit_mask,nb_classe_mask = nb_classe_mask)
-
+                                    is_conditional=is_conditional, is_residual=is_residual,fit_mask = fit_mask,nb_classe_mask = nb_classe_mask,loss_name=args.reconstruction_loss)
+    print("initialisation finished")
     SegSRGAN_train.train(training_epoch=args.epoch, batch_size=args.batch_size,
                          snapshot_epoch=args.snapshot, initialize_epoch=args.init_epoch,
                          number_of_disciminator_iteration=args.number_of_disciminator_iteration, patch_size=args.patch_size,

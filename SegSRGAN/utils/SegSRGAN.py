@@ -36,8 +36,9 @@ import os
 
 gen_initializer = lecun_normal()
 
-from .layers import wasserstein_loss, ReflectPadding3D, gradient_penalty_loss, InstanceNormalization3D, \
-    activation_SegSRGAN, charbonnier_loss
+from .layers import  ReflectPadding3D, InstanceNormalization3D, \
+    activation_SegSRGAN
+from .loss import wasserstein_loss,gradient_penalty_loss,Reconstruction_loss_function,Dice_loss
 from .Adam_lr_mult import LR_Adam
 from keras import losses
 from keras.utils import multi_gpu_model
@@ -78,7 +79,9 @@ class SegSRGAN(object):
                  is_conditional=False,
                  is_residual=True,
                  fit_mask = False,
-                 nb_classe_mask = 0):
+                 nb_classe_mask = 0,
+                 loss_name="charbonnier"):
+        
         if (image_row %4!=0) |  (image_column %4!=0) | (image_depth %4!=0) :
             
             raise AssertionError('Patch size must be divisible by 4')
@@ -105,6 +108,7 @@ class SegSRGAN(object):
         self.is_residual = is_residual
         self.fit_mask = fit_mask
         self.nb_classe_mask = nb_classe_mask
+        self.loss_name = loss_name
 
     def discriminator_block(self, name):
         """Creates a discriminator model that takes an image as input and outputs a single value, representing whether
@@ -731,10 +735,15 @@ class SegSRGAN(object):
         else:
             self.gen_model_multi_gpu = self.gen_model
             print("Generator Model apply on CPU or single GPU")
+            
+        print(self.loss_name)
+            
+        reconstruction_loss = Reconstruction_loss_function(self.loss_name).get_loss_function()
+        
 
             # self.gen_model = multi_gpu_model(self.gen_model, gpus=num_gpu)
         self.gen_model_multi_gpu.compile(LR_Adam(lr=self.lr_gen_model, beta_1=0.5, beta_2=0.999, multipliers=multipliers),
-                                        loss=[wasserstein_loss, charbonnier_loss],
+                                        loss=[wasserstein_loss, reconstruction_loss],
                                         loss_weights=[self.lamb_adv, self.lamb_rec])
 
         return self.gen_model, self.gen_model_multi_gpu
