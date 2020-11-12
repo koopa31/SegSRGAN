@@ -20,7 +20,6 @@ from utils.normalization import Normalization
 from keras.engine import saving
 import utils.interpolation as inter
 import tensorflow as tf
-from skimage import measure
 
 config = tf.ConfigProto()
 config.gpu_options.allow_growth = True

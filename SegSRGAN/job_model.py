@@ -182,9 +182,9 @@ parser = argparse.ArgumentParser()
 parser.add_argument("-p", "--path", type=str, help="Path of the csv file")
 parser.add_argument("-dp", "--debut_path", type=str, help="Path beginning of the csv (default: %(default)s voxels)",
                     default='')
-parser.add_argument("-pa", "--patch", type=str, help="Patch size (default: %(default)s)", default=128)
+parser.add_argument("-pa", "--patch", type=str, help="Patch size (default: %(default)s)", default='128')
 parser.add_argument("-s", "--step", type=str, help="Step between patches. Must be a tuple of tuple (default: "
-                                                   "%(default)s)", default=64)
+                                                   "%(default)s)", default='64')
 parser.add_argument("-rf", "--result_folder_name", type=str, help='Name of the folder where the result is going to be '
                                                                   'stored')
 parser.add_argument("-wp", "--weights_path", type=str, help='Weights relative path. List of the available weights:'
