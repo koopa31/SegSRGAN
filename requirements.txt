@@ -1,7 +1,7 @@
 numpy==1.16.2
 SimpleITK==1.2.0
 scipy==1.2.0
-tensorflow==1.13.1
+tensorflow==2.7.2
 keras==2.2.4
 pandas==0.23.0
 progressbar2==3.39.2
